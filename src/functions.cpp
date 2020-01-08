@@ -489,8 +489,24 @@ std::list<HDVertex> initial_states(const HDGraph& hasse) {
   std::list<HDVertex> sources;
   initial_state_visitor vis(output, sources);
 
+  std::map<HDVertex, size_t> i_map;
+  for(auto v : boost::make_iterator_range(vertices(hasse)))
+    i_map.emplace(v, i_map.size());
+  
+  
+  auto ipmap = boost::make_assoc_property_map(i_map);
+  
+  std::vector<boost::default_color_type> c_map(num_vertices(hasse));
+  auto cpmap = boost::make_iterator_property_map(c_map.begin(), ipmap);
+
+  
+  
+
   try {
-    depth_first_search(hasse, boost::visitor(vis));
+    depth_first_search(hasse, 
+                      boost::visitor(vis)
+                      .vertex_index_map(ipmap)
+                      .color_map(cpmap));
   } catch (const InitialState& e) {
   }
 
@@ -1039,6 +1055,7 @@ std::list<SignedCharacter> reduce(RBGraph& g) {
   // p = Hasse diagram for gm (Grb|Cm∪A)
   HDGraph p;
   hasse_diagram(p, g, gm);
+  
 
   if (logging::enabled) {
     // verbosity enabled
@@ -1508,3 +1525,22 @@ std::pair<std::list<SignedCharacter>, bool> realize(
 
   return std::make_pair(output, true);
 }
+
+bool is_complete(std::list<SignedCharacter> sc, const RBGraph& gm){
+  RBVertexIter v, v_end;
+  auto scb = sc.begin();
+  auto sce = sc.end();
+  std::tie(v, v_end) = vertices(gm);
+  while(v != v_end){
+    if(is_inactive(*v, gm)){
+      while(scb != sce){
+        if((get_vertex(scb->character, gm) == *v))
+          return false;
+        scb++;
+      }
+    }
+    v++;
+  }
+  return true;
+}
+
