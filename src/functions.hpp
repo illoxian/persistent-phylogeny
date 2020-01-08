@@ -342,4 +342,6 @@ std::pair<std::list<SignedCharacter>, bool> realize(const RBVertex v,
 std::pair<std::list<SignedCharacter>, bool> realize(
     const std::list<SignedCharacter>& lsc, RBGraph& g);
 
+bool is_complete(std::list<SignedCharacter> sc, const RBGraph& gm);
+
 #endif
