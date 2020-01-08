@@ -67,6 +67,7 @@ struct HDVertexProperties {
 struct HDGraphProperties {
   const RBGraph* g{};   ///< Original red-black graph
   const RBGraph* gm{};  ///< Original maximal reducible graph
+  size_t num_v; ///< Number of vertices
 };
 
 //=============================================================================
@@ -78,7 +79,7 @@ struct HDGraphProperties {
   Hasse diagram
 */
 typedef boost::adjacency_list<boost::setS,            // OutEdgeList
-                              boost::vecS,            // VertexList
+                              boost::listS,            // VertexList
                               boost::bidirectionalS,  // Directed
                               HDVertexProperties,     // VertexProperties
                               HDEdgeProperties,       // EdgeProperties
@@ -138,6 +139,9 @@ typedef std::map<HDVertex, HDVertexSize> HDVertexIMap;
   Associative property map of vertex indexes (Hasse diagram)
 */
 typedef boost::associative_property_map<HDVertexIMap> HDVertexIAssocMap;
+
+typedef std::map<HDVertex, size_t> HDVertexIndexMap;
+typedef boost::associative_property_map<HDVertexIndexMap> HDVertexIndexAssocMap;
 
 //=============================================================================
 // Enum / Struct operator overloads
@@ -284,7 +288,7 @@ bool is_included(const std::list<std::string>& a,
   Let GM be a maximal reducible graph.
   Then the diagram P for GM is the Hasse diagram for the poset (Ps, ≤) of all
   species of GM ordered by the relation ≤, where s1 ≤ s2 if C(s1) ⊆ C(s2).
-  Given (Ps, ≤) the poset of all inactive species of a red-black graph, we
+  Given (Ps, ≤) the poset of all species of a red-black graph, we
   consider the representation of the poset (Ps, ≤) by its Hasse diagram,
   represented by a directed acyclic graph P.
   More precisely, two species s1 and s2 are connected by the arc (s1, s2) if
@@ -295,5 +299,25 @@ bool is_included(const std::list<std::string>& a,
   @param[in]  gm    Maximal reducible red-black graph
 */
 void hasse_diagram(HDGraph& hasse, const RBGraph& g, const RBGraph& gm);
+
+/**
+  @brief Removes active species from an hasse diagram
+
+  A reduced HDGraph is the one with active species eliminated.
+  A specie is active if it has red edges incident to it.
+
+  @param [in] hasse Hasse diagram graph
+  @param [in] g     Red-black graph
+
+  @return Reduced Hasse diagram graph
+*/
+void reduce_diagram(HDGraph& hasse, const RBGraph& gm);
+
+
+void transitive_reduction(HDGraph& hasse); 
+void remove_vertex(HDVertex& v, HDGraph& p);
+inline size_t num_vertices(const HDGraph& hasse) {
+  return hasse[boost::graph_bundle].num_v;
+}
 
 #endif  // HDGRAPH_HPP
