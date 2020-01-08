@@ -802,3 +802,14 @@ bool has_red_sigmapath(const RBVertex c0, const RBVertex c1, const RBGraph& g) {
 
   return false;
 }
+
+void change_char_type(const RBVertex v, RBGraph& g){
+  RBOutEdgeIter e, e_end;
+  std::tie(e, e_end) = out_edges(v, g);
+  
+  for(; e != e_end; ++e)
+    if(is_red(*e, g))
+      g[*e].color = Color::black;
+    else
+      g[*e].color = Color::red;
+}
