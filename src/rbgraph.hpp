@@ -11,7 +11,7 @@
 /**
   Red-black graph traits
 */
-typedef boost::adjacency_list_traits<boost::slistS,      // OutEdgeList
+typedef boost::adjacency_list_traits<boost::listS,       // OutEdgeList
                                      boost::listS,       // VertexList
                                      boost::undirectedS  // Directed
                                      >
@@ -88,7 +88,7 @@ struct RBGraphProperties {
 /**
   Red-black graph
 */
-typedef boost::adjacency_list<boost::slistS,       // OutEdgeList
+typedef boost::adjacency_list<boost::listS,        // OutEdgeList
                               boost::listS,        // VertexList
                               boost::undirectedS,  // Directed
                               RBVertexProperties,  // VertexProperties
@@ -665,5 +665,16 @@ bool has_red_sigmagraph(const RBGraph& g);
   @return True if \e g contains a red Σ-graph with characters \e c0 and \e c1
 */
 bool has_red_sigmapath(const RBVertex c0, const RBVertex c1, const RBGraph& g);
+
+/**
+  @brief Change the type of vertex \e v from \e active to \e inactive or \e viceversa
+
+  A vertex is active in a red-black graph if it's a character that is incident
+  only on red edges.
+
+  @param[in] v Vertex
+  @param[in] g Red-black graph
+*/
+void change_char_type(const RBVertex v, RBGraph& g);
 
 #endif  // RBGRAPH_HPP
