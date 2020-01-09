@@ -145,7 +145,7 @@ void hasse_diagram(HDGraph& hasse, const RBGraph& g, const RBGraph& gm) {
     std::tie(e, e_end) = out_edges(*v, gm);
     for (; e != e_end; ++e) {
       //ignore active characters
-      if(is_red(*e, gm)) continue;
+      if(active::enabled && is_red(*e, gm)) continue;
       
       // vt = one of the characters adjacent to *v
       const auto vt = target(*e, gm);
@@ -279,7 +279,8 @@ void hasse_diagram(HDGraph& hasse, const RBGraph& g, const RBGraph& gm) {
     hasse[*u].species.clear();
     hasse[*u].species.splice(hasse[*u].species.cend(), species);
   }
-  reduce_diagram(hasse, gm);
+  if(reduced_hasse::enabled)
+    reduce_diagram(hasse, gm);
 }
 
 void reduce_diagram(HDGraph& hasse, const RBGraph& gm){
