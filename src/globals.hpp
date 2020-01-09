@@ -38,6 +38,19 @@ namespace nthsource {
 extern size_t index;  ///< Safe source index selection
 };
 
+/**
+  @brief Global active character filter namespace
+*/
+namespace active {
+extern bool enabled;  ///< Safe source index selection
+};
+
+/**
+  @brief Global hasse reduction switch namespace
+*/
+namespace reduced_hasse {
+extern bool enabled;
+}
 //=============================================================================
 // Typedefs used for readabily
 
