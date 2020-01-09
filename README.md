@@ -135,6 +135,19 @@ Select the nth safe source when possible (default 0 - the option can be omitted)
 This option can be used to automatically select the nth safe source to realize (instead of manually selecting it each time with `--interactive`).  
 It is also mutually exclusive with `--exponential` and `--interactive`.
 
+___
+
+```
+-a or --active
+```
+Use this option if you want to include active characters when building the hasse diagram.
+
+___
+
+```
+-r or --hasse_reduction
+```
+Use this option if you want to exclude active species from the hasse diagram
 ## Running
 
 ```
