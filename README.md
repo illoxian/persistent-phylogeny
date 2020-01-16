@@ -48,7 +48,7 @@ Moreover, on Unix systems, you may need to prepare plaform-specific settings (si
 ### Clone the repository
 
 ```
-$ git clone https://github.com/dcasella/persistent-phylogeny.git
+$ git clone https://github.com/vezzo95/persistent-phylogeny.git
 $ cd persistent-phylogeny
 ```
 
