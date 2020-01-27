@@ -144,10 +144,6 @@ Use this option if you want to include active characters when building the hasse
 
 ___
 
-```
--r or --hasse_reduction
-```
-Use this option if you want to exclude active species from the hasse diagram
 ## Running
 
 ```
@@ -178,20 +174,33 @@ $ ./bin/ppp -m -v file1
 
 ## Input file structure
 
-The first line must contain the size of the matrix.  
+The first line must contain the size of the matrix and the list of characters to be set as active. 
 Empty lines (after the first) are ignored.  
 Subsequent lines represent the matrix itself.
 
 ```
-N M
+N M c0 c1 c2... ci...  
 
 Matrix made up of space-separated boolean values
 ```
 
-Example:
+Example which has no active characters by default:
 
 ```
 6 3
+
+0 0 1
+0 1 0
+0 1 1
+1 0 0
+1 0 1
+1 1 0
+```
+
+Example which has the characters c0 and c2 active:
+
+```
+6 3 0 2
 
 0 0 1
 0 1 0
