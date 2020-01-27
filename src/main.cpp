@@ -53,9 +53,6 @@ int main(int argc, const char* argv[]) {
       ("active,a", boost::program_options::bool_switch(&active::enabled),
        "Hasse diagram with active characters.\n")
       // option: help message
-      ("hasse_reduction,r", boost::program_options::bool_switch(&reduced_hasse::enabled),
-        "Exclude active species from Hasse diagram.\n")
-      // option: nthsource, pick the nth safe source instead of the first
       ("nthsource,n",
        boost::program_options::value<size_t>(&nthsource::index)
            ->default_value(0),

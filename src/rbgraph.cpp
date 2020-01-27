@@ -222,6 +222,7 @@ void read_graph(const std::string& filename, RBGraph& g) {
   bool first_line = true;
   std::string line;
   std::ifstream file(filename);
+  std::vector<std::string> a_chars;
 
   if (!file) {
     // input file doesn't exist
@@ -235,11 +236,29 @@ void read_graph(const std::string& filename, RBGraph& g) {
     std::istringstream iss(line);
 
     if (first_line) {
-      // read rows and columns (species and characters)
+      size_t cont = 0;
+      size_t read;
       size_t num_s, num_c;
 
-      iss >> num_s;
-      iss >> num_c;
+      while(iss >> read) {
+        if(cont == 0){
+          num_s = read;
+          std::cout << "Number of species: " << num_s << std::endl;
+          cont++;
+        }
+        else if(cont == 1) {
+          num_c = read;
+          std::cout << "Number of characters: " << num_c << std::endl;
+          cont++;
+        }
+        else {
+          if(read >= num_c)
+            throw std::runtime_error("Failed to read graph from file: Inexistent character");
+          std::cout << "Active character: s" << read << std::endl;
+          std::string s = "c" + std::to_string(read);
+          a_chars.push_back(s);
+        }
+      }
 
       species.resize(num_s);
       characters.resize(num_c);
@@ -265,20 +284,13 @@ void read_graph(const std::string& filename, RBGraph& g) {
       }
 
       first_line = false;
-    } else {
+    } 
+    else {
       char value;
 
       // read binary matrix
       while (iss >> value) {
-        bool red_edge = false;
-
         switch (value) {
-#ifdef DEBUG
-          case '2':
-            // permit red edges from input matrix only if debugging
-            red_edge = true;
-#endif
-
           case '1':
             // add edge between species[s_index] and characters[c_index]
             {
@@ -295,7 +307,7 @@ void read_graph(const std::string& filename, RBGraph& g) {
               std::tie(edge, std::ignore) =
                   add_edge(species[s_index], characters[c_index], g);
 
-              if (red_edge) g[edge].color = Color::red;
+              //if (red_edge) g[edge].color = Color::red;
             }
             break;
 
@@ -314,6 +326,8 @@ void read_graph(const std::string& filename, RBGraph& g) {
     }
   }
 
+  
+
   if (index != species.size() * characters.size()) {
     // input file parsing error
     throw std::runtime_error(
@@ -324,8 +338,12 @@ void read_graph(const std::string& filename, RBGraph& g) {
     // input file parsing error
     throw std::runtime_error("Failed to read graph from file: empty file");
   }
-}
 
+  for(const auto& elem : a_chars)
+    change_char_type(vertex_map(g).at(elem), g);
+
+  
+}
 //=============================================================================
 // Algorithm functions
 

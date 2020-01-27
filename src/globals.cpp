@@ -16,6 +16,3 @@ size_t nthsource::index = 0;
 
 bool active::enabled = false;
 
-bool reduced_hasse::enabled = false;
-
-
