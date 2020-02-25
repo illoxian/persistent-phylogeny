@@ -243,18 +243,15 @@ void read_graph(const std::string& filename, RBGraph& g) {
       while(iss >> read) {
         if(cont == 0){
           num_s = read;
-          std::cout << "Number of species: " << num_s << std::endl;
           cont++;
         }
         else if(cont == 1) {
           num_c = read;
-          std::cout << "Number of characters: " << num_c << std::endl;
           cont++;
         }
         else {
           if(read >= num_c)
             throw std::runtime_error("Failed to read graph from file: Inexistent character");
-          std::cout << "Active character: s" << read << std::endl;
           std::string s = "c" + std::to_string(read);
           a_chars.push_back(s);
         }
@@ -594,7 +591,7 @@ const std::list<RBVertex> maximal_characters(const RBGraph& g) {
       RBVertex vt = target(*e, g);
 
       // if v is active or connected to random nodes ignore it
-      if (is_red(*e, g) || !is_species(vt, g)) break;
+      if ((!active::enabled && is_red(*e, g)) || !is_species(vt, g)) break;
 
       adj_spec[*v].push_back(vt);
     }
@@ -830,4 +827,37 @@ void change_char_type(const RBVertex v, RBGraph& g){
       g[*e].color = Color::black;
     else
       g[*e].color = Color::red;
+}
+
+
+std::set<std::string> active_characters(RBGraph g) {
+  RBVertexIter v, v_end;
+  std::set<std::string> acl{};
+  
+  std::tie(v, v_end) = vertices(g);
+  while(v != v_end) {
+    if(is_active(*v,g))
+      acl.insert(g[*v].name);
+    v++;
+  }
+  return acl;
+
+}
+
+std::set<std::string> active_char_list(RBVertex v, RBGraph g){
+  std::set<std::string> s{};
+  if(!is_species(v, g))
+    return s;
+
+  RBOutEdgeIter oe, oe_end;
+  std::set<std::string> acl;
+  
+  std::tie(oe, oe_end) = out_edges(v, g);
+  while(oe != oe_end) {
+    if(g[*oe].color == Color::red)
+      s.insert(g[target(*oe, g)].name);
+    oe++;
+  }
+  return s;
+
 }

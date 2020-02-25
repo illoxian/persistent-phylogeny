@@ -1,5 +1,7 @@
 #include <boost/program_options.hpp>
 #include <boost/python.hpp>
+#include "hdgraph.hpp"
+#include "rbgraph.hpp"
 #include "functions.hpp"
 
 void conflicting_options(const boost::program_options::variables_map& vm,
@@ -12,7 +14,7 @@ void conflicting_options(const boost::program_options::variables_map& vm,
 }
 
 int main(int argc, const char* argv[]) {
-  // declare the vector of input files
+ // declare the vector of input files
   std::vector<std::string> files;
 
   // initialize options menu
@@ -264,3 +266,46 @@ int main(int argc, const char* argv[]) {
 
   return 0;
 }
+
+/*int main(int argc, const char* argv[]){
+  RBGraph g, gm;
+  bool rsg;
+  std::list<std::string> s_chain;
+  read_graph(argv[1],g);
+  active::enabled = true;
+  
+  gm = maximal_reducible_graph(g, true);
+  std::cout << gm << std::endl;
+  
+  HDGraph hasse;
+  hasse_diagram(hasse, g, gm);
+  std::cout << hasse << std::endl;
+
+  const auto cr = reduce(gm);
+
+  std::stringstream reduction;
+  for (const auto& sc : cr) {
+    reduction << sc << " ";
+  }
+  std::cout << ": < " << reduction.str() << ">";
+
+  RBGraph g{};
+  RBGraph gm{};
+
+  read_graph(argv[1], g);
+  gm = maximal_reducible_graph(g, true);
+
+  auto l = active_characters(gm);
+
+  for(auto& elem : l)
+    std::cout << elem << " ";
+  std::cout << std::endl;
+
+  auto v = g[boost::graph_bundle].vertex_map.at("s0");
+  auto sl = active_char_list(v, g);
+
+  for(auto& elem : sl)
+    std::cout << elem << " ";
+  std::cout << std::endl;
+}
+*/

@@ -677,4 +677,7 @@ bool has_red_sigmapath(const RBVertex c0, const RBVertex c1, const RBGraph& g);
 */
 void change_char_type(const RBVertex v, RBGraph& g);
 
+
+std::set<std::string> active_characters(RBGraph g);
+std::set<std::string> active_char_list(RBVertex v, RBGraph g);
 #endif  // RBGRAPH_HPP

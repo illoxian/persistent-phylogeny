@@ -826,7 +826,7 @@ bool realize_source(const HDVertex source, const HDGraph& hasse) {
     // uninitialized graph properties
     return false;
 
-  const auto& g = *orig_g(hasse);
+  const auto& gm = *orig_gm(hasse);
 
   if (logging::enabled) {
     // verbosity enabled
@@ -846,8 +846,8 @@ bool realize_source(const HDVertex source, const HDGraph& hasse) {
   }
 
   // copy g to g_test
-  RBGraph g_test;
-  copy_graph(g, g_test);
+  RBGraph gm_test;
+  copy_graph(gm, gm_test);
 
   // initialize the list of characters of source
   std::list<SignedCharacter> source_lsc;
@@ -856,35 +856,35 @@ bool realize_source(const HDVertex source, const HDGraph& hasse) {
   }
 
   bool feasible;
-  std::tie(std::ignore, feasible) = realize(source_lsc, g_test);
+  std::tie(std::ignore, feasible) = realize(source_lsc, gm_test);
 
   if (logging::enabled) {
     // verbosity enabled
     std::cout << std::endl
-              << "G (copy) after the realization of the source" << std::endl
+              << "Gm (copy) after the realization of the source" << std::endl
               << "Adjacency lists:" << std::endl
-              << g_test << std::endl
+              << gm_test << std::endl
               << std::endl;
   }
 
   if (!feasible) {
     if (logging::enabled) {
       // verbosity enabled
-      std::cout << "Realization not feasible for G (copy)" << std::endl;
+      std::cout << "Realization not feasible for Gm (copy)" << std::endl;
     }
 
     return false;
   }
 
   // if the realization didn't induce a red Σ-graph, source is a safe source
-  const auto output = !has_red_sigmagraph(g_test);
+  const auto output = !has_red_sigmagraph(gm_test);
 
   if (logging::enabled) {
     // verbosity enabled
     if (output)
-      std::cout << "No red Σ-graph in G (copy)" << std::endl;
+      std::cout << "No red Σ-graph in Gm (copy)" << std::endl;
     else
-      std::cout << "Found red Σ-graph in G (copy)" << std::endl;
+      std::cout << "Found red Σ-graph in Gm (copy)" << std::endl;
   }
 
   return output;

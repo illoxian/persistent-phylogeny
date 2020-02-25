@@ -145,7 +145,7 @@ void hasse_diagram(HDGraph& hasse, const RBGraph& g, const RBGraph& gm) {
     std::tie(e, e_end) = out_edges(*v, gm);
     for (; e != e_end; ++e) {
       //ignore active characters
-      if(active::enabled && is_red(*e, gm)) continue;
+      if(!active::enabled && is_red(*e, gm)) continue;
       
       // vt = one of the characters adjacent to *v
       const auto vt = target(*e, gm);
@@ -286,41 +286,63 @@ void hasse_diagram(HDGraph& hasse, const RBGraph& g, const RBGraph& gm) {
 void reduce_diagram(HDGraph& hasse, const RBGraph& gm){
   RBVertexIter rbv, rbv_end;  //Vertexes of the RBGraph
   RBOutEdgeIter rbe, rbe_end; //Edges of a vertex of RBGraph
-  
+  HDVertexIter hdv, hdv_end;  //Hasse diagram vertexes
+
   //List of species that must be deleted from the HDGraph
   std::list<std::string> ls;
   
-  //Search for active species
-  std::tie(rbv, rbv_end) = vertices(gm);
-  while(*rbv != *rbv_end){
-    if(!is_species(*rbv, gm)){
-      rbv++;
-      continue;
-    }
-    std::tie(rbe, rbe_end) = out_edges(*rbv, gm);
-    while(*rbe != *rbe_end) {
-      if(is_red(*rbe, gm)){
-        ls.push_back(gm[*rbv].name);
-        break;
+  if(active::enabled){
+    auto acl = active_characters(gm);
+    std::tie(rbv, rbv_end) = vertices(gm);
+    while(rbv != rbv_end) {
+      if(is_species(*rbv, gm)) {
+        auto acs = active_char_list(*rbv, gm);
+        if(acs.size() < acl.size())
+          ls.push_back(gm[*rbv].name);
       }
-      rbe++;
+      rbv++;
     }
-    rbv++;
-  }  
+    
 
-  //Removes active species from Hasse vertexes
-  HDVertexIter hdv, hdv_end;  //Hasse diagram vertexes
-  std::tie(hdv, hdv_end) = vertices(hasse);
-
-  while(hdv != hdv_end){  //For each vertex in Hasse diagram
-    auto str = ls.begin(); //specie to remove 
-    auto str_end = ls.end(); 
-    while(str != str_end){
-      hasse[*hdv].species.remove(*str);
-      str++;    
+  } else {  
+    //Search for active species
+    std::tie(rbv, rbv_end) = vertices(gm);
+    while(*rbv != *rbv_end){
+      if(!is_species(*rbv, gm)){
+        rbv++;
+        continue;
+      }
+      std::tie(rbe, rbe_end) = out_edges(*rbv, gm);
+      while(*rbe != *rbe_end) {
+        if(is_red(*rbe, gm)){
+          ls.push_back(gm[*rbv].name);
+          break;
+        }
+        rbe++;
+      }
+      rbv++;
+    }  
+    //Removes active species from Hasse vertexes
+    std::tie(hdv, hdv_end) = vertices(hasse);
+    while(hdv != hdv_end){  //For each vertex in Hasse diagram
+      auto str = ls.begin(); //specie to remove 
+      auto str_end = ls.end(); 
+      while(str != str_end){
+        hasse[*hdv].species.remove(*str);
+        str++;    
+      }
+      hdv++;     
     }
-  hdv++;     
   }
+
+
+
+
+
+
+  
+
+  
 
   //Search for vertexes to remove  
   std::list<HDVertex> lvr;
