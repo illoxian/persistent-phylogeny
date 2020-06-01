@@ -683,11 +683,39 @@ void change_char_type(const RBVertex v, RBGraph& g);
   @param[in] v specie in the graph
   @param[in] g Red-black graph
 
-  @return Set of active characters (only the name)
+  @return Set of active characters (only the names)
 **/  
 std::set<std::string> specie_active_characters(const RBVertex v, const RBGraph& g);
 
+
+
+/**
+  @brief Returns the set of active characters of a red-black graph
+
+  @param[in] g Red-black graph
+ 
+  @return Set of active characters (only the names)
+**/
 std::set<std::string> active_characters(const RBGraph& g);
+
+/**
+  @brief Given a red-black graph and a specie, return the active characters included in the component that includes the specie
+
+  @param[in] v Specie
+  @param[in] g Red-black graph
+
+  @return Set of active characters (only the names)
+**/
 std::set<std::string> comp_active_characters(const RBVertex v, const RBGraph& g);
+
+/**
+  @brief Given a red-black graph and a specie, return the active characters included in the component that includes the specie
+
+  @param[in] v Specie
+  @param[in] g Red-black graph
+  @param[in] c_map Map of vertices and connected components
+
+  @return Set of active characters (only the names)
+**/
 std::set<std::string> comp_active_characters(const RBVertex v, const RBGraph& g, const RBVertexIMap& c_map);
 #endif  // RBGRAPH_HPP
