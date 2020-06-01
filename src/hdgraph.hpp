@@ -297,8 +297,10 @@ bool is_included(const std::list<std::string>& a,
   @param[out] hasse Hasse diagram graph
   @param[in]  g     Red-black graph
   @param[in]  gm    Maximal reducible red-black graph
+  @param[in]  components Vector of red-black connected subgraphs
+  @param[in]  c_assocmap Connected Components map
 */
-void hasse_diagram(HDGraph& hasse, const RBGraph& g, const RBGraph& gm);
+void hasse_diagram(HDGraph& hasse, const RBGraph& g, const RBGraph& gm, const RBGraphVector& components, const RBVertexIMap& c_map);
 
 /**
   @brief Removes active species from an hasse diagram
@@ -308,6 +310,8 @@ void hasse_diagram(HDGraph& hasse, const RBGraph& g, const RBGraph& gm);
 
   @param [in] hasse Hasse diagram graph
   @param [in] g     Red-black graph
+  @param[in]  components Vector of red-black connected subgraphs
+  @param[in]  c_assocmap Connected Components map
 
   @return Reduced Hasse diagram graph
 */

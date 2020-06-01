@@ -491,7 +491,6 @@ RBGraphVector connected_components(const RBGraph& g) {
 
   // how comp_map is structured (after running boost::connected_components):
   // comp_map[i] => < vertex_in_g, component_index >
-
   return connected_components(g, comp_map, comp_count);
 }
 
@@ -499,7 +498,7 @@ RBGraphVector connected_components(const RBGraph& g, const RBVertexIMap& c_map,
                                    const size_t c_count) {
   RBGraphVector components;
   RBVertexMap vertices;
-
+  
   // how vertices is going to be structured:
   // vertices[vertex_in_g] => vertex_in_component
 
@@ -510,11 +509,11 @@ RBGraphVector connected_components(const RBGraph& g, const RBVertexIMap& c_map,
   for (size_t i = 0; i < c_count; ++i) {
     components[i] = std::make_unique<RBGraph>();
   }
-
-  if (c_count <= 1)
+  
+  if (c_count <= 1) {
     // graph is connected
     return components;
-
+  }
   // graph is disconnected
 
   // add vertices to their respective subgraph
@@ -557,6 +556,7 @@ RBGraphVector connected_components(const RBGraph& g, const RBVertexIMap& c_map,
   }
 
   if (logging::enabled) {
+    
     if (c_count == 1) {
       std::cout << "G connected" << std::endl;
     } else {
@@ -818,7 +818,7 @@ bool has_red_sigmapath(const RBVertex c0, const RBVertex c1, const RBGraph& g) {
   return false;
 }
 
-void change_char_type(const RBVertex v, RBGraph& g){
+void change_char_type(const RBVertex v, RBGraph& g) {
   RBOutEdgeIter e, e_end;
   std::tie(e, e_end) = out_edges(v, g);
   
@@ -829,29 +829,24 @@ void change_char_type(const RBVertex v, RBGraph& g){
       g[*e].color = Color::red;
 }
 
-
-std::set<std::string> active_characters(RBGraph g) {
+std::set<std::string> active_characters(const RBGraph& g) {
+  std::set<std::string> ac;
   RBVertexIter v, v_end;
-  std::set<std::string> acl{};
   
   std::tie(v, v_end) = vertices(g);
   while(v != v_end) {
-    if(is_active(*v,g))
-      acl.insert(g[*v].name);
+    if(is_active(*v, g))
+      ac.insert(g[*v].name);
     v++;
   }
-  return acl;
-
+  return ac;
 }
 
-std::set<std::string> active_char_list(RBVertex v, RBGraph g){
+std::set<std::string> specie_active_characters(const RBVertex v, const RBGraph& g) {
   std::set<std::string> s{};
-  if(!is_species(v, g))
-    return s;
+  if(is_character(v, g)) return s;
 
   RBOutEdgeIter oe, oe_end;
-  std::set<std::string> acl;
-  
   std::tie(oe, oe_end) = out_edges(v, g);
   while(oe != oe_end) {
     if(g[*oe].color == Color::red)
@@ -860,4 +855,37 @@ std::set<std::string> active_char_list(RBVertex v, RBGraph g){
   }
   return s;
 
+}
+
+std::set<std::string> comp_active_characters(const RBVertex v, const RBGraph& g) {
+  if (is_character(v, g)) return {};
+
+  RBVertexIMap index_map, comp_map;
+  RBVertexIAssocMap index_assocmap(index_map), comp_assocmap(comp_map);
+
+  // fill vertex index map
+  RBVertexIter u, u_end;
+  std::tie(u, u_end) = vertices(g);
+  for (size_t index = 0; u != u_end; ++u, ++index) {
+    boost::put(index_assocmap, *u, index);
+  }
+
+  // build the components map
+  boost::connected_components(g, comp_assocmap,
+                              boost::vertex_index_map(index_assocmap));
+  return comp_active_characters(v, g, comp_map);
+}
+
+std::set<std::string> comp_active_characters(const RBVertex v, const RBGraph& g, const RBVertexIMap& c_map) {
+  if (is_character(v, g)) return {};
+  std::set<std::string> ac;
+
+  RBVertexIter u, u_end;
+  std::tie(u, u_end) = vertices(g);
+  for (; u != u_end; ++u) {
+    if(!is_active(*u, g) || c_map.at(v) != c_map.at(*u)) continue; 
+    ac.insert(g[*u].name);
+  }
+
+  return ac;
 }

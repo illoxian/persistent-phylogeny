@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <boost/graph/connected_components.hpp>
 #include "hdgraph.hpp"
 
 
@@ -94,13 +95,10 @@ bool is_included(const std::list<std::string>& a,
       // exit the function at the first string of a not present in b
       return false;
   }
-
   return true;
 }
 
-
-
-void hasse_diagram(HDGraph& hasse, const RBGraph& g, const RBGraph& gm) {
+void hasse_diagram(HDGraph& hasse, const RBGraph& g, const RBGraph& gm, const RBGraphVector& components, const RBVertexIMap& c_map) {
   std::vector<std::list<RBVertex>> vec_adj_char(num_species(gm));
   std::map<RBVertex, std::list<RBVertex>> adj_char;
   hasse[boost::graph_bundle].num_v = 0;
@@ -266,8 +264,6 @@ void hasse_diagram(HDGraph& hasse, const RBGraph& g, const RBGraph& gm) {
   // properties
   hasse[boost::graph_bundle].gm = &gm;
 
-  transitive_reduction(hasse); 
-
   // sort species names in each vertex
   HDVertexIter u, u_end;
   std::tie(u, u_end) = vertices(hasse);
@@ -279,8 +275,9 @@ void hasse_diagram(HDGraph& hasse, const RBGraph& g, const RBGraph& gm) {
     hasse[*u].species.clear();
     hasse[*u].species.splice(hasse[*u].species.cend(), species);
   }
-  if(!active::enabled)
-    reduce_diagram(hasse, gm);
+   
+  reduce_diagram(hasse, gm);
+  transitive_reduction(hasse);
 }
 
 void reduce_diagram(HDGraph& hasse, const RBGraph& gm){
@@ -289,60 +286,35 @@ void reduce_diagram(HDGraph& hasse, const RBGraph& gm){
   HDVertexIter hdv, hdv_end;  //Hasse diagram vertexes
 
   //List of species that must be deleted from the HDGraph
-  std::list<std::string> ls;
-  
-  if(active::enabled){
-    auto acl = active_characters(gm);
-    std::tie(rbv, rbv_end) = vertices(gm);
-    while(rbv != rbv_end) {
-      if(is_species(*rbv, gm)) {
-        auto acs = active_char_list(*rbv, gm);
-        if(acs.size() < acl.size())
-          ls.push_back(gm[*rbv].name);
-      }
-      rbv++;
+  std::set<std::string> acl, acc, sset; //set of species that must be deleted;
+  std::tie(rbv, rbv_end) = vertices(gm);
+  while(rbv != rbv_end) {
+    if(!is_character(*rbv, gm)) {
+      acl = specie_active_characters(*rbv, gm);
+      acc = comp_active_characters(*rbv, gm);
+      if(acl.size() < acc.size())
+        sset.insert(gm[*rbv].name);
     }
-    
-
-  } else {  
-    //Search for active species
-    std::tie(rbv, rbv_end) = vertices(gm);
-    while(*rbv != *rbv_end){
-      if(!is_species(*rbv, gm)){
-        rbv++;
-        continue;
-      }
-      std::tie(rbe, rbe_end) = out_edges(*rbv, gm);
-      while(*rbe != *rbe_end) {
-        if(is_red(*rbe, gm)){
-          ls.push_back(gm[*rbv].name);
-          break;
-        }
-        rbe++;
-      }
-      rbv++;
-    }  
-    //Removes active species from Hasse vertexes
-    std::tie(hdv, hdv_end) = vertices(hasse);
-    while(hdv != hdv_end){  //For each vertex in Hasse diagram
-      auto str = ls.begin(); //specie to remove 
-      auto str_end = ls.end(); 
-      while(str != str_end){
-        hasse[*hdv].species.remove(*str);
-        str++;    
-      }
-      hdv++;     
-    }
+    rbv++;
+  }
+  if(logging::enabled) {
+    std::cout << "Species that doesn't include all active characters: ";
+    for(std::string s : sset)
+      std::cout << s << " ";
+    std::cout << std::endl << std::endl;
   }
 
-
-
-
-
-
-  
-
-  
+  //Removes ls species from Hasse vertexes
+  std::tie(hdv, hdv_end) = vertices(hasse);
+  while(hdv != hdv_end) {  //For each vertex in Hasse diagram
+    auto str = sset.begin(); //specie to remove 
+    auto str_end = sset.end(); 
+    while(str != str_end){
+      hasse[*hdv].species.remove(*str);
+      str++;    
+    }
+    hdv++;     
+  }
 
   //Search for vertexes to remove  
   std::list<HDVertex> lvr;
@@ -352,8 +324,8 @@ void reduce_diagram(HDGraph& hasse, const RBGraph& gm){
       lvr.push_back(*hdv);
     hdv++;
   }
+
   //Removing vertexes without species
-  
   auto i = lvr.begin();
   auto i_end = lvr.end();
 
@@ -364,8 +336,9 @@ void reduce_diagram(HDGraph& hasse, const RBGraph& gm){
     i++;
     remove_vertex(i_c, hasse);
     lvr.pop_front();
-  } 
+  }
 }
+ 
 
 void remove_vertex(HDVertex& v, HDGraph& hasse){
   HDInEdgeIter ie, ie_end;

@@ -919,6 +919,7 @@ std::list<SignedCharacter> reduce(RBGraph& g) {
 
   if (logging::enabled) {
     // verbosity enabled
+    
     std::cout << std::endl
               << "Working on the red-black graph G" << std::endl
               << "Adjacency lists:" << std::endl
@@ -947,6 +948,7 @@ std::list<SignedCharacter> reduce(RBGraph& g) {
     std::cout << "G not empty" << std::endl;
   }
 
+  RBGraphVector components;
   RBVertexIMap i_map, c_map;
   RBVertexIAssocMap i_assocmap(i_map), c_assocmap(c_map);
 
@@ -1022,16 +1024,19 @@ std::list<SignedCharacter> reduce(RBGraph& g) {
   }
 
   if (c_count > 1) {
-    const auto components = connected_components(g, c_map, c_count);
+    components = connected_components(g, c_map, c_count);
     // if graph is not connected
     // build subgraphs (connected components) g1, g2, etc.
     // return < reduce(g1), reduce(g2), ... >
     for (const auto& component : components) {
       output.splice(output.cend(), reduce(*component.get()));
     }
-
     // return < reduce(g1), reduce(g2), ... >
     return output;
+  }
+  else if(logging::enabled) {
+    // verbosity enabled
+    std::cout << "G connected" << std::endl;
   }
 
   if (logging::enabled) {
@@ -1052,10 +1057,23 @@ std::list<SignedCharacter> reduce(RBGraph& g) {
               << std::endl;
   }
 
+  if(logging::enabled) {
+    auto ac = active_characters(gm);
+    if(ac.size() <= 0)
+      std::cout << "No active characters"
+                << std::endl;
+    else { 
+      std::cout << "Active characters: ";
+      for(std::string elem : ac)
+        std::cout << elem << " ";
+      std::cout << std::endl;
+    }
+  } 
+  
+
   // p = Hasse diagram for gm (Grb|Cm∪A)
   HDGraph p;
-  hasse_diagram(p, g, gm);
-  
+  hasse_diagram(p, g, gm, components, c_map);
 
   if (logging::enabled) {
     // verbosity enabled
@@ -1480,8 +1498,8 @@ std::pair<std::list<SignedCharacter>, bool> realize(const SignedCharacter& sc,
       return std::make_pair(output, true);
     }
   }
-
   return std::make_pair(output, true);
+
 }
 
 std::pair<std::list<SignedCharacter>, bool> realize(const RBVertex v,

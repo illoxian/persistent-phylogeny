@@ -166,10 +166,16 @@ int main(int argc, const char* argv[]) {
 
     try {
       read_graph(file, g);
-
       std::stringstream keep_c{};
 
       if (vm["maximal"].as<bool>()) {
+        if (logging::enabled) {
+          // verbosity enabled
+          std::cout << "Graph G:" 
+                << std::endl
+                << g 
+                << std::endl;
+        }
         const auto gm = maximal_reducible_graph(g);
 
         if (vm["testpy"].as<bool>()) {

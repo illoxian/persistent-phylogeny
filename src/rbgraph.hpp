@@ -677,7 +677,17 @@ bool has_red_sigmapath(const RBVertex c0, const RBVertex c1, const RBGraph& g);
 */
 void change_char_type(const RBVertex v, RBGraph& g);
 
+/**
+  @brief Given a specie, return the set of active characters adjacent to the specie
 
-std::set<std::string> active_characters(RBGraph g);
-std::set<std::string> active_char_list(RBVertex v, RBGraph g);
+  @param[in] v specie in the graph
+  @param[in] g Red-black graph
+
+  @return Set of active characters (only the name)
+**/  
+std::set<std::string> specie_active_characters(const RBVertex v, const RBGraph& g);
+
+std::set<std::string> active_characters(const RBGraph& g);
+std::set<std::string> comp_active_characters(const RBVertex v, const RBGraph& g);
+std::set<std::string> comp_active_characters(const RBVertex v, const RBGraph& g, const RBVertexIMap& c_map);
 #endif  // RBGRAPH_HPP
