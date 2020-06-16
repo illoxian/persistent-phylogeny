@@ -276,7 +276,7 @@ void hasse_diagram(HDGraph& hasse, const RBGraph& g, const RBGraph& gm, const RB
     hasse[*u].species.splice(hasse[*u].species.cend(), species);
   }
    
-  reduce_diagram(hasse, gm);
+  
   transitive_reduction(hasse);
 }
 

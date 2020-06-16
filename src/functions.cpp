@@ -345,7 +345,7 @@ bool initial_state_visitor::safe_chain(const HDVertex v, const HDGraph& hasse) {
   std::list<SignedCharacter> lsc;
 
   for (const auto& c : hasse[source_v].characters) {
-    lsc.push_back({c, State::gain});
+      lsc.push_back({c, State::gain});
   }
 
   for (const auto& e : chain) {
@@ -367,6 +367,15 @@ bool initial_state_visitor::safe_chain(const HDVertex v, const HDGraph& hasse) {
       lsc.push_back(sc);
     }
   }
+
+  std::list<SignedCharacter> rsc;
+  for(const auto sc : lsc) {
+    if(is_active(get_vertex(sc.character,gm), gm))
+      rsc.push_back(sc);
+  }
+  for(const auto sc : rsc)
+    lsc.remove(sc);
+
 
   if (logging::enabled) {
     // verbosity enabled
@@ -848,11 +857,21 @@ bool realize_source(const HDVertex source, const HDGraph& hasse) {
   // copy g to g_test
   RBGraph gm_test;
   copy_graph(gm, gm_test);
+  
+  RBVertex s = get_vertex(hasse[source].species.front(), gm_test);
+  auto acc = comp_active_characters(s, gm_test);
+
+  for(const auto& elem : hasse[source].species) {
+    for(const auto& ac : acc)
+      add_edge(get_vertex(elem, gm_test), get_vertex(ac, gm_test), gm_test);
+  }
+  
 
   // initialize the list of characters of source
   std::list<SignedCharacter> source_lsc;
   for (const auto& ci : hasse[source].characters) {
-    source_lsc.push_back({ci, State::gain});
+    if(is_inactive(get_vertex(ci, gm_test), gm_test)) 
+      source_lsc.push_back({ci, State::gain});
   }
 
   bool feasible;
@@ -1561,4 +1580,3 @@ bool is_complete(std::list<SignedCharacter> sc, const RBGraph& gm){
   }
   return true;
 }
-
