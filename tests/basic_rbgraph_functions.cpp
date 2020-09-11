@@ -7,11 +7,10 @@
  * 
  */
 
-#include "rbgraph.hpp"
+#include "../src/rbgraph.hpp"
 #include <iostream>
 
-void test_simple_add_vertex() 
-{
+void test_simple_add_vertex() {
   // add_vertex() test
   RBGraph g;
   RBVertex v1, v2;
@@ -39,8 +38,7 @@ void test_simple_add_vertex()
 }
 
 
-void test_add_vertex_with_duplicates() 
-{
+void test_add_vertex_with_duplicates() {
   // add_vertex() test
   RBGraph g;
   RBVertex v1;
@@ -55,8 +53,27 @@ void test_add_vertex_with_duplicates()
 }
 
 
-int main(int argc, char *argv[])
-{
+void test_add_edge() {
+  RBGraph g;
+  RBVertex v1, v2, v3;
+
+  v1 = add_vertex("v1", Type::species, g);
+  v2 = add_vertex("v2", Type::character, g);
+  v3 = add_vertex("v3", Type::character, g);
+
+  RBEdge e1, e2;
+  std::tie(e1, std::ignore) = add_edge(v1, v2, g);
+  std::tie(e2, std::ignore) = add_edge(v1, v3, Color::red, g);
+
+  assert(g[e1].color == Color::black);
+  assert(g[e2].color == Color::red);
+  assert(g.m_edges.size() == 2);
+
+  std::cout << "test_add_edge(): passed" << std::endl;
+}
+
+
+int main(int argc, char *argv[]) {
   test_simple_add_vertex();
   test_add_vertex_with_duplicates();
   test_add_edge();
