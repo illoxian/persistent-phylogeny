@@ -360,7 +360,7 @@ inline RBVertexNameMap& vertex_map(RBGraph& g) {
 
   @return Constant map in \e g
 */
-inline const RBVertexNameMap vertex_map(const RBGraph& g) {
+inline const RBVertexNameMap& vertex_map(const RBGraph& g) {
   return g[boost::graph_bundle].vertex_map;
 }
 
