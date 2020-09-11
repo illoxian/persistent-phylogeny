@@ -58,7 +58,7 @@ RBVertex add_vertex(const std::string& name, const Type type, RBGraph& g) {
   return v;
 }
 
-std::pair<RBEdge, bool> add_edge(const RBVertex u, const RBVertex v,
+std::pair<RBEdge, bool> add_edge(const RBVertex& u, const RBVertex& v,
                                  const Color color, RBGraph& g) {
   RBEdge e;
   bool exists;

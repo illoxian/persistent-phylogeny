@@ -274,7 +274,7 @@ inline RBVertex add_character(const std::string& name, RBGraph& g) {
           When the flag is false, the returned edge descriptor points to the
           already existing edge
 */
-std::pair<RBEdge, bool> add_edge(const RBVertex u, const RBVertex v,
+std::pair<RBEdge, bool> add_edge(const RBVertex& u, const RBVertex& v,
                                  const Color color, RBGraph& g);
 
 /**
@@ -290,7 +290,7 @@ std::pair<RBEdge, bool> add_edge(const RBVertex u, const RBVertex v,
           When the flag is false, the returned edge descriptor points to the
           already existing edge
 */
-inline std::pair<RBEdge, bool> add_edge(const RBVertex u, const RBVertex v,
+inline std::pair<RBEdge, bool> add_edge(const RBVertex& u, const RBVertex& v,
                                         RBGraph& g) {
   return add_edge(u, v, Color::black, g);
 }
