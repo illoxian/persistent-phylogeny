@@ -372,7 +372,7 @@ inline const RBVertexNameMap& vertex_map(const RBGraph& g) {
   @param[in,out] g         Red-black graph
 */
 template <typename Predicate>
-void remove_vertex_if(const RBVertex v, Predicate predicate, RBGraph& g) {
+void remove_vertex_if(const RBVertex& v, Predicate predicate, RBGraph& g) {
   if (predicate(v, g)) {
     // vertex satisfies the predicate
     clear_vertex(v, g);
@@ -395,7 +395,7 @@ void build_vertex_map(RBGraph& g);
 
   @return Vertex
 */
-inline const RBVertex get_vertex(const std::string& name, const RBGraph& g) {
+inline const RBVertex& get_vertex(const std::string& name, const RBGraph& g) {
   return vertex_map(g).at(name);
 }
 
