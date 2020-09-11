@@ -237,15 +237,27 @@ void remove_vertex(const std::string& name, RBGraph& g);
 RBVertex add_vertex(const std::string& name, const Type type, RBGraph& g);
 
 /**
-  @brief Add vertex with \e name to \e g
+  @brief Add vertex (as species) with \e name to \e g
 
   @param[in]     name Name
   @param[in,out] g    Red-black graph
 
-  @return Vertex descriptor for the new vertex
+  @return Vertex descriptor for the new species
 */
-inline RBVertex add_vertex(const std::string& name, RBGraph& g) {
+inline RBVertex add_species(const std::string& name, RBGraph& g) {
   return add_vertex(name, Type::species, g);
+}
+
+/**
+  @brief Add vertex (as character) with \e name to \e g
+
+  @param[in]     name Name
+  @param[in,out] g    Red-black graph
+
+  @return Vertex descriptor for the new character
+*/
+inline RBVertex add_character(const std::string& name, RBGraph& g) {
+  return add_vertex(name, Type::character, g);
 }
 
 /**

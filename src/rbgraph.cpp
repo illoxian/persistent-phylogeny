@@ -8,15 +8,17 @@
 // Boost functions (overloading)
 
 void remove_vertex(const RBVertex v, RBGraph& g) {
-  if (is_species(v, g))
-    num_species(g)--;
-  else
-    num_characters(g)--;
 
   // delete v from the map
   vertex_map(g).erase(g[v].name);
 
+  boost::clear_vertex(v, g);
   boost::remove_vertex(v, g);
+
+  if (is_species(v, g))
+    num_species(g)--;
+  else
+    num_characters(g)--;
 }
 
 void remove_vertex(const std::string& name, RBGraph& g) {
@@ -35,16 +37,12 @@ void remove_vertex(const std::string& name, RBGraph& g) {
 }
 
 RBVertex add_vertex(const std::string& name, const Type type, RBGraph& g) {
-  try {
-    // if a vertex with the same name already exists
-    const auto u = vertex_map(g).at(name);
-    // return its descriptor and do nothing
-    return u;
-  } catch (const std::out_of_range& e) {
-    // continue with the algorithm
-  }
+  const auto u = vertex_map(g).find(name);
+  if (u != vertex_map(g).end()) {
+    throw "[ERROR: add_vertex()] RBVertex with name \"" + name + "\"  already exists";
+  } 
 
-  const auto v = boost::add_vertex(g);
+  const RBVertex v = boost::add_vertex(g);
 
   // insert v in the map
   vertex_map(g)[name] = v;
