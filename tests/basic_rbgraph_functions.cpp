@@ -220,6 +220,37 @@ void test_remove_non_existent_vertex() {
   std::cout << "test_remove_non_existent_vertex(): passed" << std::endl;
 }
 
+void test_equal_graph() {
+
+}
+
+
+void test_copy_graph() {
+  RBGraph g;
+  RBVertex v1, v2, v3;
+
+  v1 = add_vertex("v1", Type::species, g);
+  v2 = add_vertex("v2", Type::character, g);
+  v3 = add_vertex("v3", Type::character, g);
+
+  RBEdge e1, e2;
+  std::tie(e1, std::ignore) = add_edge(v1, v2, g);
+  std::tie(e2, std::ignore) = add_edge(v1, v3, Color::red, g);
+
+  RBGraph g2;
+  copy_graph(g, g2);
+
+  assert(g == g2);
+
+  RBGraph g3;
+  RBVertexMap v_map;
+
+  copy_graph(g2, g3, v_map);
+
+  assert(g2 == g3);
+
+  std::cout << "test_copy_graph(): passed" << std::endl;
+}
 
 int main(int argc, char *argv[]) {
   test_simple_add_vertex();
@@ -230,4 +261,6 @@ int main(int argc, char *argv[]) {
   test_get_edge();
   test_remove_vertex();
   test_remove_non_existent_vertex();
+  test_equal_graph();
+  test_copy_graph();
 }

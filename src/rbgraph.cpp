@@ -65,14 +65,6 @@ std::pair<RBEdge, bool> add_edge(const RBVertex& u, const RBVertex& v,
   return std::make_pair(e, exists);
 }
 
-const RBVertex& get_vertex(const std::string& name, const RBGraph& g) {
-  try {
-    return vertex_map(g).at(name);
-  } catch (std::out_of_range) {
-    throw std::runtime_error("[ERROR: get_vertex()] RBVertex with name \"" + name + "\" does not exist in the vertex map of the RBGraph");
-  }
-}
-
 RBEdge get_edge(const RBVertex &source, const RBVertex &target, RBGraph &g) {
   if (!exists(source, g) || !exists(target, g))
     throw std::runtime_error("[ERROR: get_edge()] One or both the input RBVerteces do not exist in the RBGraph");
@@ -94,6 +86,15 @@ RBEdge get_edge(const RBVertex &source, const RBVertex &target, RBGraph &g) {
 // General functions
 
 
+const RBVertex& get_vertex(const std::string& name, const RBGraph& g) {
+  try {
+    return vertex_map(g).at(name);
+  } catch (std::out_of_range) {
+    throw std::runtime_error("[ERROR: get_vertex()] RBVertex with name \"" + name + "\" does not exist in the vertex map of the RBGraph");
+  }
+}
+
+
 bool exists(const RBVertex &v, RBGraph &g) {
   RBVertexIter u, u_end;
   std::tie(u, u_end) = vertices(g);
@@ -103,7 +104,6 @@ bool exists(const RBVertex &v, RBGraph &g) {
   }
   return false;
 }
-
 
 void build_vertex_map(RBGraph& g) {
   vertex_map(g).clear();
@@ -159,6 +159,29 @@ void copy_graph(const RBGraph& g, RBGraph& g_copy, RBVertexMap& v_map) {
 
   // rebuild g_copy's map
   build_vertex_map(g_copy);
+}
+
+bool operator==(const RBGraph& g1, const RBGraph& g2) {
+  RBVertexIter g1_iter, g1_iter_end, g2_iter, g2_iter_end;
+  std::tie(g1_iter, g1_iter_end) = vertices(g1);
+  std::tie(g2_iter, g2_iter_end) = vertices(g2);
+  while (g1_iter != g1_iter_end && g2_iter != g2_iter_end) {
+    if (g1[(*g1_iter)].name != g1[(*g2_iter)].name)
+      return false;
+    else if (g1[(*g1_iter)].type != g1[(*g2_iter)].type)
+      return false;
+    g1_iter++;
+    g2_iter++;
+  }
+
+  if (g1_iter != g1_iter_end || g2_iter != g2_iter_end) 
+    return false;
+  else if (num_species(g1) != num_species(g2)) 
+    return false;
+  else if (num_characters(g1) != num_characters(g2)) 
+    return false;
+
+  return true;
 }
 
 std::ostream& operator<<(std::ostream& os, const RBGraph& g) {

@@ -382,6 +382,27 @@ void remove_vertex_if(const RBVertex& v, Predicate predicate, RBGraph& g) {
 }
 
 /**
+  @brief Return the edge descriptor of the edge with \e source and \e target as vertices in \e g
+
+  @param[in] source Source vertex name
+  @param[in] target Target vertex name
+  @param[in] g    Red-black graph
+
+  @return Edge
+*/
+RBEdge get_edge(const RBVertex &source, const RBVertex &target, RBGraph &g);
+
+/**
+  @brief Return a reference to the vertex descriptor of the vertex \e name in \e g
+
+  @param[in] name Vertex name
+  @param[in] g    Red-black graph
+
+  @return Vertex
+*/
+const RBVertex& get_vertex(const std::string& name, const RBGraph& g); 
+
+/**
   @brief Return true if \e v exists in \e g
 
   @param[in] v    Vertex name
@@ -399,28 +420,6 @@ bool exists(const RBVertex &v, RBGraph &g);
 void build_vertex_map(RBGraph& g);
 
 /**
-  @brief Return a reference to the vertex descriptor of the vertex \e name in \e g
-
-  @param[in] name Vertex name
-  @param[in] g    Red-black graph
-
-  @return Vertex
-*/
-const RBVertex& get_vertex(const std::string& name, const RBGraph& g); 
-
-/**
-  @brief Return the edge descriptor of the edge with \e source and \e target as vertices in \e g
-
-  @param[in] source Source vertex name
-  @param[in] target Target vertex name
-  @param[in] g    Red-black graph
-
-  @return Edge
-*/
-RBEdge get_edge(const RBVertex &source, const RBVertex &target, RBGraph &g);
-
-
-/**
   @brief Copy graph \e g to graph \e g_copy
 
   @param[in]     g      Red-black graph
@@ -436,6 +435,18 @@ void copy_graph(const RBGraph& g, RBGraph& g_copy);
   @param[in,out] v_map  Vertex map, mapping vertices from g to g_copy
 */
 void copy_graph(const RBGraph& g, RBGraph& g_copy, RBVertexMap& v_map);
+
+/**
+  @brief Overloading of operator== for RBGraph. It returns
+  true if \e g1 is a copy of \e g2, that is, they have the same
+  verteces and edges
+
+  @param[in] g1 Red-black graph
+  @param[in] g2 Red-black graph
+
+  @return True if g1 is equal to g2
+*/
+bool operator==(const RBGraph& g1, const RBGraph& g2);
 
 /**
   @brief Overloading of operator<< for RBGraph
