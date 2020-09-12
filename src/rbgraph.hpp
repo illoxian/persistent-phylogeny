@@ -223,7 +223,8 @@ void remove_vertex(const RBVertex& v, RBGraph& g);
   @param[in]     name Vertex name
   @param[in,out] g    Red-black graph
 */
-inline void remove_vertex(const std::string& name, RBGraph& g);
+void remove_vertex(const std::string& name, RBGraph& g);
+
 
 /**
   @brief Add vertex with \e name and \e type to \e g
@@ -381,6 +382,16 @@ void remove_vertex_if(const RBVertex& v, Predicate predicate, RBGraph& g) {
 }
 
 /**
+  @brief Return true if \e v exists in \e g
+
+  @param[in] v    Vertex name
+  @param[in] g    Red-black graph
+
+  @return bool
+*/
+bool exists(const RBVertex &v, RBGraph &g);
+
+/**
   @brief Build the map in \e g
 
   @param[in] g Red-black graph
@@ -395,13 +406,7 @@ void build_vertex_map(RBGraph& g);
 
   @return Vertex
 */
-inline const RBVertex& get_vertex(const std::string& name, const RBGraph& g) {
-  try {
-    return vertex_map(g).at(name);
-  } catch (std::out_of_range) {
-    throw "[ERROR: get_vertex()] RBVertex with name \"" + name + "\"  does not exist in the vertex map of the rbgraph";
-  }
-}
+const RBVertex& get_vertex(const std::string& name, const RBGraph& g); 
 
 /**
   @brief Return the edge descriptor of the edge with \e source and \e target as vertices in \e g
@@ -413,6 +418,7 @@ inline const RBVertex& get_vertex(const std::string& name, const RBGraph& g) {
   @return Edge
 */
 RBEdge get_edge(const RBVertex &source, const RBVertex &target, RBGraph &g);
+
 
 /**
   @brief Copy graph \e g to graph \e g_copy

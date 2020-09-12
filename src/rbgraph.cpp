@@ -9,6 +9,10 @@
 
 void remove_vertex(const RBVertex& v, RBGraph& g) {
 
+  if (!exists(v, g)) {
+    throw std::runtime_error("[ERROR: remove_vertex()] The input RBVertex does not exist");
+  } 
+
   // delete v from the map
   vertex_map(g).erase(g[v].name);
 
@@ -22,15 +26,15 @@ void remove_vertex(const RBVertex& v, RBGraph& g) {
 }
 
 
-inline void remove_vertex(const std::string& name, RBGraph& g) {
-  remove_vertex(vertex_map(g).at(name), g);
+void remove_vertex(const std::string& name, RBGraph& g) {
+  remove_vertex(get_vertex(name, g), g);
 }
 
 
 RBVertex add_vertex(const std::string& name, const Type type, RBGraph& g) {
   const auto u = vertex_map(g).find(name);
   if (u != vertex_map(g).end()) {
-    throw "[ERROR: add_vertex()] RBVertex with name \"" + name + "\"  already exists";
+    throw std::runtime_error("[ERROR: add_vertex()] RBVertex with name \"" + name + "\" already exists");
   } 
 
   const RBVertex v = boost::add_vertex(g);
@@ -51,6 +55,8 @@ RBVertex add_vertex(const std::string& name, const Type type, RBGraph& g) {
 
 std::pair<RBEdge, bool> add_edge(const RBVertex& u, const RBVertex& v,
                                  const Color color, RBGraph& g) {
+  if (!exists(u, g) || !exists(v, g))
+    throw std::runtime_error("[ERROR: add_edge()] One or both the input RBVerteces do not exist");
   RBEdge e;
   bool exists;
   std::tie(e, exists) = boost::add_edge(u, v, g);
@@ -59,17 +65,45 @@ std::pair<RBEdge, bool> add_edge(const RBVertex& u, const RBVertex& v,
   return std::make_pair(e, exists);
 }
 
+const RBVertex& get_vertex(const std::string& name, const RBGraph& g) {
+  try {
+    return vertex_map(g).at(name);
+  } catch (std::out_of_range) {
+    throw std::runtime_error("[ERROR: get_vertex()] RBVertex with name \"" + name + "\" does not exist in the vertex map of the RBGraph");
+  }
+}
+
 RBEdge get_edge(const RBVertex &source, const RBVertex &target, RBGraph &g) {
+  if (!exists(source, g) || !exists(target, g))
+    throw std::runtime_error("[ERROR: get_edge()] One or both the input RBVerteces do not exist in the RBGraph");
+
   RBEdge e;
   bool exists;
   std::tie(e, exists) = boost::edge(source, target, g);
-  if (!exists) 
-    throw "[ERROR: get_edge()] Trying to retrive a non existent RBEdge in the RBGraph";
+  if (!exists) {
+    std::string name_source = g[source].name;
+    std::string name_target = g[target].name;
+    throw std::runtime_error("[ERROR: get_edge()] edge with source=\"" + name_source + "\" and target=\"" + name_target + "\" does not exist");
+  }
+
   return e;
 }
 
+
 //=============================================================================
 // General functions
+
+
+bool exists(const RBVertex &v, RBGraph &g) {
+  RBVertexIter u, u_end;
+  std::tie(u, u_end) = vertices(g);
+  for (; u != u_end; ++u) {
+    if (*u == v)
+      return true;
+  }
+  return false;
+}
+
 
 void build_vertex_map(RBGraph& g) {
   vertex_map(g).clear();

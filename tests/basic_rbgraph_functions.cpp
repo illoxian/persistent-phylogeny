@@ -93,6 +93,28 @@ void test_add_edge() {
 }
 
 
+void test_graph_size() {
+  RBGraph g;
+  RBVertex v1, v2, v3;
+
+  v1 = add_vertex("v1", Type::species, g);
+  v2 = add_vertex("v2", Type::character, g);
+  v3 = add_vertex("v3", Type::character, g);
+
+  RBEdge e1, e2;
+  std::tie(e1, std::ignore) = add_edge(v1, v2, g);
+  std::tie(e2, std::ignore) = add_edge(v1, v3, Color::red, g);
+
+  int characters = g[boost::graph_bundle].num_characters;
+  int species = g[boost::graph_bundle].num_species;
+  assert(g.m_vertices.size() == characters + species);
+  
+  assert(g.m_edges.size() == 2);
+
+  std::cout << "test_graph_size(): passed" << std::endl;
+}
+
+
 void test_get_edge() {
   RBGraph g;
   RBVertex v1, v2, v3;
@@ -110,6 +132,14 @@ void test_get_edge() {
 
   try {
     get_edge(v2, v3, g);
+    assert(false);
+  } catch (...) {
+    // OK - passed
+  }
+
+  RBVertex v4, v5;
+  try {
+    get_edge(v4, v5, g);
     assert(false);
   } catch (...) {
     // OK - passed
@@ -158,11 +188,46 @@ void test_remove_vertex() {
 }
 
 
+void test_remove_non_existent_vertex() {
+  RBGraph g;
+
+  RBVertex v1;
+  v1 = add_vertex("v1", Type::species, g);
+
+  try {
+    remove_vertex("v3", g);
+    assert(false);
+  } catch (...) {
+    // OK - passed
+  }
+
+  RBVertex v2;
+  try {
+    remove_vertex(v2, g);
+    assert(false);
+  } catch (...) {
+    // OK - passed
+  }
+
+  remove_vertex(v1, g);
+
+  try {
+    remove_vertex(v1, g);
+  } catch (...) {
+    // OK - passed
+  }
+
+  std::cout << "test_remove_non_existent_vertex(): passed" << std::endl;
+}
+
+
 int main(int argc, char *argv[]) {
   test_simple_add_vertex();
   test_add_vertex_with_duplicates();
   test_get_vertex();
   test_add_edge();
+  test_graph_size();
   test_get_edge();
   test_remove_vertex();
+  test_remove_non_existent_vertex();
 }
