@@ -53,6 +53,20 @@ void test_add_vertex_with_duplicates() {
 }
 
 
+void test_get_vertex() {
+  RBGraph g;
+  RBVertex v1;
+
+  v1 = add_vertex("v1", Type::character, g);
+
+  assert(g[get_vertex("v1", g)].type == Type::character);
+  g[vertex_map(g).at("v1")].type = Type::species;
+  assert(g[get_vertex("v1", g)].type == Type::species);
+
+  std::cout << "test_get_vertex(): passed" << std::endl;
+}
+
+
 void test_add_edge() {
   RBGraph g;
   RBVertex v1, v2, v3;
@@ -73,8 +87,30 @@ void test_add_edge() {
 }
 
 
+void test_get_edge() {
+  RBGraph g;
+  RBVertex v1, v2, v3;
+
+  v1 = add_vertex("v1", Type::species, g);
+  v2 = add_vertex("v2", Type::character, g);
+  v3 = add_vertex("v3", Type::character, g);
+
+  RBEdge e1, e2, e3;
+  std::tie(e1, std::ignore) = add_edge(v1, v2, g);
+  std::tie(e2, std::ignore) = add_edge(v1, v3, Color::red, g);
+  std::tie(e3, std::ignore) = add_edge(v2, v3, Color::black, g);
+
+  assert(get_edge(v1, v3, g) == e2);
+  assert(g[get_edge(v1, v3, g)].color == Color::red);
+
+  std::cout << "test_get_edge(): passed" << std::endl;
+}
+
+
 int main(int argc, char *argv[]) {
   test_simple_add_vertex();
   test_add_vertex_with_duplicates();
+  test_get_vertex();
   test_add_edge();
+  test_get_edge();
 }

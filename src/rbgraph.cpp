@@ -68,6 +68,12 @@ std::pair<RBEdge, bool> add_edge(const RBVertex& u, const RBVertex& v,
   return std::make_pair(e, exists);
 }
 
+RBEdge get_edge(const RBVertex &source, const RBVertex &target, RBGraph &g) {
+  RBEdge e;
+  std::tie(e, std::ignore) = boost::edge(source, target, g);
+  return e;
+}
+
 //=============================================================================
 // General functions
 
@@ -816,7 +822,7 @@ bool has_red_sigmapath(const RBVertex c0, const RBVertex c1, const RBGraph& g) {
   return false;
 }
 
-void change_char_type(const RBVertex v, RBGraph& g) {
+void change_char_type(const RBVertex& v, RBGraph& g) {
   RBOutEdgeIter e, e_end;
   std::tie(e, e_end) = out_edges(v, g);
   

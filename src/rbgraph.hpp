@@ -358,7 +358,7 @@ inline RBVertexNameMap& vertex_map(RBGraph& g) {
 
   @param[in] g Red-black graph
 
-  @return Constant map in \e g
+  @return Constant reference map in \e g
 */
 inline const RBVertexNameMap& vertex_map(const RBGraph& g) {
   return g[boost::graph_bundle].vertex_map;
@@ -388,7 +388,7 @@ void remove_vertex_if(const RBVertex& v, Predicate predicate, RBGraph& g) {
 void build_vertex_map(RBGraph& g);
 
 /**
-  @brief Return the vertex descriptor of the vertex \e name in \e g
+  @brief Return a reference to the vertex descriptor of the vertex \e name in \e g
 
   @param[in] name Vertex name
   @param[in] g    Red-black graph
@@ -398,6 +398,17 @@ void build_vertex_map(RBGraph& g);
 inline const RBVertex& get_vertex(const std::string& name, const RBGraph& g) {
   return vertex_map(g).at(name);
 }
+
+/**
+  @brief Return the edge descriptor of the edge with \e source and \e target as vertices in \e g
+
+  @param[in] source Source vertex name
+  @param[in] target Target vertex name
+  @param[in] g    Red-black graph
+
+  @return Edge
+*/
+RBEdge get_edge(const RBVertex &source, const RBVertex &target, RBGraph &g);
 
 /**
   @brief Copy graph \e g to graph \e g_copy
@@ -687,7 +698,7 @@ bool has_red_sigmapath(const RBVertex c0, const RBVertex c1, const RBGraph& g);
   @param[in] v Vertex
   @param[in] g Red-black graph
 */
-void change_char_type(const RBVertex v, RBGraph& g);
+void change_char_type(const RBVertex& v, RBGraph& g);
 
 /**
   @brief Given a specie, return the set of active characters adjacent to the specie
