@@ -215,7 +215,7 @@ struct if_not_maximal {
   @param[in]     v Vertex
   @param[in,out] g Red-black graph
 */
-void remove_vertex(const RBVertex v, RBGraph& g);
+void remove_vertex(const RBVertex& v, RBGraph& g);
 
 /**
   @brief Remove vertex \e name from \e g
@@ -223,7 +223,7 @@ void remove_vertex(const RBVertex v, RBGraph& g);
   @param[in]     name Vertex name
   @param[in,out] g    Red-black graph
 */
-void remove_vertex(const std::string& name, RBGraph& g);
+inline void remove_vertex(const std::string& name, RBGraph& g);
 
 /**
   @brief Add vertex with \e name and \e type to \e g
@@ -396,7 +396,11 @@ void build_vertex_map(RBGraph& g);
   @return Vertex
 */
 inline const RBVertex& get_vertex(const std::string& name, const RBGraph& g) {
-  return vertex_map(g).at(name);
+  try {
+    return vertex_map(g).at(name);
+  } catch (std::out_of_range) {
+    throw "[ERROR: get_vertex()] RBVertex with name \"" + name + "\"  does not exist in the vertex map of the rbgraph";
+  }
 }
 
 /**

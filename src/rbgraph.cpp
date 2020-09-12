@@ -7,7 +7,7 @@
 //=============================================================================
 // Boost functions (overloading)
 
-void remove_vertex(const RBVertex v, RBGraph& g) {
+void remove_vertex(const RBVertex& v, RBGraph& g) {
 
   // delete v from the map
   vertex_map(g).erase(g[v].name);
@@ -21,20 +21,11 @@ void remove_vertex(const RBVertex v, RBGraph& g) {
     num_characters(g)--;
 }
 
-void remove_vertex(const std::string& name, RBGraph& g) {
-  // find v in the map
-  const auto v = vertex_map(g).at(name);
 
-  if (is_species(v, g))
-    num_species(g)--;
-  else
-    num_characters(g)--;
-
-  // delete v from the map
-  vertex_map(g).erase(name);
-
-  boost::remove_vertex(v, g);
+inline void remove_vertex(const std::string& name, RBGraph& g) {
+  remove_vertex(vertex_map(g).at(name), g);
 }
+
 
 RBVertex add_vertex(const std::string& name, const Type type, RBGraph& g) {
   const auto u = vertex_map(g).find(name);
@@ -70,7 +61,10 @@ std::pair<RBEdge, bool> add_edge(const RBVertex& u, const RBVertex& v,
 
 RBEdge get_edge(const RBVertex &source, const RBVertex &target, RBGraph &g) {
   RBEdge e;
-  std::tie(e, std::ignore) = boost::edge(source, target, g);
+  bool exists;
+  std::tie(e, exists) = boost::edge(source, target, g);
+  if (!exists) 
+    throw "[ERROR: get_edge()] Trying to retrive a non existent RBEdge in the RBGraph";
   return e;
 }
 

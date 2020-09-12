@@ -39,7 +39,6 @@ void test_simple_add_vertex() {
 
 
 void test_add_vertex_with_duplicates() {
-  // add_vertex() test
   RBGraph g;
   RBVertex v1;
 
@@ -62,6 +61,13 @@ void test_get_vertex() {
   assert(g[get_vertex("v1", g)].type == Type::character);
   g[vertex_map(g).at("v1")].type = Type::species;
   assert(g[get_vertex("v1", g)].type == Type::species);
+
+  try {
+    get_vertex("v2", g);
+    assert(false);
+  } catch (...) {
+    // OK - passed
+  }
 
   std::cout << "test_get_vertex(): passed" << std::endl;
 }
@@ -95,15 +101,60 @@ void test_get_edge() {
   v2 = add_vertex("v2", Type::character, g);
   v3 = add_vertex("v3", Type::character, g);
 
+  RBEdge e1, e2;
+  std::tie(e1, std::ignore) = add_edge(v1, v2, g);
+  std::tie(e2, std::ignore) = add_edge(v1, v3, Color::red, g);
+
+  assert(get_edge(v1, v3, g) == e2);
+  assert(g[get_edge(v1, v3, g)].color == Color::red);
+
+  try {
+    get_edge(v2, v3, g);
+    assert(false);
+  } catch (...) {
+    // OK - passed
+  }
+
+  std::cout << "test_get_edge(): passed" << std::endl;
+}
+
+
+void test_remove_vertex() {
+  RBGraph g;
+
+  RBVertex v1, v2, v3;
+  v1 = add_vertex("v1", Type::species, g);
+  v2 = add_vertex("v2", Type::character, g);
+  v3 = add_vertex("v3", Type::character, g);
+
   RBEdge e1, e2, e3;
   std::tie(e1, std::ignore) = add_edge(v1, v2, g);
   std::tie(e2, std::ignore) = add_edge(v1, v3, Color::red, g);
   std::tie(e3, std::ignore) = add_edge(v2, v3, Color::black, g);
 
-  assert(get_edge(v1, v3, g) == e2);
-  assert(g[get_edge(v1, v3, g)].color == Color::red);
+  // check that the edges incident in the vertex have been deleted
+  assert(get_edge(v1, v2, g) == e1);
+  remove_vertex(v2, g);
+  try {
+    get_edge(v1, v2, g);
+    assert(false);
+  } catch (...) {
+    // OK - passed
+  }
 
-  std::cout << "test_get_edge(): passed" << std::endl;
+  // check that the vertex has been deleted successfully
+  assert(vertex_map(g).size() == 2);
+  try {
+    get_vertex("v2", g);
+    assert(false);
+  } catch (...) {
+    // OK - passed
+  }
+
+  // check the number of edges of the rbgraph g
+  assert(g.m_edges.size() == 1);
+
+  std::cout << "test_remove_vertex(): passed" << std::endl;
 }
 
 
@@ -113,4 +164,5 @@ int main(int argc, char *argv[]) {
   test_get_vertex();
   test_add_edge();
   test_get_edge();
+  test_remove_vertex();
 }
