@@ -81,10 +81,8 @@ RBEdge get_edge(const RBVertex &source, const RBVertex &target, RBGraph &g) {
   return e;
 }
 
-
 //=============================================================================
 // General functions
-
 
 const RBVertex& get_vertex(const std::string& name, const RBGraph& g) {
   try {
@@ -113,7 +111,6 @@ bool exists(const std::string &source, const std::string &target, RBGraph &g) {
     return false;
   return exists(get_vertex(source, g), get_vertex(target, g), g);
 }
-
 
 bool exists(const RBVertex &v, RBGraph &g) {
   RBVertexIter u, u_end;
@@ -403,26 +400,28 @@ void read_graph(const std::string& filename, RBGraph& g) {
 //=============================================================================
 // Algorithm functions
 
-bool is_active(const RBVertex v, const RBGraph& g) {
-  if (!is_character(v, g)) return false;
+bool is_active(const RBVertex& v, const RBGraph& g) {
+  if (!is_character(v, g)) 
+    return false;
 
   RBOutEdgeIter e, e_end;
   std::tie(e, e_end) = out_edges(v, g);
-  for (; e != e_end; ++e) {
-    if (!is_red(*e, g) || !is_species(target(*e, g), g)) return false;
-  }
+  for (; e != e_end; ++e)
+    if (!is_red(*e, g)) 
+      return false;
 
   return true;
 }
 
-bool is_inactive(const RBVertex v, const RBGraph& g) {
-  if (!is_character(v, g)) return false;
+bool is_inactive(const RBVertex& v, const RBGraph& g) {
+  if (!is_character(v, g)) 
+    return false;
 
   RBOutEdgeIter e, e_end;
   std::tie(e, e_end) = out_edges(v, g);
-  for (; e != e_end; ++e) {
-    if (!is_black(*e, g) || !is_species(target(*e, g), g)) return false;
-  }
+  for (; e != e_end; ++e)
+    if (!is_black(*e, g)) 
+    return false;
 
   return true;
 }

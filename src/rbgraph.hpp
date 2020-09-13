@@ -172,7 +172,7 @@ struct if_singleton {
 
     @return True if \e v is a singleton in \e g
   */
-  inline bool operator()(const RBVertex v, const RBGraph& g) const {
+  inline bool operator()(const RBVertex& v, const RBGraph& g) const {
     return (out_degree(v, g) == 0);
   }
 };
@@ -550,7 +550,7 @@ inline bool is_red(const RBEdge& e, const RBGraph& g) {
 
   @return True if \e v is active in \e g
 */
-bool is_active(const RBVertex v, const RBGraph& g);
+bool is_active(const RBVertex& v, const RBGraph& g);
 
 /**
   @brief Check if \e v is inactive in \e g
