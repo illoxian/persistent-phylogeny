@@ -499,7 +499,7 @@ void read_graph(const std::string& filename, RBGraph& g);
 
   @return True if \e v is a species in \e g
 */
-inline bool is_species(const RBVertex v, const RBGraph& g) {
+inline bool is_species(const RBVertex& v, const RBGraph& g) {
   return (g[v].type == Type::species);
 }
 
@@ -511,7 +511,7 @@ inline bool is_species(const RBVertex v, const RBGraph& g) {
 
   @return True if \e v is a character in \e g
 */
-inline bool is_character(const RBVertex v, const RBGraph& g) {
+inline bool is_character(const RBVertex& v, const RBGraph& g) {
   return (g[v].type == Type::character);
 }
 
