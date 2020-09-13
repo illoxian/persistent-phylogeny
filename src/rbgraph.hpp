@@ -523,7 +523,7 @@ inline bool is_character(const RBVertex& v, const RBGraph& g) {
 
   @return True if \e e is a black edge in \e g
 */
-inline bool is_black(const RBEdge e, const RBGraph& g) {
+inline bool is_black(const RBEdge& e, const RBGraph& g) {
   return (g[e].color == Color::black);
 }
 
@@ -535,7 +535,7 @@ inline bool is_black(const RBEdge e, const RBGraph& g) {
 
   @return True if \e e is a red edge in \e g
 */
-inline bool is_red(const RBEdge e, const RBGraph& g) {
+inline bool is_red(const RBEdge& e, const RBGraph& g) {
   return (g[e].color == Color::red);
 }
 
