@@ -220,18 +220,12 @@ void test_remove_non_existent_vertex() {
   std::cout << "test_remove_non_existent_vertex(): passed" << std::endl;
 }
 
-void test_equal_graph() {
-
-}
-
-
 void test_copy_graph() {
   RBGraph g;
-  RBVertex v1, v2, v3;
 
-  v1 = add_vertex("v1", Type::species, g);
-  v2 = add_vertex("v2", Type::character, g);
-  v3 = add_vertex("v3", Type::character, g);
+  RBVertex v1 = add_vertex("v1", Type::species, g);
+  RBVertex v2 = add_vertex("v2", Type::character, g);
+  RBVertex v3 = add_vertex("v3", Type::character, g);
 
   RBEdge e1, e2;
   std::tie(e1, std::ignore) = add_edge(v1, v2, g);
@@ -239,15 +233,26 @@ void test_copy_graph() {
 
   RBGraph g2;
   copy_graph(g, g2);
+  RBVertex v1_g2 = get_vertex("v1", g2);
+  RBVertex v2_g2 = get_vertex("v2", g2);
+  RBVertex v3_g2 = get_vertex("v3", g2);
 
-  assert(g == g2);
-
-  RBGraph g3;
-  RBVertexMap v_map;
-
-  copy_graph(g2, g3, v_map);
-
-  assert(g2 == g3);
+  assert(g[v1].name == g2[v1_g2].name);
+  assert(g[v1].type == g2[v1_g2].type);
+  assert(g[v2].name == g2[v2_g2].name);
+  assert(g[v2].type == g2[v2_g2].type);
+  assert(g[v3].name == g2[v3_g2].name);
+  assert(g[v3].type == g2[v3_g2].type);
+  assert(g[e1].color == g2[get_edge(v1_g2, v2_g2, g2)].color);
+  assert(g[e1.m_source].name == g2[get_edge(v1_g2, v2_g2, g2).m_source].name);
+  assert(g[e1.m_target].name == g2[get_edge(v1_g2, v2_g2, g2).m_target].name);
+  assert(g[e2].color == g2[get_edge(v1_g2, v3_g2, g2)].color);
+  assert(g[e2.m_source].name == g2[get_edge(v1_g2, v3_g2, g2).m_source].name);
+  assert(g[e2.m_target].name == g2[get_edge(v1_g2, v3_g2, g2).m_target].name);
+  assert(g.m_vertices.size() == g2.m_vertices.size());
+  assert(g.m_edges.size() == g2.m_edges.size());
+  assert(num_species(g) == num_species(g2));
+  assert(num_characters(g) == num_characters(g2));
 
   std::cout << "test_copy_graph(): passed" << std::endl;
 }
@@ -261,6 +266,5 @@ int main(int argc, char *argv[]) {
   test_get_edge();
   test_remove_vertex();
   test_remove_non_existent_vertex();
-  test_equal_graph();
   test_copy_graph();
 }

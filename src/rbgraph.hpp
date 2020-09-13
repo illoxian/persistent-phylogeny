@@ -437,18 +437,6 @@ void copy_graph(const RBGraph& g, RBGraph& g_copy);
 void copy_graph(const RBGraph& g, RBGraph& g_copy, RBVertexMap& v_map);
 
 /**
-  @brief Overloading of operator== for RBGraph. It returns
-  true if \e g1 is a copy of \e g2, that is, they have the same
-  verteces and edges
-
-  @param[in] g1 Red-black graph
-  @param[in] g2 Red-black graph
-
-  @return True if g1 is equal to g2
-*/
-bool operator==(const RBGraph& g1, const RBGraph& g2);
-
-/**
   @brief Overloading of operator<< for RBGraph
 
   @param[in] os Output stream

@@ -161,29 +161,6 @@ void copy_graph(const RBGraph& g, RBGraph& g_copy, RBVertexMap& v_map) {
   build_vertex_map(g_copy);
 }
 
-bool operator==(const RBGraph& g1, const RBGraph& g2) {
-  RBVertexIter g1_iter, g1_iter_end, g2_iter, g2_iter_end;
-  std::tie(g1_iter, g1_iter_end) = vertices(g1);
-  std::tie(g2_iter, g2_iter_end) = vertices(g2);
-  while (g1_iter != g1_iter_end && g2_iter != g2_iter_end) {
-    if (g1[(*g1_iter)].name != g1[(*g2_iter)].name)
-      return false;
-    else if (g1[(*g1_iter)].type != g1[(*g2_iter)].type)
-      return false;
-    g1_iter++;
-    g2_iter++;
-  }
-
-  if (g1_iter != g1_iter_end || g2_iter != g2_iter_end) 
-    return false;
-  else if (num_species(g1) != num_species(g2)) 
-    return false;
-  else if (num_characters(g1) != num_characters(g2)) 
-    return false;
-
-  return true;
-}
-
 std::ostream& operator<<(std::ostream& os, const RBGraph& g) {
   std::list<std::string> lines;
   std::list<std::string> species;
