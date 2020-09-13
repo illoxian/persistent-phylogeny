@@ -94,12 +94,42 @@ const RBVertex& get_vertex(const std::string& name, const RBGraph& g) {
   }
 }
 
+bool exists(const RBVertex &source, const RBVertex &target, RBGraph &g) {
+  if (!exists(source, g) || !exists(target, g))
+    return false;
+  
+  RBOutEdgeIter e, e_end;
+  std::tie(e, e_end) = out_edges(source, g);
+  for (; e != e_end; ++e) {
+    if (g[(*e).m_target].name == g[target].name &&
+      g[(*e).m_target].type == g[target].type)
+      return true;
+  }
+  return false;
+}
+
+bool exists(const std::string &source, const std::string &target, RBGraph &g) {
+  if (!exists(source, g) || !exists(target, g))
+    return false;
+  return exists(get_vertex(source, g), get_vertex(target, g), g);
+}
+
 
 bool exists(const RBVertex &v, RBGraph &g) {
   RBVertexIter u, u_end;
   std::tie(u, u_end) = vertices(g);
   for (; u != u_end; ++u) {
     if (*u == v)
+      return true;
+  }
+  return false;
+}
+
+bool exists(const std::string &name, RBGraph &g) {
+  RBVertexIter u, u_end;
+  std::tie(u, u_end) = vertices(g);
+  for (; u != u_end; ++u) {
+    if (g[*u].name == name)
       return true;
   }
   return false;
@@ -259,7 +289,7 @@ void read_graph(const std::string& filename, RBGraph& g) {
   if (!file) {
     // input file doesn't exist
     throw std::runtime_error(
-        "Failed to read graph from file: no such file or directory");
+        "[ERROR: read_graph()] Failed to read graph from file: no such file or directory");
   }
 
   size_t index = 0;
@@ -283,7 +313,7 @@ void read_graph(const std::string& filename, RBGraph& g) {
         }
         else {
           if(read >= num_c)
-            throw std::runtime_error("Failed to read graph from file: Inexistent character");
+            throw std::runtime_error("[ERROR: read_graph()] Failed to read graph from file: Inexistent character");
           std::string s = "c" + std::to_string(read);
           a_chars.push_back(s);
         }
@@ -295,21 +325,21 @@ void read_graph(const std::string& filename, RBGraph& g) {
       if (species.size() == 0 || characters.size() == 0) {
         // input file parsing error
         throw std::runtime_error(
-            "Failed to read graph from file: badly formatted line 0");
+            "[ERROR: read_graph()] Failed to read graph from file: badly formatted line 0");
       }
 
       // insert species in the graph
       for (size_t j = 0; j < species.size(); ++j) {
         const auto v_name = "s" + std::to_string(j);
 
-        species[j] = add_vertex(v_name, Type::species, g);
+        species[j] = add_species(v_name, g);
       }
 
       // insert characters in the graph
       for (size_t j = 0; j < characters.size(); ++j) {
         const auto v_name = "c" + std::to_string(j);
 
-        characters[j] = add_vertex(v_name, Type::character, g);
+        characters[j] = add_character(v_name, g);
       }
 
       first_line = false;
@@ -329,14 +359,12 @@ void read_graph(const std::string& filename, RBGraph& g) {
               if (s_index >= species.size() || c_index >= characters.size()) {
                 // input file parsing error
                 throw std::runtime_error(
-                    "Failed to read graph from file: oversized matrix");
+                    "[ERROR: read_graph()] Failed to read graph from file: oversized matrix");
               }
 
               RBEdge edge;
               std::tie(edge, std::ignore) =
                   add_edge(species[s_index], characters[c_index], g);
-
-              //if (red_edge) g[edge].color = Color::red;
             }
             break;
 
@@ -347,7 +375,7 @@ void read_graph(const std::string& filename, RBGraph& g) {
           default:
             // input file parsing error
             throw std::runtime_error(
-                "Failed to read graph from file: unexpected value in matrix");
+                "[ERROR: read_graph()] Failed to read graph from file: unexpected value in matrix");
         }
 
         index++;
@@ -360,19 +388,18 @@ void read_graph(const std::string& filename, RBGraph& g) {
   if (index != species.size() * characters.size()) {
     // input file parsing error
     throw std::runtime_error(
-        "Failed to read graph from file: undersized matrix");
+        "[ERROR: read_graph()] Failed to read graph from file: undersized matrix");
   }
 
   if (species.size() == 0 || characters.size() == 0) {
     // input file parsing error
-    throw std::runtime_error("Failed to read graph from file: empty file");
+    throw std::runtime_error("[ERROR: read_graph()] Failed to read graph from file: empty file");
   }
 
   for(const auto& elem : a_chars)
     change_char_type(vertex_map(g).at(elem), g);
-
-  
 }
+
 //=============================================================================
 // Algorithm functions
 

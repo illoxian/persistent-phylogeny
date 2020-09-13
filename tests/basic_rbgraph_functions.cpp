@@ -220,6 +220,24 @@ void test_remove_non_existent_vertex() {
   std::cout << "test_remove_non_existent_vertex(): passed" << std::endl;
 }
 
+void test_exists() {
+  RBGraph g;
+
+  RBVertex v1 = add_vertex("v1", Type::species, g);
+  RBVertex v2 = add_vertex("v2", Type::character, g);
+  RBVertex v3 = add_vertex("v3", Type::character, g);
+  assert(exists("v2", g));
+  assert(!exists("v4", g));
+
+  RBEdge e1, e2;
+  std::tie(e1, std::ignore) = add_edge(v1, v2, g);
+  std::tie(e2, std::ignore) = add_edge(v1, v3, Color::red, g);
+  assert(exists("v1", "v3", g));
+  assert(!exists("v4", "v5", g));
+
+  std::cout << "test_exists(): passed" << std::endl;
+}
+
 void test_copy_graph() {
   RBGraph g;
 
@@ -257,6 +275,37 @@ void test_copy_graph() {
   std::cout << "test_copy_graph(): passed" << std::endl;
 }
 
+void test_read_graph() {
+  RBGraph g;
+  read_graph("test_5x2.txt", g);
+  
+  assert(num_characters(g) == 2);
+  assert(num_species(g) == 5);
+  assert(exists("c0", g));
+  assert(exists("c1", g));
+  assert(exists("s0", g));
+  assert(exists("s1", g));
+  assert(exists("s2", g));
+  assert(exists("s3", g));
+  assert(exists("s4", g));
+  assert(!exists("s5", g));
+  assert(!exists("c2", g));
+
+  assert(exists("s0", "c1", g));
+  assert(!exists("s0", "c0", g));
+  assert(exists("s1", "c0", g));
+  assert(exists("s1", "c1", g));
+  assert(exists("s2", "c0", g));
+  assert(exists("s3", "c0", g));
+  assert(exists("s3", "c1", g));
+  assert(exists("s4", "c0", g));
+  assert(exists("s4", "c1", g));
+  assert(exists("s4", "c1", g));
+  assert(!exists("s2", "c1", g));
+
+  std::cout << "test_read_graph(): passed" << std::endl;
+}
+
 int main(int argc, char *argv[]) {
   test_simple_add_vertex();
   test_add_vertex_with_duplicates();
@@ -266,5 +315,7 @@ int main(int argc, char *argv[]) {
   test_get_edge();
   test_remove_vertex();
   test_remove_non_existent_vertex();
+  test_exists();
   test_copy_graph();
+  test_read_graph();
 }

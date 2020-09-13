@@ -400,17 +400,49 @@ RBEdge get_edge(const RBVertex &source, const RBVertex &target, RBGraph &g);
 
   @return Vertex
 */
-const RBVertex& get_vertex(const std::string& name, const RBGraph& g); 
+const RBVertex& get_vertex(const std::string& name, const RBGraph& g);
+
+/**
+  @brief Return true if an edge with \e source and \e target exists in \e g
+
+  @param[in] source Source vertex
+  @param[in] target Target vertex
+  @param[in] g    Red-black graph
+
+  @return bool
+*/
+bool exists(const RBVertex &source, const RBVertex &target, RBGraph &g);
+
+/**
+  @brief Return true if an edge with \e source and \e target exists in \e g
+
+  @param[in] source Source vertex name
+  @param[in] target Target vertex name
+  @param[in] g    Red-black graph
+
+  @return bool
+*/
+bool exists(const std::string &source, const std::string &target, RBGraph &g);
 
 /**
   @brief Return true if \e v exists in \e g
 
-  @param[in] v    Vertex name
+  @param[in] v    Vertex
   @param[in] g    Red-black graph
 
   @return bool
 */
 bool exists(const RBVertex &v, RBGraph &g);
+
+/**
+  @brief Return true if a vertex named \e name exists in \e g
+
+  @param[in] name    Vertex name
+  @param[in] g    Red-black graph
+
+  @return bool
+*/
+bool exists(const std::string &name, RBGraph &g);
 
 /**
   @brief Build the map in \e g
