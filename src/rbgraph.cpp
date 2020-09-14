@@ -634,18 +634,16 @@ RBGraphVector connected_components(const RBGraph& g, const RBVertexIMap& c_map,
   return components;
 }
 
-const std::list<RBVertex> maximal_characters(const RBGraph& g) {
-  std::list<RBVertex> cm;
-  std::map<RBVertex, std::list<RBVertex>> adj_spec;
-
+void build_adjacent_species_map(std::map<RBVertex, std::list<RBVertex>>& adj_spec, const RBGraph& g) {
   // how adj_spec is going to be structured:
   // adj_spec[C] => < List of adjacent species to C >
 
   RBVertexIter v, v_end;
   std::tie(v, v_end) = vertices(g);
   for (; v != v_end; ++v) {
-    if (!is_character(*v, g)) continue;
-    // for each character vertex
+    if (!is_character(*v, g)) 
+      continue;
+    // for each character vertex v
 
     // build v's set of adjacent species
     RBOutEdgeIter e, e_end;
@@ -653,99 +651,89 @@ const std::list<RBVertex> maximal_characters(const RBGraph& g) {
     for (; e != e_end; ++e) {
       RBVertex vt = target(*e, g);
 
-      // if v is active or connected to random nodes ignore it
-      if ((!active::enabled && is_red(*e, g)) || !is_species(vt, g)) break;
+      // if v is active ignore it
+      if (!active::enabled && is_red(*e, g)) 
+        break;
 
       adj_spec[*v].push_back(vt);
     }
+  }
+}
 
-    if (cm.empty()) {
-      // cm being empty means v can be added without further checks
-      cm.push_back(*v);
-      continue;
+bool includes(const RBVertex& c1, const RBVertex& c2, std::map<RBVertex, std::list<RBVertex>>& adj_spec) {
+  bool included = true;
+  RBVertexIter c2_it = adj_spec[c2].begin(), c2_it_end = adj_spec[c2].end();
+  while (c2_it != c2_it_end) {
+    if (!contains(adj_spec[c1], *c2_it)) {
+      included = false;
+      break;
     }
+    ++c2_it;
+  }
+  return included;
+}
 
-    // adj_spec[*v] now contains the list of species adjacent to v
+bool overlap(const RBVertex& c1, const RBVertex& c2, std::map<RBVertex, std::list<RBVertex>>& adj_spec) {
+  if (includes(c1, c2, adj_spec) || includes(c2, c1, adj_spec))
+    return false;
+  RBVertexIter c2_it = adj_spec[c2].begin(), c2_it_end = adj_spec[c2].end();
+  while (c2_it != c2_it_end) {
+    if (contains(adj_spec[c1], *c2_it))
+      return true;
+    ++c2_it;
+  }
+  return false;
+}
 
-    bool skip_cycle = false;
-    bool subst = false;
+std::list<RBVertex> get_inactive_chars(const RBGraph& g) {
+  std::list<RBVertex> list_result;
 
-    // check if adj_spec[*v] is subset of the species adjacent to cmv
-    RBVertexIter cmv = cm.begin(), cmv_end = cm.end();
-    for (; cmv != cmv_end; ++cmv) {
-      // for each species in cm
-      if (skip_cycle) break;
-
-      size_t count_incl = 0;
-      size_t count_excl = 0;
-      bool keep_char = false;
-
-      RBVertexIter sv = adj_spec[*v].begin(), sv_end = adj_spec[*v].end();
-      for (; sv != sv_end; ++sv) {
-        // for each species adjacent to v, S(C#)
-
-        // find sv in the list of cmv's adjacent species
-        std::list<RBVertex>::const_iterator in =
-            std::find(adj_spec[*cmv].cbegin(), adj_spec[*cmv].cend(), *sv);
-
-        // keep count of how many species are included (or not found) in
-        // the list of cmv's adjacent species
-        if (in != adj_spec[*cmv].end())
-          count_incl++;
-        else
-          count_excl++;
-
-        if (std::next(sv) == sv_end) {
-          // last iteration on the species in the list has been performed
-          if (count_incl == adj_spec[*cmv].size() && count_excl > 0) {
-            // the list of adjacent species to v is a superset of the list of
-            // adjacent species to cmv, which means cmv can be replaced
-            // by v in the list of maximal characters Cm
-            if (subst) {
-              cm.remove(*(cmv++));
-            } else {
-              cm.push_front(*v);
-              cm.remove(*(cmv++));
-
-              subst = true;
-            }
-
-            cmv--;
-          } else if (count_incl < adj_spec[*cmv].size() && count_excl > 0) {
-            // the list of adjacent species to v is neither a superset nor a
-            // subset of the list of adjacent species to cmv, which means
-            // v may be a new maximal character
-            if (!subst) keep_char = true;
-          } else if (count_incl == adj_spec[*cmv].size()) {
-            // the list of adjacent species to v is the same as the list of
-            // adjacent species to cmv, so v can be ignored in the next
-            // iterations on the characters in Cm
-            skip_cycle = true;
-          } else if (count_excl == 0) {
-            // the list of adjacent species to v is a subset of the list of
-            // adjacent species to cmv, meaning v can be ignored in the
-            // next iterations on the characters in Cm
-            skip_cycle = true;
-          }
-        }
-      }
-
-      if (std::next(cmv) == cmv_end) {
-        // last iteration on the characters in the list has been performed
-        if (keep_char) {
-          // after all the iterations keep_char is true if the list of adjacent
-          // species to v is neither a superset nor a subset of the lists of
-          // adjacent species to the characters in Cm, so v is a maximal
-          // characters and can be added to the list of maximal characters Cm
-          cm.push_front(*v);
-        }
-      }
-    }
+  RBVertexIter v, v_end;
+  std::tie(v, v_end) = vertices(g);
+  while (v != v_end) {
+    if (is_character(*v, g) && is_inactive(*v, g))
+      list_result.push_back(*v);
+    ++v;
   }
 
-  cm.reverse();
+  return list_result;
+}
 
-  return cm;
+const std::list<RBVertex> maximal_characters(const RBGraph& g) {
+  std::list<RBVertex> mc;
+  std::map<RBVertex, std::list<RBVertex>> adj_spec;
+
+  // how adj_spec is going to be structured:
+  // adj_spec[C] => < List of adjacent species to C >
+
+  build_adjacent_species_map(adj_spec, g);
+  // adj_spec[*v] now contains the list of species adjacent to v
+
+  std::list<RBVertex> inactive_chars = get_inactive_chars(g);
+
+  // for each inactive character c in g, if S(c) ⊄ S(c') for any
+  // character c', then v is a maximal character and it
+  // is inserted in mc
+  RBVertexIter v = inactive_chars.begin(), v_end = inactive_chars.end();
+  bool maximal_character;
+  for (; v != v_end; ++v) {
+    maximal_character = true;
+
+    RBVertexIter u = inactive_chars.begin(), u_end = inactive_chars.end();
+    for (; u != u_end; ++u) {
+      if (*v == *u)
+        continue;
+      
+      if (includes(*u, *v, adj_spec)) {
+        maximal_character = false;
+        break;
+      }
+    }
+
+    if (maximal_character)
+      mc.push_back(*v);
+  }
+  return mc;
 }
 
 RBGraph maximal_reducible_graph(const RBGraph& g, const bool active) {

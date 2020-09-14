@@ -563,7 +563,7 @@ bool is_active(const RBVertex& v, const RBGraph& g);
 
   @return True if \e v is inactive in \e g
 */
-bool is_inactive(const RBVertex v, const RBGraph& g);
+bool is_inactive(const RBVertex& v, const RBGraph& g);
 
 /**
   @brief Remove singleton vertices from \e g
@@ -668,7 +668,65 @@ RBGraphVector connected_components(const RBGraph& g, const RBVertexIMap& c_map,
                                    const size_t c_count);
 
 /**
-  @brief Build the list of maximal characters of \e g
+  @brief Builds the map of characters with their corresponding adjacent species. This is a helper function for maximal_characters().
+
+  @param[in] adj_spec     Map of characters with corresponding adjacent species
+  @param[in] g            Red-black graph
+*/
+void build_adjacent_species_map(std::map<RBVertex, std::list<RBVertex>>& adj_spec, const RBGraph& g);
+
+/**
+  @brief Returns true if \e v is in \e v_list
+
+  @param[in] v_list   a list of verteces
+  @param[in] v        a vertex
+
+  @return bool
+*/
+inline bool contains(const std::list<RBVertex>& v_list, const RBVertex& v) {
+  return std::find(v_list.begin(), v_list.end(), v) != v_list.end();
+}
+
+/**
+  @brief Returns true if the species adjacent to \e c1 include the species adjacent to \e c2, false otherwise.
+
+  Let c be an unsigned character.
+  Then S(c) is the set of species that have the character c.
+  Given two characters c1 and c2, we will say that c1 includes c2 if
+  S(c1) ⊇ S(c2).
+
+  @param[in] c1         a vertex character
+  @param[in] c2         a vertex character
+  @param[in] adj_spec   a map of verteces and their corresponding adjacent species
+
+  @return bool
+*/
+bool includes(const RBVertex& c1, const RBVertex& c2, 
+              std::map<RBVertex, std::list<RBVertex>>& adj_spec);
+
+/**
+  @brief Returns true if the species adjacent to \e c1 overlap with the species adjacent to \e c2, false otherwise. In other words, let c and c' be two unsigned characters. Then, c and c' overlap if they share common species
+  but neither is included in the other, that is, S(c) ⊄ S(c') and S(c') ⊄ S(c).
+
+  @param[in] c1         a vertex character
+  @param[in] c2         a vertex character
+  @param[in] adj_spec   a map of verteces and their corresponding adjacent species
+
+  @return bool
+*/
+bool overlap(const RBVertex& c1, const RBVertex& c2, std::map<RBVertex, std::list<RBVertex>>& adj_spec);
+
+/**
+  @brief Returns the list of inactive characters in \e g
+
+  @param[in] g  A red-black graph
+
+  @return std::list of inactive character verteces
+*/
+std::list<RBVertex> get_inactive_chars(const RBGraph& g);
+
+/**
+  @brief Build the list of maximal inactive characters of \e g
 
   Let c be an unsigned character.
   Then S(c) is the set of species that have the character c.
@@ -681,7 +739,7 @@ RBGraphVector connected_components(const RBGraph& g, const RBVertexIMap& c_map,
 
   @param[in] g Red-black graph
 
-  @return Maximal characters (vertices) of \e g
+  @return Maximal inactive characters (vertices) of \e g
 */
 const std::list<RBVertex> maximal_characters(const RBGraph& g);
 
