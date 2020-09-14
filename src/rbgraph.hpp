@@ -613,8 +613,7 @@ bool is_red_universal(const RBVertex& v, const RBGraph& g, const RBVertexIMap& c
 /**
   @brief Check if \e v is universal in \e g
 
-  A vertex is free in a red-black graph if it's an inactive character that is
-  connected to all species of the graph by black dges.
+  A vertex is universal in a red-black graph if it's an inactive character that is connected to all the species of the same component of \e g in which \e v resides.
 
   @param[in] v Vertex
   @param[in] g Red-black graph
@@ -626,8 +625,7 @@ bool is_universal(const RBVertex v, const RBGraph& g);
 /**
   @brief Check if \e v is universal in \e g
 
-  A vertex is free in a red-black graph if it's an inactive character that is
-  connected to all species of the graph by black dges.
+  A vertex is universal in a red-black graph if it's an inactive character that is connected to all the species of the same component of \e g in which \e v resides.
 
   @param[in] v     Vertex
   @param[in] g     Red-black graph

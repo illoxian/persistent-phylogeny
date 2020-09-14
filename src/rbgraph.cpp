@@ -487,7 +487,8 @@ bool is_red_universal(const RBVertex& v, const RBGraph& g, const RBVertexIMap& c
 }
 
 bool is_universal(const RBVertex v, const RBGraph& g) {
-  if (!is_character(v, g)) return false;
+  if (!is_character(v, g)) 
+    return false;
 
   RBVertexIMap index_map, comp_map;
   RBVertexIAssocMap index_assocmap(index_map), comp_assocmap(comp_map);
@@ -508,29 +509,29 @@ bool is_universal(const RBVertex v, const RBGraph& g) {
 
 bool is_universal(const RBVertex v, const RBGraph& g,
                   const RBVertexIMap& c_map) {
-  if (!is_character(v, g)) return false;
+  if (!is_character(v, g)) 
+    return false;
 
   size_t tot_species = 0;
-
   RBVertexIter u, u_end;
   std::tie(u, u_end) = vertices(g);
   for (; u != u_end; ++u) {
-    if (!is_species(*u, g) || c_map.at(v) != c_map.at(*u)) continue;
-
+    if (!is_species(*u, g) || c_map.at(v) != c_map.at(*u)) 
+      continue;
     tot_species++;
   }
 
   size_t count_species = 0;
-
   RBOutEdgeIter e, e_end;
   std::tie(e, e_end) = out_edges(v, g);
   for (; e != e_end; ++e) {
-    if (!is_black(*e, g) || !is_species(target(*e, g), g)) return false;
-
+    if (!is_black(*e, g)) 
+      return false;
     count_species++;
   }
 
-  if (count_species != tot_species) return false;
+  if (count_species != tot_species) 
+    return false;
 
   return true;
 }
