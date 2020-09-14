@@ -210,6 +210,32 @@ struct if_not_maximal {
 // Boost functions (overloading)
 
 /**
+  @brief Remove all vertices and edges from \e g
+
+  @param[in] g Red-black graph
+*/
+void clear(RBGraph& g);
+
+/**
+  @brief Remove the edge with source \e s and target \e t from \e g
+
+  @param[in]     s Source vertex
+  @param[in]     t Target vertex
+  @param[in,out] g Red-black graph
+*/
+void remove_edge(const RBVertex& s, const RBVertex& t, RBGraph& g);
+
+/**
+  @brief Remove \e e from \e g
+
+  @param[in]     e Edge
+  @param[in,out] g Red-black graph
+*/
+inline void remove_edge(const RBEdge& e, RBGraph& g) {
+  remove_edge(e.m_source, e.m_target, g);
+}
+
+/**
   @brief Remove \e v from \e g
 
   @param[in]     v Vertex

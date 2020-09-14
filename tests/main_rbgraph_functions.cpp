@@ -148,6 +148,32 @@ void test_get_edge() {
   std::cout << "test_get_edge(): passed" << std::endl;
 }
 
+void test_remove_edge() {
+  RBGraph g;
+  RBVertex v1, v2, v3;
+
+  v1 = add_vertex("v1", Type::species, g);
+  v2 = add_vertex("v2", Type::character, g);
+  v3 = add_vertex("v3", Type::character, g);
+
+  RBEdge e1, e2;
+  std::tie(e1, std::ignore) = add_edge(v1, v2, g);
+  std::tie(e2, std::ignore) = add_edge(v1, v3, Color::red, g);
+
+  assert(g[e1].color == Color::black);
+  assert(g[e2].color == Color::red);
+  assert(g.m_edges.size() == 2);
+
+  remove_edge(v1, v3, g);
+  assert(!exists(v1, v3, g));
+  assert(g.m_edges.size() == 1);
+  remove_edge(e1, g);
+  assert(g.m_edges.size() == 0);
+  assert(!exists(e1.m_source, e1.m_target, g));
+
+  std::cout << "test_remove_edge(): passed" << std::endl;
+}
+
 
 void test_remove_vertex() {
   RBGraph g;
@@ -313,6 +339,7 @@ int main(int argc, char *argv[]) {
   test_add_edge();
   test_graph_size();
   test_get_edge();
+  test_remove_edge();
   test_remove_vertex();
   test_remove_non_existent_vertex();
   test_exists();

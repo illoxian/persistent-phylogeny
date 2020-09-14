@@ -7,11 +7,21 @@
 //=============================================================================
 // Boost functions (overloading)
 
+void clear(RBGraph& g) {
+  g.clear();
+  vertex_map(g).clear();
+}
+
+void remove_edge(const RBVertex& s, const RBVertex& t, RBGraph& g) {
+  if (!exists(s, g) || !exists(t, g))
+    throw std::runtime_error("[ERROR: remove_edge()] Source vertex or target vertex does not exist");
+  boost::remove_edge(s, t, g);
+}
+
 void remove_vertex(const RBVertex& v, RBGraph& g) {
 
-  if (!exists(v, g)) {
+  if (!exists(v, g)) 
     throw std::runtime_error("[ERROR: remove_vertex()] The input RBVertex does not exist");
-  } 
 
   // delete v from the map
   vertex_map(g).erase(g[v].name);
@@ -870,14 +880,31 @@ bool has_red_sigmapath(const RBVertex c0, const RBVertex c1, const RBGraph& g) {
 }
 
 void change_char_type(const RBVertex& v, RBGraph& g) {
+  // get the black edges in v
   RBOutEdgeIter e, e_end;
   std::tie(e, e_end) = out_edges(v, g);
-  
-  for(; e != e_end; ++e)
-    if(is_red(*e, g))
-      g[*e].color = Color::black;
-    else
-      g[*e].color = Color::red;
+  std::list<RBVertex> species_black_edges;
+  for (; e != e_end; ++e) 
+    species_black_edges.push_back((*e).m_target);
+
+  // get the species not connected to v
+  RBVertexIter u, u_end;
+  std::list<RBVertex> species_red_edges;
+  std::tie(u, u_end) = vertices(g);
+  while (u != u_end) {
+    if (is_species(*u, g) && !contains(species_black_edges, *u))
+      species_red_edges.push_back(*u);
+    ++u;
+  }
+
+  boost::clear_vertex(v, g);
+
+  u = species_red_edges.begin();
+  u_end = species_red_edges.end();
+  while (u != u_end) {
+    add_edge(v, *u, Color::red, g);
+    ++u;
+  }
 }
 
 std::set<std::string> active_characters(const RBGraph& g) {
