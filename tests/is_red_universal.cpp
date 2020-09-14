@@ -34,11 +34,11 @@ int main(int argc, const char* argv[]) {
   add_edge(s6, c7, g);
   add_edge(s7, c8, g);
 
-  assert(is_free(s3, g) == false);
-  assert(is_free(c5, g) == false);
-  assert(is_free(c4, g) == true);
+  assert(is_red_universal(s3, g) == false);
+  assert(is_red_universal(c5, g) == false);
+  assert(is_red_universal(c4, g) == true);
 
-  std::cout << "free: tests passed" << std::endl;
+  std::cout << "is_red_universal: tests passed" << std::endl;
 
   return 0;
 }

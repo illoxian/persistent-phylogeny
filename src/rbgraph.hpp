@@ -586,31 +586,29 @@ void remove_singletons(RBGraph& g);
 inline bool is_empty(const RBGraph& g) { return (num_vertices(g) == 0); }
 
 /**
-  @brief Check if \e v is free in \e g
+  @brief Check if \e v is red-universal in \e g
 
-  A vertex is free in a red-black graph if it's an active character that is
-  connected to all the species of the same component of \e g in which \e v resides.
+  A vertex is red-universal in a red-black graph if it's an active character that is connected to all the species of the same component of \e g in which \e v resides.
 
   @param[in] v Vertex
   @param[in] g Red-black graph
 
-  @return True if \e v is free in \e g
+  @return True if \e v is red-universal in \e g
 */
-bool is_free(const RBVertex& v, const RBGraph& g);
+bool is_red_universal(const RBVertex& v, const RBGraph& g);
 
 /**
-  @brief Check if \e v is free in \e g
+  @brief Check if \e v is red-universal in \e g
 
-  A vertex is free in a red-black graph if it's an active character that is
-  connected to all the species of the same component of \e g in which \e v resides.
+  A vertex is red-universal in a red-black graph if it's an active character that is connected to all the species of the same component of \e g in which \e v resides.
 
   @param[in] v     Vertex
   @param[in] g     Red-black graph
   @param[in] c_map Components map of \e g
 
-  @return True if \e v is free in \e g
+  @return True if \e v is red-universal in \e g
 */
-bool is_free(const RBVertex& v, const RBGraph& g, const RBVertexIMap& c_map);
+bool is_red_universal(const RBVertex& v, const RBGraph& g, const RBVertexIMap& c_map);
 
 /**
   @brief Check if \e v is universal in \e g

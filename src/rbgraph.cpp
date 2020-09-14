@@ -435,7 +435,7 @@ void remove_singletons(RBGraph& g) {
   }
 }
 
-bool is_free(const RBVertex& v, const RBGraph& g) {
+bool is_red_universal(const RBVertex& v, const RBGraph& g) {
   if (!is_character(v, g)) 
     return false;
 
@@ -453,10 +453,10 @@ bool is_free(const RBVertex& v, const RBGraph& g) {
   boost::connected_components(g, comp_assocmap,
                               boost::vertex_index_map(index_assocmap));
 
-  return is_free(v, g, comp_map);
+  return is_red_universal(v, g, comp_map);
 }
 
-bool is_free(const RBVertex& v, const RBGraph& g, const RBVertexIMap& c_map) {
+bool is_red_universal(const RBVertex& v, const RBGraph& g, const RBVertexIMap& c_map) {
   if (!is_character(v, g)) 
     return false;
 
