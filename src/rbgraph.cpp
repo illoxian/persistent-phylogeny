@@ -576,7 +576,7 @@ RBGraphVector connected_components(const RBGraph& g, const RBVertexIMap& c_map,
     // graph is connected
     return components;
   }
-  // graph is disconnected
+  // else graph is disconnected
 
   // add vertices to their respective subgraph
   for (const auto& vcomp : c_map) {
@@ -595,7 +595,8 @@ RBGraphVector connected_components(const RBGraph& g, const RBVertexIMap& c_map,
     const auto v = vcomp.first;
 
     // prevent duplicate edges from characters to species
-    if (!is_species(v, g)) continue;
+    if (!is_species(v, g)) 
+      continue;
 
     const auto new_v = vertices[v];
     const auto comp = vcomp.second;
