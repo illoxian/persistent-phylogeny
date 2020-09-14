@@ -589,20 +589,20 @@ inline bool is_empty(const RBGraph& g) { return (num_vertices(g) == 0); }
   @brief Check if \e v is free in \e g
 
   A vertex is free in a red-black graph if it's an active character that is
-  connected to all species of the graph by red dges.
+  connected to all the species of the same component of \e g in which \e v resides.
 
   @param[in] v Vertex
   @param[in] g Red-black graph
 
   @return True if \e v is free in \e g
 */
-bool is_free(const RBVertex v, const RBGraph& g);
+bool is_free(const RBVertex& v, const RBGraph& g);
 
 /**
   @brief Check if \e v is free in \e g
 
   A vertex is free in a red-black graph if it's an active character that is
-  connected to all species of the graph by red dges.
+  connected to all the species of the same component of \e g in which \e v resides.
 
   @param[in] v     Vertex
   @param[in] g     Red-black graph
@@ -610,7 +610,7 @@ bool is_free(const RBVertex v, const RBGraph& g);
 
   @return True if \e v is free in \e g
 */
-bool is_free(const RBVertex v, const RBGraph& g, const RBVertexIMap& c_map);
+bool is_free(const RBVertex& v, const RBGraph& g, const RBVertexIMap& c_map);
 
 /**
   @brief Check if \e v is universal in \e g
