@@ -104,7 +104,7 @@ const RBVertex& get_vertex(const std::string& name, const RBGraph& g) {
   }
 }
 
-bool exists(const RBVertex &source, const RBVertex &target, RBGraph &g) {
+bool exists(const RBVertex &source, const RBVertex &target, const RBGraph &g) {
   if (!exists(source, g) || !exists(target, g))
     return false;
   
@@ -118,13 +118,13 @@ bool exists(const RBVertex &source, const RBVertex &target, RBGraph &g) {
   return false;
 }
 
-bool exists(const std::string &source, const std::string &target, RBGraph &g) {
+bool exists(const std::string &source, const std::string &target, const RBGraph &g) {
   if (!exists(source, g) || !exists(target, g))
     return false;
   return exists(get_vertex(source, g), get_vertex(target, g), g);
 }
 
-bool exists(const RBVertex &v, RBGraph &g) {
+bool exists(const RBVertex &v, const RBGraph &g) {
   RBVertexIter u, u_end;
   std::tie(u, u_end) = vertices(g);
   for (; u != u_end; ++u) {
@@ -134,7 +134,7 @@ bool exists(const RBVertex &v, RBGraph &g) {
   return false;
 }
 
-bool exists(const std::string &name, RBGraph &g) {
+bool exists(const std::string &name, const RBGraph &g) {
   RBVertexIter u, u_end;
   std::tie(u, u_end) = vertices(g);
   for (; u != u_end; ++u) {
@@ -904,6 +904,31 @@ std::set<std::string> active_characters(const RBGraph& g) {
     v++;
   }
   return ac;
+}
+
+std::list<RBVertex> comp_species(const RBVertex& c, const RBGraph& g) {
+  std::list<RBVertex> result;
+  RBGraphVector connected_comp_vec = connected_components(g);
+  if (connected_comp_vec.size() == 1) { 
+    // only a connected component, then return all the species of g
+    for (RBVertex v : g.m_vertices)
+        if (is_species(v, g)) 
+          result.push_back(v);
+  } else {
+    // more than a component, then find the component in which c is located and
+    // return the species included in such component
+    auto comp = connected_comp_vec.begin();
+    auto comp_end = connected_comp_vec.end();
+    for (; comp != comp_end; ++comp) {
+      if (exists(g[c].name, *comp->get())) {
+        for (RBVertex v : comp->get()->m_vertices)
+          if (is_species(v, g)) 
+            result.push_back(v);
+        break;
+      }
+    }
+  }
+  return result;
 }
 
 std::set<std::string> specie_active_characters(const RBVertex v, const RBGraph& g) {

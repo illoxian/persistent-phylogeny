@@ -437,7 +437,7 @@ const RBVertex& get_vertex(const std::string& name, const RBGraph& g);
 
   @return bool
 */
-bool exists(const RBVertex &source, const RBVertex &target, RBGraph &g);
+bool exists(const RBVertex &source, const RBVertex &target, const RBGraph &g);
 
 /**
   @brief Return true if an edge with \e source and \e target exists in \e g
@@ -448,7 +448,7 @@ bool exists(const RBVertex &source, const RBVertex &target, RBGraph &g);
 
   @return bool
 */
-bool exists(const std::string &source, const std::string &target, RBGraph &g);
+bool exists(const std::string &source, const std::string &target, const RBGraph &g);
 
 /**
   @brief Return true if \e v exists in \e g
@@ -458,7 +458,7 @@ bool exists(const std::string &source, const std::string &target, RBGraph &g);
 
   @return bool
 */
-bool exists(const RBVertex &v, RBGraph &g);
+bool exists(const RBVertex &v, const RBGraph &g);
 
 /**
   @brief Return true if a vertex named \e name exists in \e g
@@ -468,7 +468,7 @@ bool exists(const RBVertex &v, RBGraph &g);
 
   @return bool
 */
-bool exists(const std::string &name, RBGraph &g);
+bool exists(const std::string &name, const RBGraph &g);
 
 /**
   @brief Build the map in \e g
@@ -823,6 +823,16 @@ bool has_red_sigmapath(const RBVertex c0, const RBVertex c1, const RBGraph& g);
   @param[in] g Red-black graph
 */
 void change_char_type(const RBVertex& v, RBGraph& g);
+
+/**
+  @brief Given a character \e c, it returns the list of species in the connected component of \e g to which \e c belongs.
+
+  @param[in] c Character in the red-black graph
+  @param[in] g Red-black graph
+
+  @return List of species
+**/  
+std::list<RBVertex> comp_species(const RBVertex& c, const RBGraph& g);
 
 /**
   @brief Given a specie, return the set of active characters adjacent to the specie

@@ -987,7 +987,7 @@ std::list<SignedCharacter> reduce(RBGraph& g) {
   std::tie(v, v_end) = vertices(g);
   for (; v != v_end; ++v) {
     // for each vertex
-    if (is_free(*v, g, c_map)) {
+    if (is_red_universal(*v, g, c_map)) {
       // if v is free
       // realize v-
       // return < v-, reduce(g) >
@@ -1480,7 +1480,7 @@ std::pair<std::list<SignedCharacter>, bool> realize(const SignedCharacter& sc,
   std::tie(v, v_end) = vertices(g);
   for (; v != v_end; ++v) {
     // for each vertex
-    if (is_free(*v, g, c_map)) {
+    if (is_red_universal(*v, g, c_map)) {
       // if v is free
       // realize v-
       if (logging::enabled) {
@@ -1579,4 +1579,35 @@ bool is_complete(std::list<SignedCharacter> sc, const RBGraph& gm){
     v++;
   }
   return true;
+}
+
+void realize_character(RBVertex& c, RBGraph& g) {
+  if (is_character(c, g)) {
+    if (is_inactive(c, g)) {
+      auto map = get_adjacent_species_map(g);
+      std::list<RBVertex> adj_spec_c = map[c];
+      // adj_spec_c contains the species adjacent to c
+
+      std::list<RBVertex> species_comp_of_c = comp_species(c, g);
+      // species_comp_of_c contains the species in the component to which also
+      // c belongs
+
+      // for every species s in the same component of c, if there already exists
+      // an edge from s to c, ignore it, otherwise add a red edge from s to c
+      RBVertexIter v = species_comp_of_c.begin();
+      RBVertexIter v_end = species_comp_of_c.end();
+      for (; v != v_end; ++v)
+        if (!exists(c, *v, g))
+          add_edge(c, *v, Color::red, g);
+
+      // remove all the black edges from c to its connected species
+      v = adj_spec_c.begin();
+      v_end = adj_spec_c.end();
+      for (; v != v_end; ++v)
+        remove_edge(c, *v, g);
+    } else
+      boost::clear_vertex(c, g); //< remove its red edges
+
+    remove_singletons(g);
+  } 
 }

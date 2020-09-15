@@ -344,4 +344,13 @@ std::pair<std::list<SignedCharacter>, bool> realize(
 
 bool is_complete(std::list<SignedCharacter> sc, const RBGraph& gm);
 
+
+/**
+  @brief Realize the character \e c in \e g
+
+  @param[in]     c    The character to be realized in \e g
+  @param[in,out] g    Red-black graph
+*/
+void realize_character(RBVertex& c, RBGraph& g);
+
 #endif
