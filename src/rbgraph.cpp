@@ -15,6 +15,8 @@ void clear(RBGraph& g) {
 void remove_edge(const RBVertex& s, const RBVertex& t, RBGraph& g) {
   if (!exists(s, g) || !exists(t, g))
     throw std::runtime_error("[ERROR: remove_edge()] Source vertex or target vertex does not exist");
+  if (!exists(s, t, g))
+    throw std::runtime_error("[ERROR: remove_edge()] Source vertex or target vertex does not exist");
   boost::remove_edge(s, t, g);
 }
 
@@ -423,19 +425,6 @@ bool is_active(const RBVertex& v, const RBGraph& g) {
   return true;
 }
 
-bool is_inactive(const RBVertex& v, const RBGraph& g) {
-  if (!is_character(v, g)) 
-    return false;
-
-  RBOutEdgeIter e, e_end;
-  std::tie(e, e_end) = out_edges(v, g);
-  for (; e != e_end; ++e)
-    if (!is_black(*e, g)) 
-    return false;
-
-  return true;
-}
-
 void remove_singletons(RBGraph& g) {
   RBVertexIter v, v_end, next;
   std::tie(v, v_end) = vertices(g);
@@ -644,7 +633,8 @@ RBGraphVector connected_components(const RBGraph& g, const RBVertexIMap& c_map,
   return components;
 }
 
-void build_adjacent_species_map(std::map<RBVertex, std::list<RBVertex>>& adj_spec, const RBGraph& g) {
+std::map<RBVertex, std::list<RBVertex>> get_adjacent_species_map(const RBGraph& g) {
+  std::map<RBVertex, std::list<RBVertex>> adj_spec;
   // how adj_spec is going to be structured:
   // adj_spec[C] => < List of adjacent species to C >
 
@@ -668,6 +658,7 @@ void build_adjacent_species_map(std::map<RBVertex, std::list<RBVertex>>& adj_spe
       adj_spec[*v].push_back(vt);
     }
   }
+  return adj_spec;
 }
 
 bool includes(const RBVertex& c1, const RBVertex& c2, std::map<RBVertex, std::list<RBVertex>>& adj_spec) {
@@ -711,13 +702,8 @@ std::list<RBVertex> get_inactive_chars(const RBGraph& g) {
 
 const std::list<RBVertex> maximal_characters(const RBGraph& g) {
   std::list<RBVertex> mc;
-  std::map<RBVertex, std::list<RBVertex>> adj_spec;
-
-  // how adj_spec is going to be structured:
-  // adj_spec[C] => < List of adjacent species to C >
-
-  build_adjacent_species_map(adj_spec, g);
-  // adj_spec[*v] now contains the list of species adjacent to v
+  auto adj_spec = get_adjacent_species_map(g);
+  // adj_spec is a map, where adj_spec[*v] contains the list of species adjacent to v
 
   std::list<RBVertex> inactive_chars = get_inactive_chars(g);
 

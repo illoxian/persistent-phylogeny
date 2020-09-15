@@ -589,7 +589,9 @@ bool is_active(const RBVertex& v, const RBGraph& g);
 
   @return True if \e v is inactive in \e g
 */
-bool is_inactive(const RBVertex& v, const RBGraph& g);
+inline bool is_inactive(const RBVertex& v, const RBGraph& g) {
+  return !is_active(v, g);
+}
 
 /**
   @brief Remove singleton vertices from \e g
@@ -695,11 +697,12 @@ RBGraphVector connected_components(const RBGraph& g, const RBVertexIMap& c_map,
 
 /**
   @brief Builds the map of characters with their corresponding adjacent species. This is a helper function for maximal_characters().
-
-  @param[in] adj_spec     Map of characters with corresponding adjacent species
+ 
   @param[in] g            Red-black graph
+
+  @return  Map of characters with corresponding adjacent species
 */
-void build_adjacent_species_map(std::map<RBVertex, std::list<RBVertex>>& adj_spec, const RBGraph& g);
+std::map<RBVertex, std::list<RBVertex>> get_adjacent_species_map(const RBGraph& g);
 
 /**
   @brief Returns true if \e v is in \e v_list

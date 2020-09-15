@@ -41,8 +41,8 @@ int main(int argc, const char* argv[]) {
   add_edge(s6, c3, g);
   add_edge(s6, c5, g);
 
-  assert(!is_active(c2, g));
-  assert(!is_active(s5, g));
+  assert(is_inactive(c2, g));
+  assert(is_inactive(s5, g));
   assert(is_active(c4, g));
 
   std::cout << "active: tests passed" << std::endl;
