@@ -34,7 +34,7 @@ void test_simple_add_vertex() {
   assert(g[g[boost::graph_bundle].vertex_map.at("v3")].type == Type::species);
   assert(g[g[boost::graph_bundle].vertex_map.at("v4")].type == Type::character);
 
-  std::cout << "test_add_vertex(): passed" << std::endl;
+  std::cout << "test_simple_add_vertex(): passed" << std::endl;
 }
 
 
@@ -129,7 +129,7 @@ void test_get_edge() {
 
   assert(get_edge(v1, v3, g) == e2);
   assert(g[get_edge(v1, v3, g)].color == Color::red);
-
+  
   try {
     get_edge(v2, v3, g);
     assert(false);

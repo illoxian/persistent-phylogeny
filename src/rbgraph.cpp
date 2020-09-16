@@ -14,16 +14,20 @@ void clear(RBGraph& g) {
 
 void remove_edge(const RBVertex& s, const RBVertex& t, RBGraph& g) {
   if (!exists(s, g) || !exists(t, g))
-    throw std::runtime_error("[ERROR: remove_edge()] Source vertex or target vertex does not exist");
+    throw std::runtime_error("[ERROR] In remove_edge(): source vertex or target vertex does not exist");
   if (!exists(s, t, g))
-    throw std::runtime_error("[ERROR: remove_edge()] Source vertex or target vertex does not exist");
+    throw std::runtime_error("[ERROR] In remove_edge(): edge does not exist");
+
   boost::remove_edge(s, t, g);
 }
 
-void remove_vertex(const RBVertex& v, RBGraph& g) {
+void remove_edge(const std::string& s, const std::string& t, RBGraph& g) {
+  remove_edge(get_vertex(s, g), get_vertex(t, g), g);
+}
 
-  if (!exists(v, g)) 
-    throw std::runtime_error("[ERROR: remove_vertex()] The input RBVertex does not exist");
+void remove_vertex(const RBVertex& v, RBGraph& g) {
+  if (!exists(v, g))
+    throw std::runtime_error("[ERROR] In remove_vertex(): vertex does not exist");
 
   // delete v from the map
   vertex_map(g).erase(g[v].name);
@@ -44,10 +48,8 @@ void remove_vertex(const std::string& name, RBGraph& g) {
 
 
 RBVertex add_vertex(const std::string& name, const Type type, RBGraph& g) {
-  const auto u = vertex_map(g).find(name);
-  if (u != vertex_map(g).end()) {
-    throw std::runtime_error("[ERROR: add_vertex()] RBVertex with name \"" + name + "\" already exists");
-  } 
+ if (vertex_map(g).find(name) != vertex_map(g).end())
+  throw std::runtime_error("[ERROR] In add_vertex(): vertex already exists");
 
   const RBVertex v = boost::add_vertex(g);
 
@@ -65,43 +67,42 @@ RBVertex add_vertex(const std::string& name, const Type type, RBGraph& g) {
   return v;
 }
 
-std::pair<RBEdge, bool> add_edge(const RBVertex& u, const RBVertex& v,
-                                 const Color color, RBGraph& g) {
+std::pair<RBEdge, bool> add_edge(const RBVertex& u, const RBVertex& v, const Color color, RBGraph& g) {
   if (!exists(u, g) || !exists(v, g))
-    throw std::runtime_error("[ERROR: add_edge()] One or both the input RBVerteces do not exist");
+    throw std::runtime_error("[ERROR] In add_edge(): source vertex or target vertex does not exist");
+  if (exists(u, v, g)) 
+    throw std::runtime_error("[ERROR] In add_edge(): edge already exists");
   RBEdge e;
   bool exists;
   std::tie(e, exists) = boost::add_edge(u, v, g);
   g[e].color = color;
 
-  return std::make_pair(e, exists);
+  return std::make_pair(e, exists);   
+}
+
+std::pair<RBEdge, bool> add_edge(const std::string& source, const std::string& target, Color color, RBGraph& g) {
+  return add_edge(get_vertex(source, g), get_vertex(target, g), color, g);
 }
 
 RBEdge get_edge(const RBVertex &source, const RBVertex &target, RBGraph &g) {
-  if (!exists(source, g) || !exists(target, g))
-    throw std::runtime_error("[ERROR: get_edge()] One or both the input RBVerteces do not exist in the RBGraph");
+  if (!exists(source, g) || !exists(target, g)) 
+    throw std::runtime_error("[ERROR] In get_edge(): source vertex or edge vertex does not exist");
+  if (!exists(source, target, g)) 
+    throw std::runtime_error("[ERROR] In get_edge(): edge does not exist");
 
   RBEdge e;
-  bool exists;
-  std::tie(e, exists) = boost::edge(source, target, g);
-  if (!exists) {
-    std::string name_source = g[source].name;
-    std::string name_target = g[target].name;
-    throw std::runtime_error("[ERROR: get_edge()] edge with source=\"" + name_source + "\" and target=\"" + name_target + "\" does not exist");
-  }
-
-  return e;
+  std::tie(e, std::ignore) = boost::edge(source, target, g);
+  return e;  
 }
 
 //=============================================================================
 // General functions
 
 const RBVertex& get_vertex(const std::string& name, const RBGraph& g) {
-  try {
-    return vertex_map(g).at(name);
-  } catch (std::out_of_range) {
-    throw std::runtime_error("[ERROR: get_vertex()] RBVertex with name \"" + name + "\" does not exist in the vertex map of the RBGraph");
-  }
+  if(!exists(name, g))
+    throw std::runtime_error("[ERROR] In get_vertex(): vertex does not exist");
+
+  return vertex_map(g).at(name);   
 }
 
 bool exists(const RBVertex &source, const RBVertex &target, const RBGraph &g) {
@@ -111,8 +112,8 @@ bool exists(const RBVertex &source, const RBVertex &target, const RBGraph &g) {
   RBOutEdgeIter e, e_end;
   std::tie(e, e_end) = out_edges(source, g);
   for (; e != e_end; ++e) {
-    if (g[(*e).m_target].name == g[target].name &&
-      g[(*e).m_target].type == g[target].type)
+    if (g[e->m_target].name == g[target].name &&
+      g[e->m_target].type == g[target].type)
       return true;
   }
   return false;
@@ -121,26 +122,18 @@ bool exists(const RBVertex &source, const RBVertex &target, const RBGraph &g) {
 bool exists(const std::string &source, const std::string &target, const RBGraph &g) {
   if (!exists(source, g) || !exists(target, g))
     return false;
-  return exists(get_vertex(source, g), get_vertex(target, g), g);
+  else
+    return exists(get_vertex(source, g), get_vertex(target, g), g);
 }
 
 bool exists(const RBVertex &v, const RBGraph &g) {
-  RBVertexIter u, u_end;
-  std::tie(u, u_end) = vertices(g);
-  for (; u != u_end; ++u) {
-    if (*u == v)
-      return true;
-  }
-  return false;
+  auto vertices = g.m_vertices;
+  return std::find(vertices.begin(), vertices.end(), v) != vertices.end();
 }
 
 bool exists(const std::string &name, const RBGraph &g) {
-  RBVertexIter u, u_end;
-  std::tie(u, u_end) = vertices(g);
-  for (; u != u_end; ++u) {
-    if (g[*u].name == name)
-      return true;
-  }
+  if (vertex_map(g).find(name) != vertex_map(g).end())
+    return true;
   return false;
 }
 
@@ -298,7 +291,7 @@ void read_graph(const std::string& filename, RBGraph& g) {
   if (!file) {
     // input file doesn't exist
     throw std::runtime_error(
-        "[ERROR: read_graph()] Failed to read graph from file: no such file or directory");
+        "[ERROR] Failed to read graph from file: no such file or directory");
   }
 
   size_t index = 0;
@@ -322,7 +315,7 @@ void read_graph(const std::string& filename, RBGraph& g) {
         }
         else {
           if(read >= num_c)
-            throw std::runtime_error("[ERROR: read_graph()] Failed to read graph from file: Inexistent character");
+            throw std::runtime_error("[ERROR] Failed to read graph from file: Inexistent character");
           std::string s = "c" + std::to_string(read);
           a_chars.push_back(s);
         }
@@ -334,7 +327,7 @@ void read_graph(const std::string& filename, RBGraph& g) {
       if (species.size() == 0 || characters.size() == 0) {
         // input file parsing error
         throw std::runtime_error(
-            "[ERROR: read_graph()] Failed to read graph from file: badly formatted line 0");
+            "[ERROR] Failed to read graph from file: badly formatted line 0");
       }
 
       // insert species in the graph
@@ -368,12 +361,10 @@ void read_graph(const std::string& filename, RBGraph& g) {
               if (s_index >= species.size() || c_index >= characters.size()) {
                 // input file parsing error
                 throw std::runtime_error(
-                    "[ERROR: read_graph()] Failed to read graph from file: oversized matrix");
+                    "[ERROR] Failed to read graph from file: oversized matrix");
               }
 
-              RBEdge edge;
-              std::tie(edge, std::ignore) =
-                  add_edge(species[s_index], characters[c_index], g);
+              add_edge(species[s_index], characters[c_index], g);
             }
             break;
 
@@ -384,7 +375,7 @@ void read_graph(const std::string& filename, RBGraph& g) {
           default:
             // input file parsing error
             throw std::runtime_error(
-                "[ERROR: read_graph()] Failed to read graph from file: unexpected value in matrix");
+                "[ERROR] Failed to read graph from file: unexpected value in matrix");
         }
 
         index++;
@@ -397,12 +388,12 @@ void read_graph(const std::string& filename, RBGraph& g) {
   if (index != species.size() * characters.size()) {
     // input file parsing error
     throw std::runtime_error(
-        "[ERROR: read_graph()] Failed to read graph from file: undersized matrix");
+        "[ERROR] Failed to read graph from file: undersized matrix");
   }
 
   if (species.size() == 0 || characters.size() == 0) {
     // input file parsing error
-    throw std::runtime_error("[ERROR: read_graph()] Failed to read graph from file: empty file");
+    throw std::runtime_error("[ERROR] Failed to read graph from file: empty file");
   }
 
   for(const auto& elem : a_chars)
@@ -607,11 +598,9 @@ RBGraphVector connected_components(const RBGraph& g, const RBVertexIMap& c_map,
       // for each out edge
       const auto new_vt = vertices[target(*e, g)];
 
-      bool exists;
-      std::tie(std::ignore, exists) = edge(new_v, new_vt, *component);
-
       // prevent duplicate edges on non-bipartite graphs
-      if (exists) continue;
+      if (exists(new_v, new_vt, *component)) 
+        continue;
 
       add_edge(new_v, new_vt, g[*e].color, *component);
     }
@@ -906,28 +895,28 @@ std::set<std::string> active_characters(const RBGraph& g) {
   return ac;
 }
 
-std::list<RBVertex> comp_species(const RBVertex& c, const RBGraph& g) {
-  std::list<RBVertex> result;
+std::list<std::string> comp_species(const RBVertex& c, const RBGraph& g) {
+
+  std::list<std::string> result;
   RBGraphVector connected_comp_vec = connected_components(g);
-  if (connected_comp_vec.size() == 1) { 
+
+  if (connected_comp_vec.size() == 1)
     // only a connected component, then return all the species of g
     for (RBVertex v : g.m_vertices)
         if (is_species(v, g)) 
-          result.push_back(v);
-  } else {
-    // more than a component, then find the component in which c is located and
-    // return the species included in such component
-    auto comp = connected_comp_vec.begin();
-    auto comp_end = connected_comp_vec.end();
-    for (; comp != comp_end; ++comp) {
-      if (exists(g[c].name, *comp->get())) {
-        for (RBVertex v : comp->get()->m_vertices)
-          if (is_species(v, g)) 
-            result.push_back(v);
-        break;
-      }
+          result.push_back(g[v].name);
+
+  // more than a component => then find the component in which c is located and
+  // return the species included in such component
+  auto comp = connected_comp_vec.begin();
+  auto comp_end = connected_comp_vec.end();
+  for (; comp != comp_end; ++comp)
+    if (exists(g[c].name, *comp->get())) {
+      for (RBVertex v : comp->get()->m_vertices)
+        if (is_species(v, *comp->get()))
+          result.push_back((*comp->get())[v].name);
+      break;
     }
-  }
   return result;
 }
 

@@ -1585,26 +1585,20 @@ void realize_character(RBVertex& c, RBGraph& g) {
   if (is_character(c, g)) {
     if (is_inactive(c, g)) {
       auto map = get_adjacent_species_map(g);
-      std::list<RBVertex> adj_spec_c = map[c];
-      // adj_spec_c contains the species adjacent to c
+      std::list<RBVertex> adj_spec_to_c = map[c];
+      // adj_spec_to_c contains the species adjacent to c
 
-      std::list<RBVertex> species_comp_of_c = comp_species(c, g);
-      // species_comp_of_c contains the species in the component to which also
-      // c belongs
+      std::list<std::string> species_comp_of_c = comp_species(c, g);
+      // species_comp_of_c contains the names of the species in the component to which also c belongs
 
-      // for every species s in the same component of c, if there already exists
-      // an edge from s to c, ignore it, otherwise add a red edge from s to c
-      RBVertexIter v = species_comp_of_c.begin();
-      RBVertexIter v_end = species_comp_of_c.end();
-      for (; v != v_end; ++v)
-        if (!exists(c, *v, g))
-          add_edge(c, *v, Color::red, g);
-
+      // for every name of species s in the same component of c, if there already exists an edge from s to c, ignore it, otherwise add a red edge from s to c
+      for (std::string s : species_comp_of_c) 
+        if (!exists(g[c].name, s, g)) 
+          add_edge(g[c].name, s, Color::red, g);      
+      
       // remove all the black edges from c to its connected species
-      v = adj_spec_c.begin();
-      v_end = adj_spec_c.end();
-      for (; v != v_end; ++v)
-        remove_edge(c, *v, g);
+      for (RBVertex v : adj_spec_to_c)
+        remove_edge(g[c].name, g[v].name, g);
     } else
       boost::clear_vertex(c, g); //< remove its red edges
 

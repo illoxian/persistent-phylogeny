@@ -40,9 +40,48 @@ int main(int argc, const char* argv[]) {
   add_edge(s6, c5, g);
 
   realize_character(c4, g);
-  std::cout << g << "\n\n" << std::endl;
+  assert(!exists(c4, g));
+
   realize_character(c1, g);
-  std::cout << g << std::endl;
+  assert(!exists(c1, s4, g));
+  assert(!exists(c1, s5, g));
+  assert(exists(c1, s2, g));
+  assert(g[get_edge(c1, s2, g)].color == Color::red);
+  assert(exists(c1, s3, g));
+  assert(g[get_edge(c1, s3, g)].color == Color::red);
+  assert(exists(c1, s6, g));
+  assert(g[get_edge(c1, s3, g)].color == Color::red);
+
+  realize_character(c1, g);
+  assert(!exists(c1, g));
+
+  realize_character(c2, g);
+  assert(!exists(c2, s3, g));
+  assert(!exists(c2, s4, g));
+  assert(!exists(c2, s5, g));
+  assert(!exists(c2, s6, g));
+  assert(exists(c2, s2, g));
+  assert(g[get_edge(c2, s2, g)].color == Color::red);
+
+  realize_character(c3, g);
+  assert(!exists(c3, g));
+
+  realize_character(c5, g);
+  assert(!exists(c5, g));
+
+  realize_character(c2, g);
+  assert(!exists(c2, g));
+
+  realize_character(c6, g);
+  assert(!exists(c6, g));
+  assert(!exists(s2, g));
+
+  realize_character(c7, g);
+  assert(!exists(c7, g));
+  assert(!exists(s5, g));
+
+  assert(g.m_vertices.empty());
+  assert(g.m_edges.empty());
 
   std::cout << "realize_character: tests passed" << std::endl;
 

@@ -222,14 +222,27 @@ void clear(RBGraph& g);
   @param[in]     s Source vertex
   @param[in]     t Target vertex
   @param[in,out] g Red-black graph
+
 */
 void remove_edge(const RBVertex& s, const RBVertex& t, RBGraph& g);
+
+/**
+  @brief Remove the edge with source \e s and target \e t from \e g
+
+  @param[in]     s Source vertex name
+  @param[in]     t Target vertex name
+  @param[in,out] g Red-black graph
+
+*/
+void remove_edge(const std::string& s, const std::string& t, RBGraph& g);
 
 /**
   @brief Remove \e e from \e g
 
   @param[in]     e Edge
   @param[in,out] g Red-black graph
+
+  @return true if the edge has been removed, false if the edge did not exist
 */
 inline void remove_edge(const RBEdge& e, RBGraph& g) {
   remove_edge(e.m_source, e.m_target, g);
@@ -303,6 +316,23 @@ inline RBVertex add_character(const std::string& name, RBGraph& g) {
 */
 std::pair<RBEdge, bool> add_edge(const RBVertex& u, const RBVertex& v,
                                  const Color color, RBGraph& g);
+
+
+/**
+  @brief Add edge between \e u and \e v with \e color to \e g
+
+  @param[in]     u     Source Vertex name
+  @param[in]     v     Target Vertex name
+  @param[in]     color Color
+  @param[in,out] g     Red-black graph
+
+  @return Edge descriptor for the new edge.
+          If the edge is already in the graph then a duplicate will not be
+          added and the bool flag will be false.
+          When the flag is false, the returned edge descriptor points to the
+          already existing edge
+*/
+std::pair<RBEdge, bool> add_edge(const std::string& source, const std::string& target, Color color, RBGraph& g);
 
 /**
   @brief Add edge between \e u and \e v to \e g
@@ -666,9 +696,9 @@ bool is_universal(const RBVertex v, const RBGraph& g,
 
 /**
   @brief Build the red-black subgraphs of \e g.
-         Each subgraph is a copy of the respective connected component
+         Each subgraph IS A COPY of the respective connected component and this means that the RBVertex objects of \e g will be different to those of the just-generated components. Thus, the mapping of the verteces between \e g and the components can be done by exploiting the vertex names.
 
-  If the graph \e g is connected, RBGraphVector will be of size 1, but the
+  In addition, if the graph \e g is connected, RBGraphVector will be of size 1, but the
   unique_ptr will be empty. This is because the purpose of the functions is to
   build the subgraphs, not copy the whole graph when it isn't needed.
 
@@ -680,10 +710,9 @@ RBGraphVector connected_components(const RBGraph& g);
 
 /**
   @brief Build the red-black subgraphs of \e g.
-         Each subgraph is a copy of the respective connected component
+         Each subgraph IS A COPY of the respective connected component and this means that the RBVertex objects of \e g will be different to those of the just-generated components. Thus, the mapping of the verteces between \e g and the components can be done by exploiting the vertex names.
 
-  If the graph \e g is connected, RBGraphVector will be of size 1, but the
-  unique_ptr will be empty. This is because the purpose of the functions is to
+  In addition, if the graph \e g is connected, RBGraphVector will be of size 1, but the unique_ptr will be empty. This is because the purpose of the functions is to
   build the subgraphs, not copy the whole graph when it isn't needed.
 
   @param[in] g       Red-black graph
@@ -830,9 +859,9 @@ void change_char_type(const RBVertex& v, RBGraph& g);
   @param[in] c Character in the red-black graph
   @param[in] g Red-black graph
 
-  @return List of species
+  @return List of species (only the names)
 **/  
-std::list<RBVertex> comp_species(const RBVertex& c, const RBGraph& g);
+std::list<std::string> comp_species(const RBVertex& c, const RBGraph& g);
 
 /**
   @brief Given a specie, return the set of active characters adjacent to the specie
