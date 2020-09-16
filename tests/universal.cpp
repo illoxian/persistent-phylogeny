@@ -30,14 +30,17 @@ int main(int argc, const char* argv[]) {
   add_edge(s5, c3, g);
   add_edge(s5, c4, Color::red, g);
   add_edge(s5, c5, g);
+  add_edge(s6, c5, Color::red, g);
   add_edge(s5, c7, g);
   add_edge(s6, c6, g);
+  add_edge(s6, c2, g);
+  add_edge(s6, c4, Color::red, g);
 
-  assert(is_universal(s3, g) == false);
-  assert(is_universal(c5, g) == false);
-  assert(is_universal(c4, g) == false);
-  assert(is_universal(c2, g) == true);
-  assert(is_universal(c6, g) == true);
+  assert(!is_red_universal(c5, g));
+  assert(!is_universal(c5, g));
+  assert(is_red_universal(c4, g));
+  assert(is_universal(c2, g));
+  assert(!is_universal(c6, g));
 
   std::cout << "universal: tests passed" << std::endl;
 
