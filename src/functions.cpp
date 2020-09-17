@@ -1582,13 +1582,15 @@ bool is_complete(std::list<SignedCharacter> sc, const RBGraph& gm){
 }
 
 void realize_character(RBVertex& c, RBGraph& g) {
+  if (!exists(c, g))
+    throw std::runtime_error("[ERROR] In realize_character(): input vertex does not exist");
   if (is_character(c, g)) {
     if (is_inactive(c, g)) {
       auto map = get_adjacent_species_map(g);
       std::list<RBVertex> adj_spec_to_c = map[c];
       // adj_spec_to_c contains the species adjacent to c
 
-      std::list<std::string> species_comp_of_c = comp_species(c, g);
+      std::list<std::string> species_comp_of_c = comp_vertex(c, g);
       // species_comp_of_c contains the names of the species in the component to which also c belongs
 
       // for every name of species s in the same component of c, if there already exists an edge from s to c, ignore it, otherwise add a red edge from s to c
@@ -1599,9 +1601,39 @@ void realize_character(RBVertex& c, RBGraph& g) {
       // remove all the black edges from c to its connected species
       for (RBVertex v : adj_spec_to_c)
         remove_edge(g[c].name, g[v].name, g);
-    } else
-      boost::clear_vertex(c, g); //< remove its red edges
+    } else {
+      // c is active. We have to check if c is connected to all the species of its connected component, otherwise it cannot be realized
+
+      std::list<std::string> species_comp_of_c = comp_vertex(c, g);
+      std::list<RBVertex> species_adj_to_c = get_adjacent_species_map(g)[c];
+
+      bool connected = true;
+      bool found;
+      for (std::string s_comp : species_comp_of_c) {
+        found = false;
+        for (RBVertex v : species_adj_to_c)
+          if (g[v].name == s_comp) {
+            found = true;
+            break;
+          }
+        if (!found) {
+          connected = false;
+          break;
+        }
+      }
+
+      if (connected)
+        boost::clear_vertex(c, g); //< remove its red edges
+    }
 
     remove_singletons(g);
   } 
+}
+
+void realize_species(RBVertex& s, RBGraph& g) {
+  std::list<RBVertex> adjacent_chars = get_adjacent_species_map(g)[s];
+  
+  // realize the inactive characters adjacent to species s
+  for (RBVertex c : adjacent_chars)
+    realize_character(c, g);
 }

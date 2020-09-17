@@ -725,6 +725,15 @@ RBGraphVector connected_components(const RBGraph& g, const RBVertexIMap& c_map,
                                    const size_t c_count);
 
 /**
+  @brief Returns a map M where M[v] is the list of neighbours of vertex v.
+ 
+  @param[in] g            Red-black graph
+
+  @return  Neighbour map
+*/
+std::map<RBVertex, std::list<RBVertex>> get_neighbours_map(const RBGraph& g);
+
+/**
   @brief Builds the map of characters with their corresponding adjacent species. This is a helper function for maximal_characters().
  
   @param[in] g            Red-black graph
@@ -732,6 +741,15 @@ RBGraphVector connected_components(const RBGraph& g, const RBVertexIMap& c_map,
   @return  Map of characters with corresponding adjacent species
 */
 std::map<RBVertex, std::list<RBVertex>> get_adjacent_species_map(const RBGraph& g);
+
+/**
+  @brief Builds the map of species with their corresponding adjacent characters.
+ 
+  @param[in] g            Red-black graph
+
+  @return  Map of species with corresponding adjacent chracters
+*/
+std::map<RBVertex, std::list<RBVertex>> get_adjacent_characters_map(const RBGraph& g);
 
 /**
   @brief Returns true if \e v is in \e v_list
@@ -854,26 +872,24 @@ bool has_red_sigmapath(const RBVertex c0, const RBVertex c1, const RBGraph& g);
 void change_char_type(const RBVertex& v, RBGraph& g);
 
 /**
-  @brief Given a character \e c, it returns the list of species in the connected component of \e g to which \e c belongs.
+  @brief Given a vertex \e v, if \e v is a character, then it returns the list of species in the connected component of \e g to which \e v belongs, otherwise, if it is a species, it returns the list of characters in the connected component of \e g to which \e v belongs.
 
-  @param[in] c Character in the red-black graph
+  @param[in] v Vertex in the red-black graph
   @param[in] g Red-black graph
 
-  @return List of species (only the names)
+  @return List of vertices (only the names)
 **/  
-std::list<std::string> comp_species(const RBVertex& c, const RBGraph& g);
+std::list<std::string> comp_vertex(const RBVertex& v, const RBGraph& g);
 
 /**
-  @brief Given a specie, return the set of active characters adjacent to the specie
+  @brief Given a species \e s, it returns the set of active characters adjacent to \e s
 
-  @param[in] v specie in the graph
+  @param[in] s Species in the graph
   @param[in] g Red-black graph
 
   @return Set of active characters (only the names)
 **/  
-std::set<std::string> specie_active_characters(const RBVertex v, const RBGraph& g);
-
-
+std::set<std::string> species_adj_active_characters(const RBVertex s, const RBGraph& g);
 
 /**
   @brief Returns the set of active characters of a red-black graph
@@ -885,23 +901,12 @@ std::set<std::string> specie_active_characters(const RBVertex v, const RBGraph& 
 std::set<std::string> active_characters(const RBGraph& g);
 
 /**
-  @brief Given a red-black graph and a specie, return the active characters included in the component that includes the specie
+  @brief Given a red-black graph and a species, it returns the active characters included in the component that includes the species
 
-  @param[in] v Specie
+  @param[in] s Species
   @param[in] g Red-black graph
 
   @return Set of active characters (only the names)
 **/
-std::set<std::string> comp_active_characters(const RBVertex v, const RBGraph& g);
-
-/**
-  @brief Given a red-black graph and a specie, return the active characters included in the component that includes the specie
-
-  @param[in] v Specie
-  @param[in] g Red-black graph
-  @param[in] c_map Map of vertices and connected components
-
-  @return Set of active characters (only the names)
-**/
-std::set<std::string> comp_active_characters(const RBVertex v, const RBGraph& g, const RBVertexIMap& c_map);
+std::set<std::string> comp_active_characters(const RBVertex s, const RBGraph& g);
 #endif  // RBGRAPH_HPP

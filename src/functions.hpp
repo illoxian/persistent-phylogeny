@@ -353,4 +353,15 @@ bool is_complete(std::list<SignedCharacter> sc, const RBGraph& gm);
 */
 void realize_character(RBVertex& c, RBGraph& g);
 
+/**
+  @brief Realize the species \e s in \e g .
+
+  The realization of a species s on graph GRB is the realization of its set C(s)
+  of inactive characters in any order, while all of its active characters are red-universal in GRB.
+
+  @param[in]     s    The species to be realized in \e g
+  @param[in,out] g    Red-black graph
+*/
+void realize_species(RBVertex& s, RBGraph& g);
+
 #endif

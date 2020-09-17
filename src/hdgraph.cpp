@@ -290,7 +290,7 @@ void reduce_diagram(HDGraph& hasse, const RBGraph& gm){
   std::tie(rbv, rbv_end) = vertices(gm);
   while(rbv != rbv_end) {
     if(!is_character(*rbv, gm)) {
-      acl = specie_active_characters(*rbv, gm);
+      acl = species_adj_active_characters(*rbv, gm);
       acc = comp_active_characters(*rbv, gm);
       if(acl.size() < acc.size())
         sset.insert(gm[*rbv].name);
