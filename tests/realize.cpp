@@ -1,4 +1,4 @@
-#include "functions.hpp"
+#include "../src/functions.hpp"
 
 
 int main(int argc, const char* argv[]) {
@@ -44,9 +44,13 @@ int main(int argc, const char* argv[]) {
   RBGraph g1;
   copy_graph(g, g1);
 
+  std::cout << g << "\n\n" << std::endl;
   realize({ "c3", State::gain }, g);
+  std::cout << g << "\n\n" << std::endl;
   realize({ "c5", State::gain }, g);
+  std::cout << g << "\n\n" << std::endl;
   realize({ "c2", State::gain }, g);
+  std::cout << g << "\n\n" << std::endl;
   realize({ "c4", State::lose }, g);
 
   realize({ { "c3", State::gain }, { "c5", State::gain },

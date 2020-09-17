@@ -300,7 +300,7 @@ std::list<SignedCharacter> reduce(RBGraph& g);
           If the realization was successful then the bool flag will be true.
           When the flag is false, the returned list is empty
 */
-std::pair<std::list<SignedCharacter>, bool> realize(const SignedCharacter& sc,
+std::pair<std::list<SignedCharacter>, bool> realize_character(const SignedCharacter& sc,
                                                     RBGraph& g);
 
 /**
@@ -315,14 +315,14 @@ std::pair<std::list<SignedCharacter>, bool> realize(const SignedCharacter& sc,
   species of a graph GRB by red edges is called free in GRB and it is then
   deleted from GRB.
 
-  @param[in]     v Vertex
+  @param[in]     v Vertex (a species)
   @param[in,out] g Red-black graph
 
   @return Realized characters (list of signed characters).
           If the realization was successful then the bool flag will be true.
           When the flag is false, the returned list is empty
 */
-std::pair<std::list<SignedCharacter>, bool> realize(const RBVertex v,
+std::pair<std::list<SignedCharacter>, bool> realize_species(const RBVertex v,
                                                     RBGraph& g);
 
 /**
@@ -344,16 +344,15 @@ std::pair<std::list<SignedCharacter>, bool> realize(
 
 bool is_complete(std::list<SignedCharacter> sc, const RBGraph& gm);
 
-
 /**
   @brief Realize the character \e c in \e g
 
   @param[in]     c    The character to be realized in \e g
   @param[in,out] g    Red-black graph
-*/
+
 void realize_character(RBVertex& c, RBGraph& g);
 
-/**
+
   @brief Realize the species \e s in \e g .
 
   The realization of a species s on graph GRB is the realization of its set C(s)
@@ -361,7 +360,8 @@ void realize_character(RBVertex& c, RBGraph& g);
 
   @param[in]     s    The species to be realized in \e g
   @param[in,out] g    Red-black graph
-*/
+
 void realize_species(RBVertex& s, RBGraph& g);
+*/
 
 #endif

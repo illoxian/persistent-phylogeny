@@ -3,6 +3,8 @@
 
 
 int main(int argc, const char* argv[]) {
+
+  // simone's implementation
   RBGraph g;
   RBVertex s1, s2, s3, s4, s5,
            c1, c2, c3, c4, c5;
@@ -31,27 +33,27 @@ int main(int argc, const char* argv[]) {
   add_edge(c4, s4, g);
   add_edge(c5, s4, Color::red, g);
 
-  realize_character(c1, g);
+  realize_character({"c1", State::gain}, g);
   assert(!exists(c1, g));
 
-  realize_character(c3, g);
+  realize_character({"c3", State::lose}, g);
   assert(!exists(c3, g));
 
-  realize_character(c5, g);
+  realize_character({"c5", State::lose}, g);
   assert(exists(c5, g));
   assert(exists(c5, s4, g));
 
-  realize_character(c4, g);
+  realize_character({"c4", State::gain}, g);
   assert(!exists(c4, s3, g));
   assert(!exists(c4, s4, g));
   assert(!exists(c4, g));
   assert(!exists(s3, g));
 
-  realize_character(c5, g);
+  realize_character({"c5", State::lose}, g);
   assert(!exists(c5, g));
   assert(!exists(s4, g));
 
-  realize_character(c2, g);
+  realize_character({"c2", State::gain}, g);
   assert(!exists(c2, g));
   assert(!exists(s2, g));
   assert(!exists(s1, g));

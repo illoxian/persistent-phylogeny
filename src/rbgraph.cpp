@@ -654,7 +654,7 @@ std::map<RBVertex, std::list<RBVertex>> get_adjacent_species_map(const RBGraph& 
   return adj_spec;
 }
 
-std::map<RBVertex, std::list<RBVertex>> get_adjacent_character_map(const RBGraph& g) {
+std::map<RBVertex, std::list<RBVertex>> get_adjacent_characters_map(const RBGraph& g) {
     std::map<RBVertex, std::list<RBVertex>> adj_chars = get_neighbours_map(g);
 
   // remove from the map all the keys that refer to characters
@@ -940,7 +940,7 @@ std::list<std::string> get_comp_vertex(const RBVertex& u, const RBGraph& g) {
 
 std::set<std::string> get_species_adj_active_characters(const RBVertex s, const RBGraph& g) {
   std::set<std::string> adj_active_chars;
-  std::list<RBVertex> adj_chars = get_adjacent_character_map(g)[s];
+  std::list<RBVertex> adj_chars = get_adjacent_characters_map(g)[s];
 
   for (RBVertex c : adj_chars)
     if (is_active(c, g))

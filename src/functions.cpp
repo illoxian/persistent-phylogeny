@@ -997,7 +997,7 @@ std::list<SignedCharacter> reduce(RBGraph& g) {
       }
 
       std::list<SignedCharacter> lsc;
-      std::tie(lsc, std::ignore) = realize({g[*v].name, State::lose}, g);
+      std::tie(lsc, std::ignore) = realize_character({g[*v].name, State::lose}, g);
 
       output.splice(output.cend(), lsc);
       output.splice(output.cend(), reduce(g));
@@ -1027,7 +1027,7 @@ std::list<SignedCharacter> reduce(RBGraph& g) {
       }
 
       std::list<SignedCharacter> lsc;
-      std::tie(lsc, std::ignore) = realize({g[*v].name, State::gain}, g);
+      std::tie(lsc, std::ignore) = realize_character({g[*v].name, State::gain}, g);
 
       output.splice(output.cend(), lsc);
       output.splice(output.cend(), reduce(g));
@@ -1380,8 +1380,7 @@ std::list<SignedCharacter> reduce(RBGraph& g) {
   return output;
 }
 
-std::pair<std::list<SignedCharacter>, bool> realize(const SignedCharacter& sc,
-                                                    RBGraph& g) {
+std::pair<std::list<SignedCharacter>, bool> realize_character(const SignedCharacter& sc, RBGraph& g) {
   std::list<SignedCharacter> output;
 
   // current character vertex
@@ -1447,9 +1446,29 @@ std::pair<std::list<SignedCharacter>, bool> realize(const SignedCharacter& sc,
       std::cout << "Realizing " << sc << std::endl;
     }
 
-    // realize the character c-:
+    // realize the character c- if it is connected through red edges to all the species of the component in which c resides. In this case:
     // - delete all edges incident on c
-    clear_vertex(cv, g);
+    bool connected = true;
+    std::tie(v, v_end) = vertices(g);
+    for (; v != v_end; ++v) {
+      if (!is_species(*v, g) || c_map.at(*v) != c_map.at(cv)) 
+        continue;
+
+      if (!exists(*v, cv, g)) {
+        connected = false;
+        break;
+      }
+    }
+
+    if (connected)
+      clear_vertex(cv, g);
+    else {
+      if (logging::enabled) {
+          // verbosity enabled
+          std::cout << "Could not realize " << sc << std::endl;
+      }
+      return std::make_pair(output, false);
+    }
   } else {
     if (logging::enabled) {
       // verbosity enabled
@@ -1466,6 +1485,7 @@ std::pair<std::list<SignedCharacter>, bool> realize(const SignedCharacter& sc,
   // delete all isolated vertices
   remove_singletons(g);
 
+  /*
   // fill vertex index map
   std::tie(v, v_end) = vertices(g);
   for (size_t index = 0; v != v_end; ++v, ++index) {
@@ -1476,16 +1496,16 @@ std::pair<std::list<SignedCharacter>, bool> realize(const SignedCharacter& sc,
   boost::connected_components(g, c_assocmap,
                               boost::vertex_index_map(i_assocmap));
 
-  // realize all free characters that came up after realizing sc
+  // realize all red_universal characters that came up after realizing sc
   std::tie(v, v_end) = vertices(g);
   for (; v != v_end; ++v) {
     // for each vertex
     if (is_red_universal(*v, g, c_map)) {
-      // if v is free
+      // if v is red_universal
       // realize v-
       if (logging::enabled) {
         // verbosity enabled
-        std::cout << "G free character " << g[*v].name << std::endl;
+        std::cout << "G red-universal character " << g[*v].name << std::endl;
       }
 
       std::list<SignedCharacter> lsc;
@@ -1516,25 +1536,22 @@ std::pair<std::list<SignedCharacter>, bool> realize(const SignedCharacter& sc,
 
       return std::make_pair(output, true);
     }
-  }
+  }*/
   return std::make_pair(output, true);
-
 }
 
-std::pair<std::list<SignedCharacter>, bool> realize(const RBVertex v,
+std::pair<std::list<SignedCharacter>, bool> realize_species(const RBVertex v,
                                                     RBGraph& g) {
   std::list<SignedCharacter> lsc;
 
-  if (!is_species(v, g)) return std::make_pair(lsc, false);
+  if (!is_species(v, g)) 
+    return std::make_pair(lsc, false);
 
   // build the list of inactive characters adjacent to v (species)
-  RBOutEdgeIter e, e_end;
-  std::tie(e, e_end) = out_edges(v, g);
-  for (; e != e_end; ++e) {
-    const auto u = target(*e, g);
-
-    if (is_inactive(u, g)) lsc.push_back({g[u].name, State::gain});
-  }
+  std::list<RBVertex> adjacent_chars = get_adjacent_characters_map(g)[v];
+  for (RBVertex c : adjacent_chars)
+    if (is_inactive(c, g))
+      lsc.push_back({g[c].name, State::gain});
 
   return realize(lsc, g);
 }
@@ -1553,7 +1570,7 @@ std::pair<std::list<SignedCharacter>, bool> realize(
 
     std::list<SignedCharacter> sc;
     bool feasible;
-    std::tie(sc, feasible) = realize(i, g);
+    std::tie(sc, feasible) = realize_character(i, g);
 
     if (!feasible) return std::make_pair(sc, false);
 
@@ -1563,7 +1580,7 @@ std::pair<std::list<SignedCharacter>, bool> realize(
   return std::make_pair(output, true);
 }
 
-bool is_complete(std::list<SignedCharacter> sc, const RBGraph& gm){
+bool is_complete(std::list<SignedCharacter> sc, const RBGraph& gm) {
   RBVertexIter v, v_end;
   auto scb = sc.begin();
   auto sce = sc.end();
@@ -1581,7 +1598,13 @@ bool is_complete(std::list<SignedCharacter> sc, const RBGraph& gm){
   return true;
 }
 
+/*
 void realize_character(RBVertex& c, RBGraph& g) {
+  if (is_active(c, g))
+    realize({g[c].name, State::lose}, g);
+  else
+    realize({g[c].name, State::gain}, g);
+  
   if (!exists(c, g))
     throw std::runtime_error("[ERROR] In realize_character(): input vertex does not exist");
   if (is_character(c, g)) {
@@ -1623,7 +1646,7 @@ void realize_character(RBVertex& c, RBGraph& g) {
       }
 
       if (connected)
-        boost::clear_vertex(c, g); //< remove its red edges
+        clear_vertex(c, g); //< remove its red edges
     }
 
     remove_singletons(g);
@@ -1631,9 +1654,10 @@ void realize_character(RBVertex& c, RBGraph& g) {
 }
 
 void realize_species(RBVertex& s, RBGraph& g) {
-  std::list<RBVertex> adjacent_chars = get_adjacent_species_map(g)[s];
+  std::list<RBVertex> adjacent_chars = get_adjacent_characters_map(g)[s];
   
   // realize the inactive characters adjacent to species s
   for (RBVertex c : adjacent_chars)
-    realize_character(c, g);
-}
+    if (is_inactive(c, g))
+      realize_character(c, g);
+}*/
