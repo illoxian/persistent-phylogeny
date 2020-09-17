@@ -899,7 +899,7 @@ void change_char_type(const RBVertex& v, RBGraph& g) {
   }
 }
 
-std::set<std::string> active_characters(const RBGraph& g) {
+std::set<std::string> get_active_characters(const RBGraph& g) {
   std::set<std::string> ac;
   RBVertexIter v, v_end;
   
@@ -912,7 +912,7 @@ std::set<std::string> active_characters(const RBGraph& g) {
   return ac;
 }
 
-std::list<std::string> comp_vertex(const RBVertex& u, const RBGraph& g) {
+std::list<std::string> get_comp_vertex(const RBVertex& u, const RBGraph& g) {
 
   std::list<std::string> result;
   RBGraphVector connected_comp_vec = connected_components(g);
@@ -938,7 +938,7 @@ std::list<std::string> comp_vertex(const RBVertex& u, const RBGraph& g) {
   return result;
 }
 
-std::set<std::string> species_adj_active_characters(const RBVertex s, const RBGraph& g) {
+std::set<std::string> get_species_adj_active_characters(const RBVertex s, const RBGraph& g) {
   std::set<std::string> adj_active_chars;
   std::list<RBVertex> adj_chars = get_adjacent_character_map(g)[s];
 
@@ -948,9 +948,9 @@ std::set<std::string> species_adj_active_characters(const RBVertex s, const RBGr
   return adj_active_chars;
 }
 
-std::set<std::string> comp_active_characters(const RBVertex s, const RBGraph& g) {
+std::set<std::string> get_comp_active_characters(const RBVertex s, const RBGraph& g) {
   std::set<std::string> result;
-  std::list<std::string> char_str_list = comp_vertex(s, g);
+  std::list<std::string> char_str_list = get_comp_vertex(s, g);
 
   for (std::string c_str : char_str_list)
     if (is_active(get_vertex(c_str, g), g))

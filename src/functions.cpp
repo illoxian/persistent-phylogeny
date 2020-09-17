@@ -859,7 +859,7 @@ bool realize_source(const HDVertex source, const HDGraph& hasse) {
   copy_graph(gm, gm_test);
   
   RBVertex s = get_vertex(hasse[source].species.front(), gm_test);
-  auto acc = comp_active_characters(s, gm_test);
+  auto acc = get_comp_active_characters(s, gm_test);
 
   for(const auto& elem : hasse[source].species) {
     for(const auto& ac : acc)
@@ -1077,7 +1077,7 @@ std::list<SignedCharacter> reduce(RBGraph& g) {
   }
 
   if(logging::enabled) {
-    auto ac = active_characters(gm);
+    auto ac = get_active_characters(gm);
     if(ac.size() <= 0)
       std::cout << "No active characters"
                 << std::endl;
@@ -1590,7 +1590,7 @@ void realize_character(RBVertex& c, RBGraph& g) {
       std::list<RBVertex> adj_spec_to_c = map[c];
       // adj_spec_to_c contains the species adjacent to c
 
-      std::list<std::string> species_comp_of_c = comp_vertex(c, g);
+      std::list<std::string> species_comp_of_c = get_comp_vertex(c, g);
       // species_comp_of_c contains the names of the species in the component to which also c belongs
 
       // for every name of species s in the same component of c, if there already exists an edge from s to c, ignore it, otherwise add a red edge from s to c
@@ -1604,7 +1604,7 @@ void realize_character(RBVertex& c, RBGraph& g) {
     } else {
       // c is active. We have to check if c is connected to all the species of its connected component, otherwise it cannot be realized
 
-      std::list<std::string> species_comp_of_c = comp_vertex(c, g);
+      std::list<std::string> species_comp_of_c = get_comp_vertex(c, g);
       std::list<RBVertex> species_adj_to_c = get_adjacent_species_map(g)[c];
 
       bool connected = true;

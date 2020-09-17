@@ -879,7 +879,7 @@ void change_char_type(const RBVertex& v, RBGraph& g);
 
   @return List of vertices (only the names)
 **/  
-std::list<std::string> comp_vertex(const RBVertex& v, const RBGraph& g);
+std::list<std::string> get_comp_vertex(const RBVertex& v, const RBGraph& g);
 
 /**
   @brief Given a species \e s, it returns the set of active characters adjacent to \e s
@@ -889,7 +889,7 @@ std::list<std::string> comp_vertex(const RBVertex& v, const RBGraph& g);
 
   @return Set of active characters (only the names)
 **/  
-std::set<std::string> species_adj_active_characters(const RBVertex s, const RBGraph& g);
+std::set<std::string> get_species_adj_active_characters(const RBVertex s, const RBGraph& g);
 
 /**
   @brief Returns the set of active characters of a red-black graph
@@ -898,7 +898,7 @@ std::set<std::string> species_adj_active_characters(const RBVertex s, const RBGr
  
   @return Set of active characters (only the names)
 **/
-std::set<std::string> active_characters(const RBGraph& g);
+std::set<std::string> get_active_characters(const RBGraph& g);
 
 /**
   @brief Given a red-black graph and a species, it returns the active characters included in the component that includes the species
@@ -908,5 +908,5 @@ std::set<std::string> active_characters(const RBGraph& g);
 
   @return Set of active characters (only the names)
 **/
-std::set<std::string> comp_active_characters(const RBVertex s, const RBGraph& g);
+std::set<std::string> get_comp_active_characters(const RBVertex s, const RBGraph& g);
 #endif  // RBGRAPH_HPP
