@@ -1083,8 +1083,8 @@ std::list<SignedCharacter> reduce(RBGraph& g) {
                 << std::endl;
     else { 
       std::cout << "Active characters: ";
-      for(std::string elem : ac)
-        std::cout << elem << " ";
+      for(RBVertex elem : ac)
+        std::cout << g[elem].name << " ";
       std::cout << std::endl;
     }
   } 
@@ -1661,3 +1661,68 @@ void realize_species(RBVertex& s, RBGraph& g) {
     if (is_inactive(c, g))
       realize_character(c, g);
 }*/
+
+void order_by_degree(std::list<RBVertex>& list_to_order, const RBGraph& g) {
+  // constructing a list of pairs <RBVertex, int>, where the first element is a vertex and the second element is the degree of the vertex
+  std::list<std::pair<RBVertex, int>> list_of_pairs;
+  
+  for (RBVertex v : list_to_order)
+    list_of_pairs.push_back(std::make_pair(v, out_degree(v, g)));
+  
+  auto comparator = [](const std::pair<RBVertex, int> &a, const std::pair<RBVertex, int> &b) { 
+    return  a.second > b.second; 
+  };
+
+  list_of_pairs.sort(comparator);
+
+  list_to_order.clear();
+
+  for (std::pair<RBVertex, int> pair : list_of_pairs)
+    list_to_order.push_back(pair.first);
+}
+
+RBVertex get_minimal_p_active_species(const RBGraph& g) {
+
+  std::list<RBVertex> active_species = get_active_species(g);
+  order_by_degree(active_species, g);
+
+  RBVertex p_active_candidate = 0;
+  bool found = false;
+  int num_inctv_chars_v, num_inctv_chars_u;
+  for (RBVertex v : active_species) {
+    // for every active species v in the ordered list of active species
+    for (int i = 1; i <= g[boost::graph_bundle].num_characters; ++i) {
+      // index "i" is used after to check if vertex "u" has "i" more inactive characters than "v"
+      
+      // TODO se risponde che S' deve essere la specie con meno caratteri attivi, allora prima bisogna ordinare get_neighbors() rispetto al numero di caratteri attivi che ogni specie S' possiede
+      for (RBVertex u : get_neighbors(v, g)) {
+        if (u == v || is_character(u, g)) continue;
+        // for every species u (neighbor of v)
+
+        if (includes_species(u, v, g)) {
+          // if u includes all the inactive species of v, then check if u has "i" species more than v
+          num_inctv_chars_v = get_species_adj_inactive_characters(v, g).size();
+          num_inctv_chars_u = get_species_adj_inactive_characters(u, g).size();
+          if (num_inctv_chars_u == num_inctv_chars_v + i) {
+
+            // check if the realization of v and then of u can generate any red-sigmagraphs in g
+            RBGraph g_copy;
+            copy_graph(g, g_copy);
+
+            realize_species(v, g_copy);
+            realize_species(u, g_copy);
+
+            if (!has_red_sigmagraph(g_copy)) {
+              p_active_candidate = v;
+              found = true;
+              break;
+            }
+          }
+        }
+      }
+      if (found) break;
+    }
+    if (found) break;
+  }
+  return p_active_candidate;
+}

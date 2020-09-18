@@ -364,4 +364,21 @@ void realize_character(RBVertex& c, RBGraph& g);
 void realize_species(RBVertex& s, RBGraph& g);
 */
 
+/**
+  @brief Given a list of vertices, it orders the list by using the concept of vertex degree  
+
+  @param[in] list_to_order  List of vertices
+  @param[in] g              Red-black graph
+*/
+void order_by_degree(std::list<RBVertex>& list_to_order, const RBGraph& g);
+
+/**
+  @brief Return the minimal p-active species in \e g. 
+
+  @param[in] g Red-black graph
+
+  @return The minimal p-active species
+*/
+RBVertex get_minimal_p_active_species(const RBGraph& g);
+
 #endif

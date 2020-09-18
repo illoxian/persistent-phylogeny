@@ -624,19 +624,6 @@ inline bool is_inactive(const RBVertex& v, const RBGraph& g) {
 }
 
 /**
-  @brief Check if \e s is quasi-active in \e g. 
-
-  A species is quasi-active in a red-black graph if it's a species that has
-  red-incoming edges and can be removed without producing a red sigma-graph
-
-  @param[in] s Species
-  @param[in] g Red-black graph
-
-  @return True if \e s is quasi-active in \e g
-*/
-bool is_quasi_active(const RBVertex& s, const RBGraph& g);
-
-/**
   @brief Check if \e s is a pending species in \e g. 
 
   A species is pending in a red-black graph if it's a species that has just an incoming black edge.
@@ -750,13 +737,26 @@ RBGraphVector connected_components(const RBGraph& g, const RBVertexIMap& c_map,
                                    const size_t c_count);
 
 /**
-  @brief Returns a map M where M[v] is the list of neighbours of vertex v.
+  @brief Returns the list of neighbors of species v.
+
+  The neighbor of a species v in the graph is a species v0 that share
+  some inactive character with v.
+  
+  @param[in] v            Species
+  @param[in] g            Red-black graph
+
+  @return  List
+*/
+std::list<RBVertex> get_neighbors(const RBVertex& v, const RBGraph& g);
+
+/**
+  @brief Returns a map M where M[v] is the list of verteces adjacent to vertex v.
  
   @param[in] g            Red-black graph
 
-  @return  Neighbour map
+  @return  Map
 */
-std::map<RBVertex, std::list<RBVertex>> get_neighbours_map(const RBGraph& g);
+std::map<RBVertex, std::list<RBVertex>> get_adj_map(const RBGraph& g);
 
 /**
   @brief Builds the map of characters with their corresponding adjacent species. This is a helper function for maximal_characters().
@@ -789,33 +789,43 @@ inline bool contains(const std::list<RBVertex>& v_list, const RBVertex& v) {
 }
 
 /**
-  @brief Returns true if the species adjacent to \e c1 include the species adjacent to \e c2, false otherwise.
+  @brief Given species s1 and s2, we say that s1 includes species s2 if the set of inactive characters of s2 are included in the set of inactive characters of s1
+
+  @param[in] s1         Vertex species
+  @param[in] s2         Vertex species
+  @param[in] g          Red black graph
+
+  @return bool
+*/
+bool includes_species(const RBVertex& s1, const RBVertex& s2, const RBGraph& g);
+
+/**
+  @brief Returns true if the set of species adjacent to \e c1 include the set of species adjacent to \e c2, false otherwise.
 
   Let c be an unsigned character.
   Then S(c) is the set of species that have the character c.
   Given two characters c1 and c2, we will say that c1 includes c2 if
   S(c1) ⊇ S(c2).
 
-  @param[in] c1         a vertex character
-  @param[in] c2         a vertex character
-  @param[in] adj_spec   a map of verteces and their corresponding adjacent species
+  @param[in] c1         Vertex character
+  @param[in] c2         Vertex character
+  @param[in] g          Red black graph
 
   @return bool
 */
-bool includes(const RBVertex& c1, const RBVertex& c2, 
-              std::map<RBVertex, std::list<RBVertex>>& adj_spec);
+bool includes_characters(const RBVertex& c1, const RBVertex& c2, const RBGraph& g);
 
 /**
   @brief Returns true if the species adjacent to \e c1 overlap with the species adjacent to \e c2, false otherwise. In other words, let c and c' be two unsigned characters. Then, c and c' overlap if they share common species
   but neither is included in the other, that is, S(c) ⊄ S(c') and S(c') ⊄ S(c).
 
-  @param[in] c1         a vertex character
-  @param[in] c2         a vertex character
-  @param[in] adj_spec   a map of verteces and their corresponding adjacent species
+  @param[in] c1         Vertex character
+  @param[in] c2         Vertex character
+  @param[in] g          Red black graph
 
   @return bool
 */
-bool overlap(const RBVertex& c1, const RBVertex& c2, std::map<RBVertex, std::list<RBVertex>>& adj_spec);
+bool overlap(const RBVertex& c1, const RBVertex& c2, const RBGraph& g);
 
 /**
   @brief Returns the list of inactive characters in \e g
@@ -914,16 +924,35 @@ std::list<std::string> get_comp_vertex(const RBVertex& v, const RBGraph& g);
 
   @return Set of active characters (only the names)
 **/  
-std::set<std::string> get_species_adj_active_characters(const RBVertex s, const RBGraph& g);
+std::set<std::string> get_species_adj_active_characters(const RBVertex& s, const RBGraph& g);
 
 /**
-  @brief Returns the set of active characters of a red-black graph
+  @brief Given a species \e s, it returns the set of inactive characters adjacent to \e s
+
+  @param[in] s Species in the graph
+  @param[in] g Red-black graph
+
+  @return Set of inactive characters (only the names)
+**/  
+std::set<std::string> get_species_adj_inactive_characters(const RBVertex& s, const RBGraph& g);
+
+/**
+  @brief Returns the list of active characters of a red-black graph
 
   @param[in] g Red-black graph
  
-  @return Set of active characters (only the names)
+  @return List of active characters
 **/
-std::set<std::string> get_active_characters(const RBGraph& g);
+std::list<RBVertex> get_active_characters(const RBGraph& g);
+
+/**
+  @brief Returns the list of active species of a red-black graph
+
+  @param[in] g Red-black graph
+ 
+  @return List of active species
+**/
+std::list<RBVertex> get_active_species(const RBGraph& g);
 
 /**
   @brief Given a red-black graph and a species, it returns the active characters included in the component that includes the species

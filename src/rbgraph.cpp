@@ -411,6 +411,7 @@ bool is_active(const RBVertex& v, const RBGraph& g) {
 
   RBOutEdgeIter e, e_end;
   std::tie(e, e_end) = out_edges(v, g);
+
   for (; e != e_end; ++e)
     if (is_char && !is_red(*e, g))
       return false;
@@ -418,11 +419,6 @@ bool is_active(const RBVertex& v, const RBGraph& g) {
       return false;
 
   return true;
-}
-
-bool is_quasi_active(const RBVertex& s, const RBGraph& g) {
-  // TODO
-  return false;
 }
 
 bool is_pending_species(const RBVertex& s, const RBGraph& g) {
@@ -648,10 +644,34 @@ RBGraphVector connected_components(const RBGraph& g, const RBVertexIMap& c_map,
   return components;
 }
 
-std::map<RBVertex, std::list<RBVertex>> get_neighbours_map(const RBGraph& g) {
-  std::map<RBVertex, std::list<RBVertex>> neighbours_map;
-  // neighbours_map will be structured as follows:
-  // neighbours_map[v] = list of verteces adjacent to vertex v
+std::list<RBVertex> get_neighbors(const RBVertex& v, const RBGraph& g) {
+
+  std::set<RBVertex> output;
+
+  if (!is_species(v, g)) 
+    return std::list<RBVertex>();
+
+  std::list<RBVertex> chars_adj_to_v = get_adjacent_characters_map(g)[v];
+
+  for (RBVertex u : chars_adj_to_v) {
+    if (is_active(u, g)) continue;
+    // for each inactive character u adjacent to v
+
+    RBOutEdgeIter e, e_end;
+    std::tie(e, e_end) = out_edges(u, g);
+    for (; e != e_end; ++e)
+      // for each species connected to u
+      output.insert(e->m_target);
+  }
+  output.erase(v);
+
+  return std::list<RBVertex>(output.begin(), output.end());
+}
+
+std::map<RBVertex, std::list<RBVertex>> get_adj_map(const RBGraph& g) {
+  std::map<RBVertex, std::list<RBVertex>> adj_map;
+  // adj_map will be structured as follows:
+  // adj_map[v] = list of verteces adjacent to vertex v
 
   // fill the map
   RBVertexIter v, v_end;
@@ -661,14 +681,14 @@ std::map<RBVertex, std::list<RBVertex>> get_neighbours_map(const RBGraph& g) {
     std::tie(e, e_end) = out_edges(*v, g);
     for (; e != e_end; ++e) {
       RBVertex vt = target(*e, g);
-      neighbours_map[*v].push_back(vt);
+      adj_map[*v].push_back(vt);
     }
   }
-  return neighbours_map;
+  return adj_map;
 }
 
 std::map<RBVertex, std::list<RBVertex>> get_adjacent_species_map(const RBGraph& g) {
-  std::map<RBVertex, std::list<RBVertex>> adj_spec = get_neighbours_map(g);
+  std::map<RBVertex, std::list<RBVertex>> adj_spec = get_adj_map(g);
 
   // remove from the map all the keys that refer to species
   RBVertexIter v, v_end;
@@ -681,7 +701,7 @@ std::map<RBVertex, std::list<RBVertex>> get_adjacent_species_map(const RBGraph& 
 }
 
 std::map<RBVertex, std::list<RBVertex>> get_adjacent_characters_map(const RBGraph& g) {
-    std::map<RBVertex, std::list<RBVertex>> adj_chars = get_neighbours_map(g);
+    std::map<RBVertex, std::list<RBVertex>> adj_chars = get_adj_map(g);
 
   // remove from the map all the keys that refer to characters
   RBVertexIter v, v_end;
@@ -693,7 +713,25 @@ std::map<RBVertex, std::list<RBVertex>> get_adjacent_characters_map(const RBGrap
   return adj_chars;
 }
 
-bool includes(const RBVertex& c1, const RBVertex& c2, std::map<RBVertex, std::list<RBVertex>>& adj_spec) {
+bool includes_species(const RBVertex& s1, const RBVertex& s2, const RBGraph& g) {
+  auto in_chars_s1 = get_species_adj_inactive_characters(s1, g);
+  auto in_chars_s2 = get_species_adj_inactive_characters(s2, g);
+
+  bool included = true;
+  for (std::string str : in_chars_s2)
+    // for each inactive character adjacent to s2, check if it is included in the set of inactive characters adjacent to s1
+    if (in_chars_s1.find(str) == in_chars_s1.end()) {
+      included = false;
+      break;
+    }
+
+  return included;
+}
+
+bool includes_characters(const RBVertex& c1, const RBVertex& c2, const RBGraph& g) {
+  auto adj_spec = get_adjacent_species_map(g);
+  // adj_spec is a map, where adj_spec[*v] contains the list of species adjacent to v
+
   bool included = true;
   RBVertexIter c2_it = adj_spec[c2].begin(), c2_it_end = adj_spec[c2].end();
   while (c2_it != c2_it_end) {
@@ -706,8 +744,11 @@ bool includes(const RBVertex& c1, const RBVertex& c2, std::map<RBVertex, std::li
   return included;
 }
 
-bool overlap(const RBVertex& c1, const RBVertex& c2, std::map<RBVertex, std::list<RBVertex>>& adj_spec) {
-  if (includes(c1, c2, adj_spec) || includes(c2, c1, adj_spec))
+bool overlap(const RBVertex& c1, const RBVertex& c2, const RBGraph& g) {
+  auto adj_spec = get_adjacent_species_map(g);
+  // adj_spec is a map, where adj_spec[*v] contains the list of species adjacent to v
+
+  if (includes_characters(c1, c2, g) || includes_characters(c2, c1, g))
     return false;
   RBVertexIter c2_it = adj_spec[c2].begin(), c2_it_end = adj_spec[c2].end();
   while (c2_it != c2_it_end) {
@@ -734,8 +775,6 @@ std::list<RBVertex> get_inactive_chars(const RBGraph& g) {
 
 const std::list<RBVertex> maximal_characters(const RBGraph& g) {
   std::list<RBVertex> cm;
-  auto adj_spec = get_adjacent_species_map(g);
-  // adj_spec is a map, where adj_spec[*v] contains the list of species adjacent to v
 
   std::list<RBVertex> inactive_chars = get_inactive_chars(g);
 
@@ -752,7 +791,7 @@ const std::list<RBVertex> maximal_characters(const RBGraph& g) {
       if (*v == *u)
         continue;
       
-      if (includes(*u, *v, adj_spec)) {
+      if (includes_characters(*u, *v, g)) {
         maximal_character = false;
         break;
       }
@@ -811,7 +850,7 @@ bool has_red_sigmagraph(const RBGraph& g) {
   RBVertexIter v, v_end;
   std::tie(v, v_end) = vertices(g);
   for (; v != v_end; ++v) {
-    if (is_active(*v, g)) count_actives++;
+    if (is_character(*v, g) && is_active(*v, g)) count_actives++;
 
     if (count_actives == 2) break;
   }
@@ -821,11 +860,11 @@ bool has_red_sigmagraph(const RBGraph& g) {
 
   std::tie(v, v_end) = vertices(g);
   for (; v != v_end; ++v) {
-    if (!is_active(*v, g)) continue;
+    if (!is_character(*v, g) || !is_active(*v, g)) continue;
     // for each active character
 
     for (auto u = std::next(v); u != v_end; ++u) {
-      if (!is_active(*u, g)) continue;
+      if (!is_character(*v, g) || !is_active(*u, g)) continue;
       // for each active character coming after *v
 
       // check if characters *v and *u are part of a red sigma-graph
@@ -916,14 +955,27 @@ void change_char_type(const RBVertex& v, RBGraph& g) {
   }
 }
 
-std::set<std::string> get_active_characters(const RBGraph& g) {
-  std::set<std::string> ac;
+std::list<RBVertex> get_active_characters(const RBGraph& g) {
+  std::list<RBVertex> ac;
   RBVertexIter v, v_end;
   
   std::tie(v, v_end) = vertices(g);
   while(v != v_end) {
-    if(is_active(*v, g))
-      ac.insert(g[*v].name);
+    if(is_character(*v, g) && is_active(*v, g))
+      ac.push_back(*v);
+    v++;
+  }
+  return ac;
+}
+
+std::list<RBVertex> get_active_species(const RBGraph& g) {
+  std::list<RBVertex> ac;
+  RBVertexIter v, v_end;
+  
+  std::tie(v, v_end) = vertices(g);
+  while(v != v_end) {
+    if(is_species(*v, g) && is_active(*v, g))
+      ac.push_back(*v);
     v++;
   }
   return ac;
@@ -955,14 +1007,24 @@ std::list<std::string> get_comp_vertex(const RBVertex& u, const RBGraph& g) {
   return result;
 }
 
-std::set<std::string> get_species_adj_active_characters(const RBVertex s, const RBGraph& g) {
+std::set<std::string> get_species_adj_active_characters(const RBVertex& s, const RBGraph& g) {
   std::set<std::string> adj_active_chars;
   std::list<RBVertex> adj_chars = get_adjacent_characters_map(g)[s];
 
   for (RBVertex c : adj_chars)
-    if (is_active(c, g))
+    if (is_character(c, g) && is_active(c, g))
       adj_active_chars.insert(g[c].name);
   return adj_active_chars;
+}
+
+std::set<std::string> get_species_adj_inactive_characters(const RBVertex& s, const RBGraph& g) {
+  std::set<std::string> adj_inactive_chars;
+  std::list<RBVertex> adj_chars = get_adjacent_characters_map(g)[s];
+
+  for (RBVertex c : adj_chars)
+    if (is_inactive(c, g))
+      adj_inactive_chars.insert(g[c].name);
+  return adj_inactive_chars;
 }
 
 std::set<std::string> get_comp_active_characters(const RBVertex s, const RBGraph& g) {

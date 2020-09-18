@@ -389,6 +389,53 @@ void test_has_red_sigmagraph() {
   std::cout << "test_has_red_sigmagraph(): passed" << std::endl;
 }
 
+int test_get_neighbors() {
+  RBGraph g;
+  RBVertex s1 = add_species("s1", g);
+  RBVertex s2 = add_species("s2", g);
+  RBVertex s3 = add_species("s3", g);
+  RBVertex s4 = add_species("s4", g);
+  add_character("c1", g);
+  add_character("c2", g);
+  add_character("c3", g);
+
+  assert(get_neighbors(s1, g).empty());
+  add_edge("s1", "c1", Color::black, g);
+  assert(get_neighbors(s1, g).empty());
+  add_edge("s2", "c1", Color::black, g);
+  assert(get_neighbors(s1, g).size() == 1);
+  assert(*get_neighbors(s1, g).begin() == s2);
+  add_edge("s3", "c2", Color::black, g);
+  assert(get_neighbors(s1, g).size() == 1);
+  assert(*get_neighbors(s1, g).begin() == s2);
+  assert(get_neighbors(s3, g).empty());
+  add_edge("s4", "c2", Color::black, g);
+  add_edge("s4", "c3", Color::black, g);
+  add_edge("s3", "c3", Color::black, g);
+  assert(get_neighbors(s4, g).size() == 1);
+  assert(*get_neighbors(s4, g).begin() == s3);
+  add_edge("s3", "c1", Color::black, g);
+  assert(get_neighbors(s2, g).size() == 2);
+  assert(*get_neighbors(s2, g).begin() == s3 && *++(get_neighbors(s2, g).begin()) == s1);
+  assert(get_neighbors(s3, g).size() == 3);
+
+  RBVertex s5 = add_species("s5", g);
+  RBVertex s6 = add_species("s6", g);
+  add_character("c4", g);
+
+  add_edge("s5", "c4", Color::red, g);
+  assert(get_neighbors(s5, g).empty());
+  add_edge("s6", "c4", Color::red, g);
+  assert(get_neighbors(s5, g).empty());
+  add_edge("s5", "c1", Color::black, g);
+  assert(get_neighbors(s5, g).size() == 3);
+  assert(std::find(get_neighbors(s5, g).begin(), get_neighbors(s5, g).end(), s1) != get_neighbors(s5, g).end());
+  assert(std::find(get_neighbors(s5, g).begin(), get_neighbors(s5, g).end(), s2) != get_neighbors(s5, g).end());
+  assert(std::find(get_neighbors(s5, g).begin(), get_neighbors(s5, g).end(), s3) != get_neighbors(s5, g).end());
+
+  std::cout << "test_get_neighbors(): passed" << std::endl;
+}
+
 int main(int argc, char *argv[]) {
   test_simple_add_vertex();
   test_add_vertex_with_duplicates();
@@ -403,4 +450,5 @@ int main(int argc, char *argv[]) {
   test_copy_graph();
   test_read_graph();
   test_has_red_sigmagraph();
+  test_get_neighbors();
 }
