@@ -446,7 +446,7 @@ void remove_vertex_if(const RBVertex& v, Predicate predicate, RBGraph& g) {
 
   @return Edge
 */
-RBEdge get_edge(const RBVertex &source, const RBVertex &target, RBGraph &g);
+RBEdge get_edge(const RBVertex &source, const RBVertex &target, const RBGraph &g);
 
 /**
   @brief Return a reference to the vertex descriptor of the vertex \e name in \e g
@@ -599,7 +599,7 @@ inline bool is_red(const RBEdge& e, const RBGraph& g) {
   @brief Check if \e v is active in \e g
 
   A vertex is active in a red-black graph if it's a character that is incident
-  only on red edges.
+  only on red edges or it's a species that is incident only on black edges.
 
   @param[in] v Vertex
   @param[in] g Red-black graph
@@ -622,6 +622,31 @@ bool is_active(const RBVertex& v, const RBGraph& g);
 inline bool is_inactive(const RBVertex& v, const RBGraph& g) {
   return !is_active(v, g);
 }
+
+/**
+  @brief Check if \e s is quasi-active in \e g. 
+
+  A species is quasi-active in a red-black graph if it's a species that has
+  red-incoming edges and can be removed without producing a red sigma-graph
+
+  @param[in] s Species
+  @param[in] g Red-black graph
+
+  @return True if \e s is quasi-active in \e g
+*/
+bool is_quasi_active(const RBVertex& s, const RBGraph& g);
+
+/**
+  @brief Check if \e s is a pending species in \e g. 
+
+  A species is pending in a red-black graph if it's a species that has just an incoming black edge.
+
+  @param[in] s Species
+  @param[in] g Red-black graph
+
+  @return True if \e s is a pending species in \e g
+*/
+bool is_pending_species(const RBVertex& s, const RBGraph& g);
 
 /**
   @brief Remove singleton vertices from \e g

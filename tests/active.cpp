@@ -43,7 +43,13 @@ int main(int argc, const char* argv[]) {
 
   assert(is_inactive(c2, g));
   assert(is_inactive(s5, g));
+  assert(!is_active(s5, g));
   assert(is_active(c4, g));
+  assert(!is_active(s3, g));
+  assert(!is_active(s4, g));
+  assert(!is_active(s5, g));
+  assert(is_active(s6, g));
+  assert(is_active(s1, g));
 
   std::cout << "active: tests passed" << std::endl;
 

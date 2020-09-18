@@ -84,7 +84,7 @@ std::pair<RBEdge, bool> add_edge(const std::string& source, const std::string& t
   return add_edge(get_vertex(source, g), get_vertex(target, g), color, g);
 }
 
-RBEdge get_edge(const RBVertex &source, const RBVertex &target, RBGraph &g) {
+RBEdge get_edge(const RBVertex &source, const RBVertex &target, const RBGraph &g) {
   if (!exists(source, g) || !exists(target, g)) 
     throw std::runtime_error("[ERROR] In get_edge(): source vertex or edge vertex does not exist");
   if (!exists(source, target, g)) 
@@ -404,16 +404,42 @@ void read_graph(const std::string& filename, RBGraph& g) {
 // Algorithm functions
 
 bool is_active(const RBVertex& v, const RBGraph& g) {
-  if (!is_character(v, g)) 
-    return false;
+
+  bool is_char = is_character(v, g);
+  // an active character has only incident red edges, while
+  // an active species has no incident red edges
 
   RBOutEdgeIter e, e_end;
   std::tie(e, e_end) = out_edges(v, g);
   for (; e != e_end; ++e)
-    if (!is_red(*e, g)) 
+    if (is_char && !is_red(*e, g))
+      return false;
+    else if (!is_char && is_red(*e, g))
       return false;
 
   return true;
+}
+
+bool is_quasi_active(const RBVertex& s, const RBGraph& g) {
+  // TODO
+  return false;
+}
+
+bool is_pending_species(const RBVertex& s, const RBGraph& g) {
+  if (!is_species(s, g))
+    return false;
+  
+  RBOutEdgeIter e, e_end;
+  std::tie(e, e_end) = out_edges(s, g);
+  std::list<RBEdge> edge_list(e, e_end);
+  
+  if (edge_list.size() != 1)
+    return false;
+
+  if (is_black(*edge_list.begin(), g))
+    return true;
+  else
+    return false;
 }
 
 void remove_singletons(RBGraph& g) {
@@ -707,7 +733,7 @@ std::list<RBVertex> get_inactive_chars(const RBGraph& g) {
 }
 
 const std::list<RBVertex> maximal_characters(const RBGraph& g) {
-  std::list<RBVertex> mc;
+  std::list<RBVertex> cm;
   auto adj_spec = get_adjacent_species_map(g);
   // adj_spec is a map, where adj_spec[*v] contains the list of species adjacent to v
 
@@ -715,7 +741,7 @@ const std::list<RBVertex> maximal_characters(const RBGraph& g) {
 
   // for each inactive character c in g, if S(c) ⊄ S(c') for any
   // character c', then v is a maximal character and it
-  // is inserted in mc
+  // is inserted in cm
   RBVertexIter v = inactive_chars.begin(), v_end = inactive_chars.end();
   bool maximal_character;
   for (; v != v_end; ++v) {
@@ -733,9 +759,9 @@ const std::list<RBVertex> maximal_characters(const RBGraph& g) {
     }
 
     if (maximal_character)
-      mc.push_back(*v);
+      cm.push_back(*v);
   }
-  return mc;
+  return cm;
 }
 
 RBGraph maximal_reducible_graph(const RBGraph& g, const bool active) {
@@ -820,24 +846,19 @@ bool has_red_sigmapath(const RBVertex c0, const RBVertex c1, const RBGraph& g) {
   std::tie(e, e_end) = out_edges(c0, g);
   for (; e != e_end; ++e) {
     if (!is_red(*e, g)) continue;
-
-    auto s = target(*e, g);
-
     // for each species connected to c0 via a red edge
 
-    RBEdge edgec1;
-    bool existsc1;
-    std::tie(edgec1, existsc1) = edge(c1, s, g);
-
+    RBVertex s = target(*e, g);
+    
     // check if s can be a junction vertex
-    if (junction == 0 && existsc1 && is_red(edgec1, g)) {
+    if (junction == 0 && exists(c1, s, g) && is_red(get_edge(c1, s, g), g)) {
       junction = s;
 
       continue;
     }
 
     // check if s and c1 are connected
-    if (existsc1)
+    if (exists(c1, s, g))
       // skip s
       continue;
 
@@ -852,16 +873,12 @@ bool has_red_sigmapath(const RBVertex c0, const RBVertex c1, const RBGraph& g) {
   for (; e != e_end; ++e) {
     RBVertex s = target(*e, g);
 
-    if (!is_red(*e, g) || s == junction) continue;
-
+    if (!is_red(*e, g) || s == junction) 
+    continue;
     // for each species connected to c1 via a red edge (which is not junction)
 
-    RBEdge edgec0;
-    bool existsc0;
-    std::tie(edgec0, existsc0) = edge(c0, s, g);
-
     // check if s and c0 are connected
-    if (existsc0)
+    if (exists(c0, s, g))
       // skip s
       continue;
 

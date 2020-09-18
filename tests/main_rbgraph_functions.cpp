@@ -298,6 +298,20 @@ void test_copy_graph() {
   assert(num_species(g) == num_species(g2));
   assert(num_characters(g) == num_characters(g2));
 
+  g2[v1_g2].name = "pippo";
+  assert(g2[v1_g2].name == "pippo" && g[v1].name == "v1");
+
+  g2[v2_g2].type = Type::character;
+  g[v2].type = Type::species;
+  assert(g2[v2_g2].type != g[v2].type);
+
+  add_vertex("s*", Type::character, g2);
+  assert(exists("s*", g2));
+  assert(!exists("s*", g));
+
+  assert(g2[get_edge(v1_g2, v3_g2, g2).m_source].name == "pippo");
+  assert(g[get_edge(v1, v3, g).m_source].name == "v1");
+
   std::cout << "test_copy_graph(): passed" << std::endl;
 }
 
@@ -332,6 +346,49 @@ void test_read_graph() {
   std::cout << "test_read_graph(): passed" << std::endl;
 }
 
+void test_has_red_sigmagraph() {
+  RBGraph g;
+  add_vertex("s1", Type::species, g);
+  add_vertex("s2", Type::species, g);
+  add_vertex("s3", Type::species, g);
+  add_vertex("c1", Type::character, g);
+  add_vertex("c2", Type::character, g);
+
+  assert(!has_red_sigmagraph(g));
+
+  add_edge("s1", "c1", Color::red, g);
+  assert(!has_red_sigmagraph(g));
+  add_edge("s2", "c1", Color::red, g);
+  assert(!has_red_sigmagraph(g));
+  add_edge("s2", "c2", Color::red, g);
+  assert(!has_red_sigmagraph(g));
+  add_edge("s3", "c2", Color::red, g);
+  assert(has_red_sigmagraph(g));
+  add_vertex("c3", Type::character, g);
+  assert(has_red_sigmagraph(g));
+  add_edge("s3", "c3", Color::black, g);
+  assert(has_red_sigmagraph(g));
+
+  clear(g);
+  add_species("s1", g);
+  add_species("s2", g);
+  add_species("s3", g);
+  add_species("s4", g);
+  add_character("c1", g);
+  add_character("c2", g);
+
+  add_edge("s1", "c1", Color::red, g);
+  add_edge("s2", "c1", Color::red, g);
+  add_edge("s3", "c2", Color::red, g);
+  add_edge("s4", "c2", Color::red, g);
+  assert(!has_red_sigmagraph(g));
+
+  add_edge("c2", "s2", Color::red, g);
+  assert(has_red_sigmagraph(g));
+
+  std::cout << "test_has_red_sigmagraph(): passed" << std::endl;
+}
+
 int main(int argc, char *argv[]) {
   test_simple_add_vertex();
   test_add_vertex_with_duplicates();
@@ -345,4 +402,5 @@ int main(int argc, char *argv[]) {
   test_exists();
   test_copy_graph();
   test_read_graph();
+  test_has_red_sigmagraph();
 }
