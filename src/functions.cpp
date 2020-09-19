@@ -1726,3 +1726,25 @@ RBVertex get_minimal_p_active_species(const RBGraph& g) {
   }
   return p_active_candidate;
 }
+
+bool is_quasi_active(const RBVertex& s, const RBGraph& g) {
+  if (!is_species(s, g)) return false;
+
+  // TODO da vedere se è vero che si può ritornare subito qua
+  if (is_active(s, g)) return true;
+
+  RBOutEdgeIter e, e_end;
+  std::tie(e, e_end) = out_edges(s, g);
+  std::list<RBVertex> edge_list_s(e, e_end);
+
+  RBGraph g_copy;
+
+  copy_graph(g, g_copy);
+
+  realize_species(get_vertex(g[s].name, g_copy), g_copy);
+
+  if (has_red_sigmagraph(g_copy))
+    return false;
+  else
+    return true;
+}
