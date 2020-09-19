@@ -1709,8 +1709,8 @@ RBVertex get_minimal_p_active_species(const RBGraph& g) {
             RBGraph g_copy;
             copy_graph(g, g_copy);
 
-            realize_species(v, g_copy);
-            realize_species(u, g_copy);
+            realize_species(get_vertex(g[v].name, g_copy), g_copy);
+            realize_species(get_vertex(g[u].name, g_copy), g_copy);
 
             if (!has_red_sigmagraph(g_copy)) {
               p_active_candidate = v;
