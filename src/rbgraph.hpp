@@ -161,11 +161,11 @@ typedef std::vector<std::unique_ptr<RBGraph>> RBGraphVector;
 // Auxiliary structs and classes
 
 /**
-  @brief Functor used in remove_vertex_if
+  @brief Functor used in remove_vertex_if.
 */
 struct if_singleton {
   /**
-    @brief Overloading of operator() for if_singleton
+    @brief Overloading of operator() for if_singleton .
 
     @param[in] v Vertex
     @param[in] g Red-black graph
@@ -178,7 +178,7 @@ struct if_singleton {
 };
 
 /**
-  @brief Functor used in remove_vertex_if
+  @brief Functor used in remove_vertex_if .
 */
 struct if_not_maximal {
   /**
@@ -189,7 +189,7 @@ struct if_not_maximal {
   if_not_maximal(const std::list<RBVertex>& cm) : m_cm{&cm} {};
 
   /**
-    @brief Overloading of operator() for if_not_maximal
+    @brief Overloading of operator() for if_not_maximal .
 
     @param[in] v Vertex
     @param[in] g Red-black graph
@@ -210,14 +210,14 @@ struct if_not_maximal {
 // Boost functions (overloading)
 
 /**
-  @brief Remove all vertices and edges from \e g
+  @brief Remove all vertices and edges from \e g .
 
   @param[in] g Red-black graph
 */
 void clear(RBGraph& g);
 
 /**
-  @brief Remove the edge with source \e s and target \e t from \e g
+  @brief Remove the edge with source \e s and target \e t from \e g .
 
   @param[in]     s Source vertex
   @param[in]     t Target vertex
@@ -227,7 +227,7 @@ void clear(RBGraph& g);
 void remove_edge(const RBVertex& s, const RBVertex& t, RBGraph& g);
 
 /**
-  @brief Remove the edge with source \e s and target \e t from \e g
+  @brief Remove the edge with source \e s and target \e t from \e g .
 
   @param[in]     s Source vertex name
   @param[in]     t Target vertex name
@@ -237,7 +237,7 @@ void remove_edge(const RBVertex& s, const RBVertex& t, RBGraph& g);
 void remove_edge(const std::string& s, const std::string& t, RBGraph& g);
 
 /**
-  @brief Remove \e e from \e g
+  @brief Remove \e e from \e g .
 
   @param[in]     e Edge
   @param[in,out] g Red-black graph
@@ -249,7 +249,7 @@ inline void remove_edge(const RBEdge& e, RBGraph& g) {
 }
 
 /**
-  @brief Remove \e v from \e g
+  @brief Remove \e v from \e g .
 
   @param[in]     v Vertex
   @param[in,out] g Red-black graph
@@ -257,7 +257,7 @@ inline void remove_edge(const RBEdge& e, RBGraph& g) {
 void remove_vertex(const RBVertex& v, RBGraph& g);
 
 /**
-  @brief Remove vertex \e name from \e g
+  @brief Remove vertex \e name from \e g .
 
   @param[in]     name Vertex name
   @param[in,out] g    Red-black graph
@@ -266,7 +266,7 @@ void remove_vertex(const std::string& name, RBGraph& g);
 
 
 /**
-  @brief Add vertex with \e name and \e type to \e g
+  @brief Add the vertex with \e name and \e type to \e g .
 
   @param[in]     name Name
   @param[in]     type Type
@@ -277,7 +277,7 @@ void remove_vertex(const std::string& name, RBGraph& g);
 RBVertex add_vertex(const std::string& name, const Type type, RBGraph& g);
 
 /**
-  @brief Add vertex (as species) with \e name to \e g
+  @brief Add the vertex (species) with \e name to \e g .
 
   @param[in]     name Name
   @param[in,out] g    Red-black graph
@@ -289,7 +289,7 @@ inline RBVertex add_species(const std::string& name, RBGraph& g) {
 }
 
 /**
-  @brief Add vertex (as character) with \e name to \e g
+  @brief Add teh vertex (character) with \e name to \e g .
 
   @param[in]     name Name
   @param[in,out] g    Red-black graph
@@ -301,7 +301,12 @@ inline RBVertex add_character(const std::string& name, RBGraph& g) {
 }
 
 /**
-  @brief Add edge between \e u and \e v with \e color to \e g
+  @brief Add the edge between \e u and \e v with \e color to \e g .
+
+  If the edge is already in the graph then a duplicate will not be
+  added and the bool flag will be false.
+  When the flag is false, the returned edge descriptor points to the
+  already existing edge.
 
   @param[in]     u     Source Vertex
   @param[in]     v     Target Vertex
@@ -309,17 +314,18 @@ inline RBVertex add_character(const std::string& name, RBGraph& g) {
   @param[in,out] g     Red-black graph
 
   @return Edge descriptor for the new edge.
-          If the edge is already in the graph then a duplicate will not be
-          added and the bool flag will be false.
-          When the flag is false, the returned edge descriptor points to the
-          already existing edge
 */
 std::pair<RBEdge, bool> add_edge(const RBVertex& u, const RBVertex& v,
                                  const Color color, RBGraph& g);
 
 
 /**
-  @brief Add edge between \e u and \e v with \e color to \e g
+  @brief Add edge between \e u and \e v with \e color to \e g .
+
+  If the edge is already in the graph then a duplicate will not be
+  added and the bool flag will be false.
+  When the flag is false, the returned edge descriptor points to the
+  already existing edge.
 
   @param[in]     u     Source Vertex name
   @param[in]     v     Target Vertex name
@@ -327,25 +333,22 @@ std::pair<RBEdge, bool> add_edge(const RBVertex& u, const RBVertex& v,
   @param[in,out] g     Red-black graph
 
   @return Edge descriptor for the new edge.
-          If the edge is already in the graph then a duplicate will not be
-          added and the bool flag will be false.
-          When the flag is false, the returned edge descriptor points to the
-          already existing edge
 */
 std::pair<RBEdge, bool> add_edge(const std::string& source, const std::string& target, Color color, RBGraph& g);
 
 /**
-  @brief Add edge between \e u and \e v to \e g
+  @brief Add a black edge between \e u and \e v to \e g .
+
+  If the edge is already in the graph then a duplicate will not be
+  added and the bool flag will be false.
+  When the flag is false, the returned edge descriptor points to the
+  already existing edge.
 
   @param[in]     u Source Vertex
   @param[in]     v Target Vertex
   @param[in,out] g Red-black graph
 
   @return Edge descriptor for the new edge.
-          If the edge is already in the graph then a duplicate will not be
-          added and the bool flag will be false.
-          When the flag is false, the returned edge descriptor points to the
-          already existing edge
 */
 inline std::pair<RBEdge, bool> add_edge(const RBVertex& u, const RBVertex& v,
                                         RBGraph& g) {
@@ -356,7 +359,7 @@ inline std::pair<RBEdge, bool> add_edge(const RBVertex& u, const RBVertex& v,
 // General functions
 
 /**
-  @brief Return the number of species in \e g
+  @brief Return the number of species in \e g .
 
   @param[in] g Red-black graph
 
@@ -367,18 +370,18 @@ inline size_t& num_species(RBGraph& g) {
 }
 
 /**
-  @brief Return the number of species (const) in \e g
+  @brief Return the number of species (const) in \e g .
 
   @param[in] g Red-black graph
 
   @return Constant number of species in \e g
 */
-inline const size_t num_species(const RBGraph& g) {
+inline const size_t& num_species(const RBGraph& g) {
   return g[boost::graph_bundle].num_species;
 }
 
 /**
-  @brief Return the number of characters in \e g
+  @brief Return the number of characters in \e g .
 
   @param[in] g Red-black graph
 
@@ -389,7 +392,7 @@ inline size_t& num_characters(RBGraph& g) {
 }
 
 /**
-  @brief Return the number of characters (const) in \e g
+  @brief Return the number of characters (const) in \e g .
 
   @param[in] g Red-black graph
 
@@ -400,7 +403,8 @@ inline const size_t num_characters(const RBGraph& g) {
 }
 
 /**
-  @brief Return the map in \e g
+  @brief Return the map in \e g .
+  The map M is such that M[key] = vertex object in \e g , where key is the string name of the vertex.
 
   @param[in] g Red-black graph
 
@@ -411,18 +415,18 @@ inline RBVertexNameMap& vertex_map(RBGraph& g) {
 }
 
 /**
-  @brief Return the map (const) in \e g
+  @brief Return the map (const) in \e g .
 
   @param[in] g Red-black graph
 
-  @return Constant reference map in \e g
+  @return Constant reference to the map in \e g
 */
 inline const RBVertexNameMap& vertex_map(const RBGraph& g) {
   return g[boost::graph_bundle].vertex_map;
 }
 
 /**
-  @brief Remove \e v from \e g if it satisfies \e predicate
+  @brief Remove \e v from \e g if it satisfies \e predicate .
 
   @param[in]     v         Vertex
   @param[in]     predicate Predicate
@@ -438,7 +442,7 @@ void remove_vertex_if(const RBVertex& v, Predicate predicate, RBGraph& g) {
 }
 
 /**
-  @brief Return the edge descriptor of the edge with \e source and \e target as vertices in \e g
+  @brief Return the edge descriptor of the edge with \e source and \e target as vertices in \e g .
 
   @param[in] source Source vertex name
   @param[in] target Target vertex name
@@ -449,17 +453,17 @@ void remove_vertex_if(const RBVertex& v, Predicate predicate, RBGraph& g) {
 RBEdge get_edge(const RBVertex &source, const RBVertex &target, const RBGraph &g);
 
 /**
-  @brief Return a reference to the vertex descriptor of the vertex \e name in \e g
-
+  @brief Return a reference to the vertex descriptor of the vertex \e name in \e g .
+ 
   @param[in] name Vertex name
   @param[in] g    Red-black graph
 
-  @return Vertex
+  @return Costant reference to the vertex
 */
 const RBVertex& get_vertex(const std::string& name, const RBGraph& g);
 
 /**
-  @brief Return true if an edge with \e source and \e target exists in \e g
+  @brief Return true if an edge with \e source and \e target exists in \e g .
 
   @param[in] source Source vertex
   @param[in] target Target vertex
@@ -470,7 +474,7 @@ const RBVertex& get_vertex(const std::string& name, const RBGraph& g);
 bool exists(const RBVertex &source, const RBVertex &target, const RBGraph &g);
 
 /**
-  @brief Return true if an edge with \e source and \e target exists in \e g
+  @brief Return true if an edge with \e source and \e target exists in \e g .
 
   @param[in] source Source vertex name
   @param[in] target Target vertex name
@@ -481,7 +485,7 @@ bool exists(const RBVertex &source, const RBVertex &target, const RBGraph &g);
 bool exists(const std::string &source, const std::string &target, const RBGraph &g);
 
 /**
-  @brief Return true if \e v exists in \e g
+  @brief Return true if \e v exists in \e g .
 
   @param[in] v    Vertex
   @param[in] g    Red-black graph
@@ -491,7 +495,7 @@ bool exists(const std::string &source, const std::string &target, const RBGraph 
 bool exists(const RBVertex &v, const RBGraph &g);
 
 /**
-  @brief Return true if a vertex named \e name exists in \e g
+  @brief Return true if a vertex named \e name exists in \e g .
 
   @param[in] name    Vertex name
   @param[in] g    Red-black graph
@@ -501,14 +505,82 @@ bool exists(const RBVertex &v, const RBGraph &g);
 bool exists(const std::string &name, const RBGraph &g);
 
 /**
-  @brief Build the map in \e g
+  @brief Return true if \e g is empty .
+
+  A red-black graph is empty if it has no vertices.
+
+  @param[in] g Red-black graph
+
+  @return bool
+*/
+inline bool is_empty(const RBGraph& g) { return (num_vertices(g) == 0); }
+
+/**
+  @brief Build the map in \e g .
 
   @param[in] g Red-black graph
 */
 void build_vertex_map(RBGraph& g);
 
 /**
-  @brief Copy graph \e g to graph \e g_copy
+  @brief Remove singleton vertices from \e g .
+
+  A vertex is a singleton in a red-black graph if it has no incident edges.
+
+  @param[in,out] g Red-black graph
+*/
+void remove_singletons(RBGraph& g);
+
+/**
+  @brief Return true if \e v is a species in \e g .
+
+  @param[in] v Vertex
+  @param[in] g Red-black graph
+
+  @return bool
+*/
+inline bool is_species(const RBVertex& v, const RBGraph& g) {
+  return (g[v].type == Type::species);
+}
+
+/**
+  @brief Return true if \e v is a character in \e g .
+
+  @param[in] v Vertex
+  @param[in] g Red-black graph
+
+  @return bool
+*/
+inline bool is_character(const RBVertex& v, const RBGraph& g) {
+  return (g[v].type == Type::character);
+}
+
+/**
+  @brief Return true if \e e is a black edge in \e g .
+
+  @param[in] e Edge
+  @param[in] g Red-black graph
+
+  @return bool
+*/
+inline bool is_black(const RBEdge& e, const RBGraph& g) {
+  return (g[e].color == Color::black);
+}
+
+/**
+  @brief Return true if \e e is a red edge in \e g .
+
+  @param[in] e Edge
+  @param[in] g Red-black graph
+
+  @return bool
+*/
+inline bool is_red(const RBEdge& e, const RBGraph& g) {
+  return (g[e].color == Color::red);
+}
+
+/**
+  @brief Copy graph \e g to graph \e g_copy .
 
   @param[in]     g      Red-black graph
   @param[in,out] g_copy Red-black graph
@@ -516,7 +588,7 @@ void build_vertex_map(RBGraph& g);
 void copy_graph(const RBGraph& g, RBGraph& g_copy);
 
 /**
-  @brief Copy graph \e g to graph \e g_copy and fill its vertex map
+  @brief Copy graph \e g to graph \e g_copy and fill its vertex map.
 
   @param[in]     g      Red-black graph
   @param[in,out] g_copy Red-black graph
@@ -525,19 +597,19 @@ void copy_graph(const RBGraph& g, RBGraph& g_copy);
 void copy_graph(const RBGraph& g, RBGraph& g_copy, RBVertexMap& v_map);
 
 /**
-  @brief Overloading of operator<< for RBGraph
+  @brief Overloading of operator<< for RBGraph.
 
   @param[in] os Output stream
   @param[in] g  Red-black graph
 
-  @return Updated output stream
+  @return Reference to the updated output stream
 */
 std::ostream& operator<<(std::ostream& os, const RBGraph& g);
 
 // File I/O
 
 /**
-  @brief Read from \e filename into \e g
+  @brief Read from \e filename into \e g .
 
   @param[in]  filename Filename
   @param[out] g        Red-black graph
@@ -548,55 +620,7 @@ void read_graph(const std::string& filename, RBGraph& g);
 // Algorithm functions
 
 /**
-  @brief Check if \e v is a species in \e g
-
-  @param[in] v Vertex
-  @param[in] g Red-black graph
-
-  @return True if \e v is a species in \e g
-*/
-inline bool is_species(const RBVertex& v, const RBGraph& g) {
-  return (g[v].type == Type::species);
-}
-
-/**
-  @brief Check if \e v is a character in \e g
-
-  @param[in] v Vertex
-  @param[in] g Red-black graph
-
-  @return True if \e v is a character in \e g
-*/
-inline bool is_character(const RBVertex& v, const RBGraph& g) {
-  return (g[v].type == Type::character);
-}
-
-/**
-  @brief Check if \e e is a black edge in \e g
-
-  @param[in] e Edge
-  @param[in] g Red-black graph
-
-  @return True if \e e is a black edge in \e g
-*/
-inline bool is_black(const RBEdge& e, const RBGraph& g) {
-  return (g[e].color == Color::black);
-}
-
-/**
-  @brief Check if \e e is a red edge in \e g
-
-  @param[in] e Edge
-  @param[in] g Red-black graph
-
-  @return True if \e e is a red edge in \e g
-*/
-inline bool is_red(const RBEdge& e, const RBGraph& g) {
-  return (g[e].color == Color::red);
-}
-
-/**
-  @brief Check if \e v is active in \e g
+  @brief Return true if \e v is active in \e g .
 
   A vertex is active in a red-black graph if it's a character that is incident
   only on red edges or it's a species that is incident only on black edges.
@@ -604,119 +628,69 @@ inline bool is_red(const RBEdge& e, const RBGraph& g) {
   @param[in] v Vertex
   @param[in] g Red-black graph
 
-  @return True if \e v is active in \e g
+  @return bool
 */
 bool is_active(const RBVertex& v, const RBGraph& g);
 
 /**
-  @brief Check if \e v is inactive in \e g
+  @brief Return true if \e v is inactive in \e g .
 
-  A vertex is inactive in a red-black graph if it's a character that is
-  incident only on black edges.
+  A vertex is inactive in a red-black graph if it's not active.
 
   @param[in] v Vertex
   @param[in] g Red-black graph
 
-  @return True if \e v is inactive in \e g
+  @return bool
 */
 inline bool is_inactive(const RBVertex& v, const RBGraph& g) {
   return !is_active(v, g);
 }
 
 /**
-  @brief Check if \e s is a pending species in \e g. 
+  @brief Return true if \e s is a pending species in \e g . 
 
   A species is pending in a red-black graph if it's a species that has just an incoming black edge.
 
   @param[in] s Species
   @param[in] g Red-black graph
 
-  @return True if \e s is a pending species in \e g
+  @return bool
 */
 bool is_pending_species(const RBVertex& s, const RBGraph& g);
 
 /**
-  @brief Remove singleton vertices from \e g
+  @brief Return true if \e v is red-universal in \e g .
 
-  A vertex is a singleton in a red-black graph if it's incident on no edges.
-
-  @param[in,out] g Red-black graph
-*/
-void remove_singletons(RBGraph& g);
-
-/**
-  @brief Check if \e g is empty
-
-  A red-black graph is empty if it has no vertices.
-
-  @param[in] g Red-black graph
-
-  @return True if \e g is empty
-*/
-inline bool is_empty(const RBGraph& g) { return (num_vertices(g) == 0); }
-
-/**
-  @brief Check if \e v is red-universal in \e g
-
-  A vertex is red-universal in a red-black graph if it's an active character that is connected to all the species of the same component of \e g in which \e v resides.
+  A vertex is red-universal in a red-black graph if it's an active character that is connected to all the species in \e g .
 
   @param[in] v Vertex
   @param[in] g Red-black graph
 
-  @return True if \e v is red-universal in \e g
+  @return bool
 */
 bool is_red_universal(const RBVertex& v, const RBGraph& g);
 
 /**
-  @brief Check if \e v is red-universal in \e g
+  @brief Return true if \e v is universal in \e g .
 
-  A vertex is red-universal in a red-black graph if it's an active character that is connected to all the species of the same component of \e g in which \e v resides.
-
-  @param[in] v     Vertex
-  @param[in] g     Red-black graph
-  @param[in] c_map Components map of \e g
-
-  @return True if \e v is red-universal in \e g
-*/
-bool is_red_universal(const RBVertex& v, const RBGraph& g, const RBVertexIMap& c_map);
-
-/**
-  @brief Check if \e v is universal in \e g
-
-  A vertex is universal in a red-black graph if it's an inactive character that is connected to all the species of the same component of \e g in which \e v resides.
+  A vertex is universal in a red-black graph if it's an inactive character that is connected to all the species in \e g .
 
   @param[in] v Vertex
   @param[in] g Red-black graph
 
-  @return True if \e v is universal in \e g
+  @return bool
 */
 bool is_universal(const RBVertex v, const RBGraph& g);
 
 /**
-  @brief Check if \e v is universal in \e g
+  @brief Build the red-black subgraphs of \e g .
+         Each subgraph IS A COPY of the respective connected component and this means that the RBVertex objects of \e g will be different to those of the just-generated components. Thus, the mapping of the verteces between \e g and the components must be done by exploiting the vertex names.
 
-  A vertex is universal in a red-black graph if it's an inactive character that is connected to all the species of the same component of \e g in which \e v resides.
-
-  @param[in] v     Vertex
-  @param[in] g     Red-black graph
-  @param[in] c_map Components map of \e g
-
-  @return True if \e v is universal in \e g
-*/
-bool is_universal(const RBVertex v, const RBGraph& g,
-                  const RBVertexIMap& c_map);
-
-/**
-  @brief Build the red-black subgraphs of \e g.
-         Each subgraph IS A COPY of the respective connected component and this means that the RBVertex objects of \e g will be different to those of the just-generated components. Thus, the mapping of the verteces between \e g and the components can be done by exploiting the vertex names.
-
-  In addition, if the graph \e g is connected, RBGraphVector will be of size 1, but the
-  unique_ptr will be empty. This is because the purpose of the functions is to
-  build the subgraphs, not copy the whole graph when it isn't needed.
+  In addition, if the graph \e g is connected, RBGraphVector will be of size 1, but the unique_ptr will be empty. This is because the purpose of the functions is to build the subgraphs, not copy the whole graph when it isn't needed.
 
   @param[in] g Red-black graph
 
-  @return components Vector of unique pointers to each subgraph
+  @return Componentt vector of unique pointers to each subgraph
 */
 RBGraphVector connected_components(const RBGraph& g);
 
@@ -724,20 +698,19 @@ RBGraphVector connected_components(const RBGraph& g);
   @brief Build the red-black subgraphs of \e g.
          Each subgraph IS A COPY of the respective connected component and this means that the RBVertex objects of \e g will be different to those of the just-generated components. Thus, the mapping of the verteces between \e g and the components can be done by exploiting the vertex names.
 
-  In addition, if the graph \e g is connected, RBGraphVector will be of size 1, but the unique_ptr will be empty. This is because the purpose of the functions is to
-  build the subgraphs, not copy the whole graph when it isn't needed.
+  In addition, if the graph \e g is connected, RBGraphVector will be of size 1, but the unique_ptr will be empty. This is because the purpose of the functions is to build the subgraphs, not copy the whole graph when it isn't needed.
 
   @param[in] g       Red-black graph
   @param[in] c_map   Components map of \e g
   @param[in] c_count Number of connected components of \e g
 
-  @return components Vector of unique pointers to each subgraph
+  @return Component vector of unique pointers to each subgraph
 */
 RBGraphVector connected_components(const RBGraph& g, const RBVertexIMap& c_map,
                                    const size_t c_count);
 
 /**
-  @brief Returns the list of neighbors of species v.
+  @brief Return the list of neighbors of species v.
 
   The neighbor of a species v in the graph is a species v0 that share
   some inactive character with v.
@@ -750,7 +723,7 @@ RBGraphVector connected_components(const RBGraph& g, const RBVertexIMap& c_map,
 std::list<RBVertex> get_neighbors(const RBVertex& v, const RBGraph& g);
 
 /**
-  @brief Returns a map M where M[v] is the list of verteces adjacent to vertex v.
+  @brief Return a map M where M[v] is the list of verteces adjacent to vertex v.
  
   @param[in] g            Red-black graph
 
@@ -759,25 +732,45 @@ std::list<RBVertex> get_neighbors(const RBVertex& v, const RBGraph& g);
 std::map<RBVertex, std::list<RBVertex>> get_adj_map(const RBGraph& g);
 
 /**
-  @brief Builds the map of characters with their corresponding adjacent species. This is a helper function for maximal_characters().
+  @brief Return a map M where M[c] is the list of species adjacent to character c.
  
   @param[in] g            Red-black graph
 
-  @return  Map of characters with corresponding adjacent species
+  @return  Map
 */
-std::map<RBVertex, std::list<RBVertex>> get_adjacent_species_map(const RBGraph& g);
+std::map<RBVertex, std::list<RBVertex>> get_adj_species_map(const RBGraph& g);
 
 /**
-  @brief Builds the map of species with their corresponding adjacent characters.
+  @brief Return a map M where M[s] is the list of characters adjacent to species s.
  
   @param[in] g            Red-black graph
 
-  @return  Map of species with corresponding adjacent chracters
+  @return  Map
 */
-std::map<RBVertex, std::list<RBVertex>> get_adjacent_characters_map(const RBGraph& g);
+std::map<RBVertex, std::list<RBVertex>> get_adj_character_map(const RBGraph& g);
 
 /**
-  @brief Returns true if \e v is in \e v_list
+  @brief Given a species \e s, it returns the set of active characters adjacent to \e s
+
+  @param[in] s Species in the graph
+  @param[in] g Red-black graph
+
+  @return Set of active characters
+**/  
+std::list<RBVertex> get_adj_active_characters(const RBVertex& s, const RBGraph& g);
+
+/**
+  @brief Given a species \e s, it returns the set of inactive characters adjacent to \e s .
+
+  @param[in] s Species in the graph
+  @param[in] g Red-black graph
+
+  @return Set of inactive characters
+**/  
+std::list<RBVertex> get_adj_inactive_characters(const RBVertex& s, const RBGraph& g);
+
+/**
+  @brief Return true if \e v is in \e v_list .
 
   @param[in] v_list   a list of verteces
   @param[in] v        a vertex
@@ -789,7 +782,7 @@ inline bool contains(const std::list<RBVertex>& v_list, const RBVertex& v) {
 }
 
 /**
-  @brief Given species s1 and s2, we say that s1 includes species s2 if the set of inactive characters of s2 are included in the set of inactive characters of s1
+  @brief Return true if the set of inactive characters of \e s1 include the set of inactive characters of \e s2 . More formally, return true if IC(s1) ⊇ IC(s2).
 
   @param[in] s1         Vertex species
   @param[in] s2         Vertex species
@@ -800,12 +793,7 @@ inline bool contains(const std::list<RBVertex>& v_list, const RBVertex& v) {
 bool includes_species(const RBVertex& s1, const RBVertex& s2, const RBGraph& g);
 
 /**
-  @brief Returns true if the set of species adjacent to \e c1 include the set of species adjacent to \e c2, false otherwise.
-
-  Let c be an unsigned character.
-  Then S(c) is the set of species that have the character c.
-  Given two characters c1 and c2, we will say that c1 includes c2 if
-  S(c1) ⊇ S(c2).
+  @brief Return true if the set of species adjacent to \e c1 include the set of species adjacent to \e c2 . More formally, return true if S(c1) ⊇ S(c2).  
 
   @param[in] c1         Vertex character
   @param[in] c2         Vertex character
@@ -816,8 +804,7 @@ bool includes_species(const RBVertex& s1, const RBVertex& s2, const RBGraph& g);
 bool includes_characters(const RBVertex& c1, const RBVertex& c2, const RBGraph& g);
 
 /**
-  @brief Returns true if the species adjacent to \e c1 overlap with the species adjacent to \e c2, false otherwise. In other words, let c and c' be two unsigned characters. Then, c and c' overlap if they share common species
-  but neither is included in the other, that is, S(c) ⊄ S(c') and S(c') ⊄ S(c).
+  @brief Return true if the species adjacent to \e c1 overlaps with the species adjacent to \e c2, false otherwise. More formally, return true if S(c1) ⊄ S(c2) and S(c2) ⊄ S(c1).
 
   @param[in] c1         Vertex character
   @param[in] c2         Vertex character
@@ -825,37 +812,33 @@ bool includes_characters(const RBVertex& c1, const RBVertex& c2, const RBGraph& 
 
   @return bool
 */
-bool overlap(const RBVertex& c1, const RBVertex& c2, const RBGraph& g);
+bool overlaps_character(const RBVertex& c1, const RBVertex& c2, const RBGraph& g);
 
 /**
-  @brief Returns the list of inactive characters in \e g
+  @brief Return the list of inactive characters in \e g .
 
   @param[in] g  A red-black graph
 
-  @return std::list of inactive character verteces
+  @return List
 */
 std::list<RBVertex> get_inactive_chars(const RBGraph& g);
 
 /**
-  @brief Build the list of maximal inactive characters of \e g
+  @brief Build the list of maximal inactive characters of \e g .
 
   Let c be an unsigned character.
   Then S(c) is the set of species that have the character c.
-  Given two characters c1 and c2, we will say that c1 includes c2 if
-  S(c1) ⊇ S(c2).
   Then a character c is maximal in a red-black graph if S(c) ⊄ S(c') for any
   character c' of the graph.
-  Moreover two characters c, c' overlap if they share a common species
-  but neither is included in the other.
 
   @param[in] g Red-black graph
 
-  @return Maximal inactive characters (vertices) of \e g
+  @return List
 */
 const std::list<RBVertex> maximal_characters(const RBGraph& g);
 
 /**
-  @brief Build the maximal reducible red-black graph of \e gm
+  @brief Build the maximal reducible red-black graph of \e g .
 
   Let GRB be a red-black graph and CM the set of maximal characters of GRB.
   A maximal reducible graph consists of a reducible red-black graph such that
@@ -871,19 +854,19 @@ const std::list<RBVertex> maximal_characters(const RBGraph& g);
 RBGraph maximal_reducible_graph(const RBGraph& g, const bool active = false);
 
 /**
-  @brief Check if \e g contains a red Σ-graph
+  @brief Return true if \e g contains a red Σ-graph.
 
   A red-black graph containing a red Σ-graph cannot be reduced to an empty
-  graph by a c-reduction.
+  graph by a c-reduction. In other words, let c1 and c2 be two characters and s1, s2 and s3 be three species, then a red Σ-graph is a path of length 4 through c1, c2, s1, s2 and s3 consisting of only red edges. The red Σ-graph corresponds to the forbidden configuration.
 
   @param[in] g Red-black graph
 
-  @return True if \e g contains a red Σ-graph
+  @return bool
 */
 bool has_red_sigmagraph(const RBGraph& g);
 
 /**
-  @brief Check if \e g contains a red Σ-graph with characters \e c0 and \e c1
+  @brief Check if \e g contains a red Σ-graph with characters \e c0 and \e c1 .
 
   This function should only be called by \e has_redsigma.
 
@@ -891,12 +874,12 @@ bool has_red_sigmagraph(const RBGraph& g);
   @param[in] c1 Vertex
   @param[in] g  Red-black graph
 
-  @return True if \e g contains a red Σ-graph with characters \e c0 and \e c1
+  @return bool
 */
 bool has_red_sigmapath(const RBVertex c0, const RBVertex c1, const RBGraph& g);
 
 /**
-  @brief Change the type of vertex \e v from \e active to \e inactive or \e viceversa
+  @brief Change the type of vertex \e v from \e active to \e inactive or viceversa.
 
   A vertex is active in a red-black graph if it's a character that is incident
   only on red edges.
@@ -907,60 +890,40 @@ bool has_red_sigmapath(const RBVertex c0, const RBVertex c1, const RBGraph& g);
 void change_char_type(const RBVertex& v, RBGraph& g);
 
 /**
-  @brief Given a vertex \e v, if \e v is a character, then it returns the list of species in the connected component of \e g to which \e v belongs, otherwise, if it is a species, it returns the list of characters in the connected component of \e g to which \e v belongs.
+  @brief Return the list of species in the connected component of \e g to which \e v belongs if \e v is a character, otherwise, if \e v is a species, return the list of characters in the connected component of \e g to which \e v belongs.
 
   @param[in] v Vertex in the red-black graph
   @param[in] g Red-black graph
 
-  @return List of vertices (only the names)
+  @return List
 **/  
-std::list<std::string> get_comp_vertex(const RBVertex& v, const RBGraph& g);
+std::list<RBVertex> get_comp_vertex(const RBVertex& v, const RBGraph& g);
 
 /**
-  @brief Given a species \e s, it returns the set of active characters adjacent to \e s
-
-  @param[in] s Species in the graph
-  @param[in] g Red-black graph
-
-  @return Set of active characters (only the names)
-**/  
-std::set<std::string> get_species_adj_active_characters(const RBVertex& s, const RBGraph& g);
-
-/**
-  @brief Given a species \e s, it returns the set of inactive characters adjacent to \e s
-
-  @param[in] s Species in the graph
-  @param[in] g Red-black graph
-
-  @return Set of inactive characters (only the names)
-**/  
-std::set<std::string> get_species_adj_inactive_characters(const RBVertex& s, const RBGraph& g);
-
-/**
-  @brief Returns the list of active characters of a red-black graph
+  @brief Return the list of active characters of a red-black graph.
 
   @param[in] g Red-black graph
  
-  @return List of active characters
+  @return List
 **/
 std::list<RBVertex> get_active_characters(const RBGraph& g);
 
 /**
-  @brief Returns the list of active species of a red-black graph
+  @brief Return the list of active species of a red-black graph.
 
   @param[in] g Red-black graph
  
-  @return List of active species
+  @return List
 **/
 std::list<RBVertex> get_active_species(const RBGraph& g);
 
 /**
-  @brief Given a red-black graph and a species, it returns the active characters included in the component that includes the species
+  @brief Return the active characters included in the same component of \e s .
 
   @param[in] s Species
   @param[in] g Red-black graph
 
-  @return Set of active characters (only the names)
+  @return List
 **/
-std::set<std::string> get_comp_active_characters(const RBVertex s, const RBGraph& g);
+std::list<RBVertex> get_comp_active_characters(const RBVertex s, const RBGraph& g);
 #endif  // RBGRAPH_HPP

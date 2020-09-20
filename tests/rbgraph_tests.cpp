@@ -615,8 +615,7 @@ void test_components() {
   active_char_set = get_adj_active_characters(u, g);
 
   assert(active_char_set.size() == 2);
-  assert(*active_char_set.begin() == c5);
-  assert(*++active_char_set.begin() == c6);
+  assert(active_char_set == std::list<RBVertex>({c5, c6}));
 
   // TESTING comp_active_characters()
   auto active_chars_comp_set = get_comp_active_characters(s, g);
@@ -627,8 +626,7 @@ void test_components() {
   active_chars_comp_set = get_comp_active_characters(v, g);
 
   assert(active_chars_comp_set.size() == 2);
-  assert(*active_chars_comp_set.begin() == c5);
-  assert(*++active_chars_comp_set.begin() == c6);
+  assert(active_chars_comp_set == std::list<RBVertex>({c6, c5}));
 
   std::cout << "test_components: passed" << std::endl;
 }

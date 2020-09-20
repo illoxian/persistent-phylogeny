@@ -286,32 +286,32 @@ void reduce_diagram(HDGraph& hasse, const RBGraph& gm){
   HDVertexIter hdv, hdv_end;  //Hasse diagram vertexes
 
   //List of species that must be deleted from the HDGraph
-  std::set<std::string> acl, acc, sset; //set of species that must be deleted;
+  std::list<RBVertex> acl, acc, sset; //list of species that must be deleted;
   std::tie(rbv, rbv_end) = vertices(gm);
   while(rbv != rbv_end) {
     if(!is_character(*rbv, gm)) {
-      acl = get_species_adj_active_characters(*rbv, gm);
+      acl = get_adj_active_characters(*rbv, gm);
       acc = get_comp_active_characters(*rbv, gm);
       if(acl.size() < acc.size())
-        sset.insert(gm[*rbv].name);
+        sset.push_back(*rbv);
     }
     rbv++;
   }
   if(logging::enabled) {
     std::cout << "Species that doesn't include all active characters: ";
-    for(std::string s : sset)
-      std::cout << s << " ";
+    for(RBVertex s : sset)
+      std::cout << gm[s].name << " ";
     std::cout << std::endl << std::endl;
   }
 
   //Removes ls species from Hasse vertexes
   std::tie(hdv, hdv_end) = vertices(hasse);
   while(hdv != hdv_end) {  //For each vertex in Hasse diagram
-    auto str = sset.begin(); //specie to remove 
-    auto str_end = sset.end(); 
-    while(str != str_end){
-      hasse[*hdv].species.remove(*str);
-      str++;    
+    auto v = sset.begin(); //specie to remove 
+    auto v_end = sset.end(); 
+    while(v != v_end){
+      hasse[*hdv].species.remove(gm[*v].name);
+      v++;    
     }
     hdv++;     
   }

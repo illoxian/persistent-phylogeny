@@ -863,7 +863,7 @@ bool realize_source(const HDVertex source, const HDGraph& hasse) {
 
   for(const auto& elem : hasse[source].species) {
     for(const auto& ac : acc)
-      add_edge(get_vertex(elem, gm_test), get_vertex(ac, gm_test), gm_test);
+      add_edge(get_vertex(elem, gm_test), ac, gm_test);
   }
   
 
@@ -987,7 +987,8 @@ std::list<SignedCharacter> reduce(RBGraph& g) {
   std::tie(v, v_end) = vertices(g);
   for (; v != v_end; ++v) {
     // for each vertex
-    if (is_red_universal(*v, g, c_map)) {
+    if (is_red_universal(*v, g)) { // TODO attenzione (cambiato definizione di red-universal: prima un carattere era red universal se era attivo e connesso a tutte le specie della sua componente. Ora, invece, è coerente con il paper: un carattere è red universal quando è attivo ed è connesso a tutte le specie del grafo. Quindi attenzione: modificare questa istruzione if se si intende usare questa funzione per come era stata progettata prima.)
+
       // if v is free
       // realize v-
       // return < v-, reduce(g) >
@@ -1017,7 +1018,7 @@ std::list<SignedCharacter> reduce(RBGraph& g) {
   std::tie(v, v_end) = vertices(g);
   for (; v != v_end; ++v) {
     // for each vertex
-    if (is_universal(*v, g, c_map)) {
+    if (is_universal(*v, g)) { // TODO attenzione (cambiato definizione di universal: prima un carattere era universal se era inattivo e connesso a tutte le specie della sua componente. Ora, invece, è coerente con il paper: un carattere è universal quando è inattivo ed è connesso a tutte le specie del grafo. Quindi attenzione: modificare questa istruzione if se si intende usare questa funzione per come era stata progettata prima.)
       // if v is universal
       // realize v+
       // return < v+, reduce(g) >
@@ -1454,6 +1455,7 @@ std::pair<std::list<SignedCharacter>, bool> realize_character(const SignedCharac
       if (!is_species(*v, g) || c_map.at(*v) != c_map.at(cv)) 
         continue;
 
+      // if cv is not connected to the species v, which belongs to its same component, then cv is not connected to all the species of its component.
       if (!exists(*v, cv, g)) {
         connected = false;
         break;
@@ -1500,7 +1502,7 @@ std::pair<std::list<SignedCharacter>, bool> realize_character(const SignedCharac
   std::tie(v, v_end) = vertices(g);
   for (; v != v_end; ++v) {
     // for each vertex
-    if (is_red_universal(*v, g, c_map)) {
+    if (is_red_universal(*v, g, c_map)) { // TODO attenzione (cambiato definizione di red-universal: prima un carattere era red universal se era attivo e connesso a tutte le specie della sua componente. Ora, invece, è coerente con il paper: un carattere è red universal quando è attivo ed è connesso a tutte le specie del grafo. Quindi attenzione: modificare questa istruzione if se si intende usare questa funzione per come era stata progettata prima.)
       // if v is red_universal
       // realize v-
       if (logging::enabled) {
@@ -1521,7 +1523,7 @@ std::pair<std::list<SignedCharacter>, bool> realize_character(const SignedCharac
   std::tie(v, v_end) = vertices(g);
   for (; v != v_end; ++v) {
     // for each vertex
-    if (is_universal(*v, g, c_map)) {
+    if (is_universal(*v, g, c_map)) { // TODO attenzione (cambiato definizione di universal: prima un carattere era universal se era inattivo e connesso a tutte le specie della sua componente. Ora, invece, è coerente con il paper: un carattere è universal quando è inattivo ed è connesso a tutte le specie del grafo. Quindi attenzione: modificare questa istruzione if se si intende usare questa funzione per come era stata progettata prima.)
       // if v is universal
       // realize v+
       if (logging::enabled) {
@@ -1548,7 +1550,7 @@ std::pair<std::list<SignedCharacter>, bool> realize_species(const RBVertex v,
     return std::make_pair(lsc, false);
 
   // build the list of inactive characters adjacent to v (species)
-  std::list<RBVertex> adjacent_chars = get_adjacent_characters_map(g)[v];
+  std::list<RBVertex> adjacent_chars = get_adj_character_map(g)[v];
   for (RBVertex c : adjacent_chars)
     if (is_inactive(c, g))
       lsc.push_back({g[c].name, State::gain});
@@ -1691,18 +1693,17 @@ RBVertex get_minimal_p_active_species(const RBGraph& g) {
   int num_inctv_chars_v, num_inctv_chars_u;
   for (RBVertex v : active_species) {
     // for every active species v in the ordered list of active species
-    for (int i = 1; i <= g[boost::graph_bundle].num_characters; ++i) {
+    for (int i = 1; i < num_characters(g); ++i) {
       // index "i" is used after to check if vertex "u" has "i" more inactive characters than "v"
-      
-      // TODO se risponde che S' deve essere la specie con meno caratteri attivi, allora prima bisogna ordinare get_neighbors() rispetto al numero di caratteri attivi che ogni specie S' possiede
+
       for (RBVertex u : get_neighbors(v, g)) {
         if (u == v || is_character(u, g)) continue;
         // for every species u (neighbor of v)
 
         if (includes_species(u, v, g)) {
           // if u includes all the inactive species of v, then check if u has "i" species more than v
-          num_inctv_chars_v = get_species_adj_inactive_characters(v, g).size();
-          num_inctv_chars_u = get_species_adj_inactive_characters(u, g).size();
+          num_inctv_chars_v = get_adj_inactive_characters(v, g).size();
+          num_inctv_chars_u = get_adj_inactive_characters(u, g).size();
           if (num_inctv_chars_u == num_inctv_chars_v + i) {
 
             // check if the realization of v and then of u can generate any red-sigmagraphs in g
@@ -1730,19 +1731,14 @@ RBVertex get_minimal_p_active_species(const RBGraph& g) {
 bool is_quasi_active(const RBVertex& s, const RBGraph& g) {
   if (!is_species(s, g)) return false;
 
-  // TODO da vedere se è vero che si può ritornare subito qua
   if (is_active(s, g)) return true;
 
-  RBOutEdgeIter e, e_end;
-  std::tie(e, e_end) = out_edges(s, g);
-  std::list<RBVertex> edge_list_s(e, e_end);
+  // then s is a species with some red incoming edges
+  // then we have to check whether its realization generates a red-sigmagraph
 
   RBGraph g_copy;
-
   copy_graph(g, g_copy);
-
   realize_species(get_vertex(g[s].name, g_copy), g_copy);
-
   if (has_red_sigmagraph(g_copy))
     return false;
   else
