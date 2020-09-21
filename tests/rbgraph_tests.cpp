@@ -1004,13 +1004,9 @@ void test_realize() {
   RBGraph g1;
   copy_graph(g, g1);
 
-  std::cout << g << "\n\n" << std::endl;
   realize_character({ "c3", State::gain }, g);
-  std::cout << g << "\n\n" << std::endl;
   realize_character({ "c5", State::gain }, g);
-  std::cout << g << "\n\n" << std::endl;
   realize_character({ "c2", State::gain }, g);
-  std::cout << g << "\n\n" << std::endl;
   realize_character({ "c4", State::lose }, g);
 
   realize({ { "c3", State::gain }, { "c5", State::gain },
@@ -1152,6 +1148,42 @@ void test_universal() {
   std::cout << "test_universal: passed" << std::endl;
 }
 
+void test_is_degenerate() {
+  RBGraph g;
+  RBVertex s1, s2, c1, c2, c3, c4, c5;
+
+  s1 = add_vertex("s1", Type::species, g);
+  s2 = add_vertex("s2", Type::species, g);
+  c1 = add_vertex("c1", Type::character, g);
+  c2 = add_vertex("c2", Type::character, g);
+  c3 = add_vertex("c3", Type::character, g);
+  c4 = add_vertex("c4", Type::character, g);
+  c5 = add_vertex("c5", Type::character, g);
+
+  add_edge(s1, c1, Color::black, g);
+  add_edge(s1, c2, Color::black, g);
+
+  assert(!is_degenerate(g));
+
+  add_edge(s1, c3, Color::black, g);
+
+  assert(!is_degenerate(g));
+
+  add_edge(s2, c4, Color::black, g);
+
+  assert(!is_degenerate(g));
+
+  add_edge(s2, c5, Color::red, g);
+
+  assert(!is_degenerate(g));
+
+  add_edge(s1, c5, Color::red, g);
+
+  assert(is_degenerate(g));
+
+  std::cout << "test_is_degenerate: passed" << std::endl;
+}
+
 int main(int argc, char *argv[]) {
   test_simple_add_vertex();
   test_add_vertex_with_duplicates();
@@ -1180,4 +1212,5 @@ int main(int argc, char *argv[]) {
   test_realize_character();
   test_singletons();
   test_universal();
+  test_is_degenerate();
 }

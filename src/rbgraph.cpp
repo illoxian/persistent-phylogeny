@@ -897,7 +897,7 @@ void change_char_type(const RBVertex& v, RBGraph& g) {
   }
 }
 
-std::list<RBVertex> get_active_characters(const RBGraph& g) {
+std::list<RBVertex> get_active_chars(const RBGraph& g) {
   std::list<RBVertex> ac;
   RBVertexIter v, v_end;
   
@@ -957,4 +957,29 @@ std::list<RBVertex> get_comp_active_characters(const RBVertex s, const RBGraph& 
       result.push_back(c);
 
   return result;
+}
+
+bool is_degenerate(const RBGraph& g) {
+
+  int count_active, count_inactive;
+
+  std::list<RBVertex> inactive_chars = get_inactive_chars(g);
+
+  for (RBVertex v : g.m_vertices) {
+    if (is_character(v, g)) continue;
+
+    count_active = count_inactive = 0;
+
+    RBOutEdgeIter e, e_end;
+    std::tie(e, e_end) = out_edges(v, g);
+    for (; e != e_end; ++e)
+      if (is_active(e->m_target, g))
+        ++count_active;
+      else
+        ++count_inactive;
+  
+    if (count_inactive == inactive_chars.size() - 1 && count_active > 0)
+      return true;      
+  }
+  return false;
 }

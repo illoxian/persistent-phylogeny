@@ -906,7 +906,7 @@ std::list<RBVertex> get_comp_vertex(const RBVertex& v, const RBGraph& g);
  
   @return List
 **/
-std::list<RBVertex> get_active_characters(const RBGraph& g);
+std::list<RBVertex> get_active_chars(const RBGraph& g);
 
 /**
   @brief Return the list of active species of a red-black graph.
@@ -926,4 +926,14 @@ std::list<RBVertex> get_active_species(const RBGraph& g);
   @return List
 **/
 std::list<RBVertex> get_comp_active_characters(const RBVertex s, const RBGraph& g);
+
+/**
+  @brief Return true if \e g is degenerate.
+
+  @param[in] g Red-black graph
+
+  @return bool
+**/
+bool is_degenerate(const RBGraph& g);
+
 #endif  // RBGRAPH_HPP

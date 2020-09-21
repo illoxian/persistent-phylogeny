@@ -1078,7 +1078,7 @@ std::list<SignedCharacter> reduce(RBGraph& g) {
   }
 
   if(logging::enabled) {
-    auto ac = get_active_characters(gm);
+    auto ac = get_active_chars(gm);
     if(ac.size() <= 0)
       std::cout << "No active characters"
                 << std::endl;
