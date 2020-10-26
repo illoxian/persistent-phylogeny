@@ -393,4 +393,23 @@ RBVertex get_minimal_p_active_species(const RBGraph& g);
 */
 bool is_quasi_active(const RBVertex& s, const RBGraph& g);
 
+/**
+  @brief Execute the algorithm on the maximal reducible graph \e g .
+  It returns the sequence of the realized characters.
+
+  @param[in] g Red-black graph
+
+  @return List
+*/
+std::list<SignedCharacter> ppp_maximal_reducible_graphs(RBGraph& g);
+
+/**
+  @brief Realize the characters in \e g that are red-universal or universal.
+
+  @param[in,out] g Red-black graph
+
+  @return Realized characters (list of signed characters)
+*/
+std::pair<std::list<SignedCharacter>, bool> realize_red_univ_and_univ_chars(RBGraph& g);
+
 #endif

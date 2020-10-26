@@ -1,4 +1,5 @@
 #include "functions.hpp"
+#include "rbgraph.hpp"
 #include <boost/graph/connected_components.hpp>
 #include <boost/graph/depth_first_search.hpp>
 
@@ -1064,8 +1065,9 @@ std::list<SignedCharacter> reduce(RBGraph& g) {
     std::cout << std::endl;
   }
 
+  RBGraph gm;
   // gm = Grb|Cm∪A, maximal reducible graph of g (Grb)
-  const auto gm = maximal_reducible_graph(g, true);
+  maximal_reducible_graph(g, gm, true);
 
   if (logging::enabled) {
     // verbosity enabled
@@ -1408,14 +1410,13 @@ std::pair<std::list<SignedCharacter>, bool> realize_character(const SignedCharac
   // build the components map
   boost::connected_components(g, c_assocmap,
                               boost::vertex_index_map(i_assocmap));
-
+  
   if (sc.state == State::gain && is_inactive(cv, g)) {
     // c+ and c is inactive
     if (logging::enabled) {
       // verbosity enabled
       std::cout << "Realizing " << sc;
     }
-
     // realize the character c+:
     // - add a red edge between c and each species in D(c) \ N(c)
     // - delete all black edges incident on c
@@ -1423,7 +1424,7 @@ std::pair<std::list<SignedCharacter>, bool> realize_character(const SignedCharac
     for (; v != v_end; ++v) {
       if (!is_species(*v, g) || c_map.at(*v) != c_map.at(cv)) continue;
       // for each species in the same connected component of cv
-
+      
       RBEdge e;
       bool exists;
       std::tie(e, exists) = edge(*v, cv, g);
@@ -1488,21 +1489,11 @@ std::pair<std::list<SignedCharacter>, bool> realize_character(const SignedCharac
   remove_singletons(g);
 
   /*
-  // fill vertex index map
-  std::tie(v, v_end) = vertices(g);
-  for (size_t index = 0; v != v_end; ++v, ++index) {
-    boost::put(i_assocmap, *v, index);
-  }
-
-  // build the components map
-  boost::connected_components(g, c_assocmap,
-                              boost::vertex_index_map(i_assocmap));
-
   // realize all red_universal characters that came up after realizing sc
   std::tie(v, v_end) = vertices(g);
   for (; v != v_end; ++v) {
     // for each vertex
-    if (is_red_universal(*v, g, c_map)) { // TODO attenzione (cambiato definizione di red-universal: prima un carattere era red universal se era attivo e connesso a tutte le specie della sua componente. Ora, invece, è coerente con il paper: un carattere è red universal quando è attivo ed è connesso a tutte le specie del grafo. Quindi attenzione: modificare questa istruzione if se si intende usare questa funzione per come era stata progettata prima.)
+    if (is_red_universal(*v, g)) {
       // if v is red_universal
       // realize v-
       if (logging::enabled) {
@@ -1511,7 +1502,7 @@ std::pair<std::list<SignedCharacter>, bool> realize_character(const SignedCharac
       }
 
       std::list<SignedCharacter> lsc;
-      std::tie(lsc, std::ignore) = realize({g[*v].name, State::lose}, g);
+      std::tie(lsc, std::ignore) = realize_character({g[*v].name, State::lose}, g);
 
       output.splice(output.cend(), lsc);
 
@@ -1523,7 +1514,7 @@ std::pair<std::list<SignedCharacter>, bool> realize_character(const SignedCharac
   std::tie(v, v_end) = vertices(g);
   for (; v != v_end; ++v) {
     // for each vertex
-    if (is_universal(*v, g, c_map)) { // TODO attenzione (cambiato definizione di universal: prima un carattere era universal se era inattivo e connesso a tutte le specie della sua componente. Ora, invece, è coerente con il paper: un carattere è universal quando è inattivo ed è connesso a tutte le specie del grafo. Quindi attenzione: modificare questa istruzione if se si intende usare questa funzione per come era stata progettata prima.)
+    if (is_universal(*v, g)) {
       // if v is universal
       // realize v+
       if (logging::enabled) {
@@ -1532,13 +1523,14 @@ std::pair<std::list<SignedCharacter>, bool> realize_character(const SignedCharac
       }
 
       std::list<SignedCharacter> lsc;
-      std::tie(lsc, std::ignore) = realize({g[*v].name, State::gain}, g);
+      std::tie(lsc, std::ignore) = realize_character({g[*v].name, State::gain}, g);
 
       output.splice(output.cend(), lsc);
 
       return std::make_pair(output, true);
     }
   }*/
+
   return std::make_pair(output, true);
 }
 
@@ -1550,11 +1542,13 @@ std::pair<std::list<SignedCharacter>, bool> realize_species(const RBVertex v,
     return std::make_pair(lsc, false);
 
   // build the list of inactive characters adjacent to v (species)
+  
   std::list<RBVertex> adjacent_chars = get_adj_character_map(g)[v];
-  for (RBVertex c : adjacent_chars)
+
+  for (RBVertex c : adjacent_chars) 
     if (is_inactive(c, g))
       lsc.push_back({g[c].name, State::gain});
-
+  
   return realize(lsc, g);
 }
 
@@ -1565,13 +1559,14 @@ std::pair<std::list<SignedCharacter>, bool> realize(
   // realize the list of signed characters lsc; the algorithm stops when a
   // non-feasible realization is encountered, setting the boolean flag to false
   // TODO: maybe change this behaviour
-  for (const auto& i : lsc) {
+  for (const SignedCharacter i : lsc) {
     if (std::find(output.cbegin(), output.cend(), i) != output.cend())
       // the signed character i has already been realized in a previous sc
       continue;
 
     std::list<SignedCharacter> sc;
     bool feasible;
+
     std::tie(sc, feasible) = realize_character(i, g);
 
     if (!feasible) return std::make_pair(sc, false);
@@ -1709,10 +1704,9 @@ RBVertex get_minimal_p_active_species(const RBGraph& g) {
             // check if the realization of v and then of u can generate any red-sigmagraphs in g
             RBGraph g_copy;
             copy_graph(g, g_copy);
-
+            
             realize_species(get_vertex(g[v].name, g_copy), g_copy);
             realize_species(get_vertex(g[u].name, g_copy), g_copy);
-
             if (!has_red_sigmagraph(g_copy)) {
               p_active_candidate = v;
               found = true;
@@ -1743,4 +1737,91 @@ bool is_quasi_active(const RBVertex& s, const RBGraph& g) {
     return false;
   else
     return true;
+}
+
+std::list<SignedCharacter> ppp_maximal_reducible_graphs(RBGraph& g) {
+
+  std::list<SignedCharacter> realized_chars;
+  std::list<SignedCharacter> tmp;
+
+  while (!is_empty(g)) {
+
+    if (get_pending_species(g) != 0)
+      tmp = realize_species(get_pending_species(g), g).first;
+    else if (get_minimal_p_active_species(g) != 0)    
+      tmp = realize_species(get_minimal_p_active_species(g), g).first;
+    else if (is_degenerate(g)) 
+      // realize all inactive characters
+      for (RBVertex c : get_inactive_chars(g))
+        tmp.splice(tmp.end(), realize_character({g[c].name, State::gain}, g).first);
+    else if (get_active_species(g).size() == 1)
+      tmp = realize_species(*get_active_species(g).begin(), g).first;
+    else {
+      if (has_red_sigmagraph(g))
+        std::cout << "[INFO] Red sigma graph generated" << std::endl;
+      throw std::runtime_error("[ERROR] In ppp_maximal_reducible_graphs(): could not build the PPP");
+    }
+
+    realized_chars.splice(realized_chars.end(), tmp);
+    realized_chars.splice(realized_chars.end(), realize_red_univ_and_univ_chars(g).first);
+
+    RBGraphVector conn_compnts = connected_components(g);
+    auto cc = conn_compnts.begin();
+    auto cc_end = conn_compnts.end();
+    for (; cc != cc_end; ++cc) {
+      tmp = ppp_maximal_reducible_graphs(*cc->get());
+      realized_chars.splice(realized_chars.end(), tmp);
+    }
+
+  }
+  return realized_chars;
+}
+
+std::pair<std::list<SignedCharacter>, bool> realize_red_univ_and_univ_chars(RBGraph& g) {
+  std::list<SignedCharacter> output;
+
+  RBVertexIter v, v_end, next;
+  std::tie(v, v_end) = vertices(g);
+
+  std::list<SignedCharacter> lsc;
+  for (next = v; v != v_end; v = next) {
+    next++;
+    if (is_red_universal(*v, g)) {
+      // if v is red_universal
+      // realize v-
+      if (logging::enabled) {
+        // verbosity enabled
+        std::cout << "G red-universal character " << g[*v].name << std::endl;
+      }
+      std::tie(lsc, std::ignore) = realize_character({g[*v].name, State::lose}, g);
+
+      output.splice(output.cend(), lsc);
+
+      // we have to loop again from the beginning, because if some isolate node has been deleted, the for loop is compromised
+      std::tie(v, v_end) = vertices(g);
+      next = v;
+    } else if (is_universal(*v, g)) {
+      // if v is universal
+      // realize v+
+      if (logging::enabled) {
+        // verbosity enabled
+        std::cout << "G universal character " << g[*v].name << std::endl;
+      }
+
+      std::list<SignedCharacter> lsc;
+
+      std::tie(lsc, std::ignore) = realize_character({g[*v].name, State::gain}, g);           
+
+      output.splice(output.cend(), lsc);
+
+      // we have to loop again from the beginning, because if some isolate node has been deleted, the for loop is compromised
+      std::tie(v, v_end) = vertices(g);
+      next = v;
+    }
+  }
+
+  if (!output.empty())
+    return std::make_pair(output, true);
+  else
+    return std::make_pair(output, false);
 }

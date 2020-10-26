@@ -101,7 +101,7 @@ RBEdge get_edge(const RBVertex &source, const RBVertex &target, const RBGraph &g
 const RBVertex& get_vertex(const std::string& name, const RBGraph& g) {
   if(!exists(name, g))
     throw std::runtime_error("[ERROR] In get_vertex(): vertex does not exist");
-
+    
   return vertex_map(g).at(name);   
 }
 
@@ -447,14 +447,35 @@ bool is_pending_species(const RBVertex& s, const RBGraph& g) {
     return false;
 }
 
+RBVertex get_pending_species(const RBGraph& g) {
+  for (RBVertex v : g.m_vertices)
+    if (is_pending_species(v, g))
+      return v;
+  return 0;
+}
+
 bool is_red_universal(const RBVertex& v, const RBGraph& g) {
   if (!is_character(v, g)) 
     return false;
   if (!is_active(v, g))
     return false;
 
+  RBVertexIMap i_map, c_map;
+  RBVertexIAssocMap i_assocmap(i_map), c_assocmap(c_map);
+
+  // fill vertex index map
+  RBVertexIter v_beg, v_end;
+  std::tie(v_beg, v_end) = vertices(g);
+  for (size_t index = 0; v_beg != v_end; ++v_beg, ++index) {
+    boost::put(i_assocmap, *v_beg, index);
+  }
+
+  // build the components map
+  boost::connected_components(g, c_assocmap,
+                              boost::vertex_index_map(i_assocmap));
+
   for (RBVertex u : g.m_vertices)
-    if (is_species(u, g) && !exists(v, u, g))
+    if (c_map.at(v) == c_map.at(u) && is_species(u, g) && !exists(v, u, g))
       return false;
   return true;
 }
@@ -465,8 +486,22 @@ bool is_universal(const RBVertex v, const RBGraph& g) {
   if (is_active(v, g))
     return false;
 
+  RBVertexIMap i_map, c_map;
+  RBVertexIAssocMap i_assocmap(i_map), c_assocmap(c_map);
+
+  // fill vertex index map
+  RBVertexIter v_beg, v_end;
+  std::tie(v_beg, v_end) = vertices(g);
+  for (size_t index = 0; v_beg != v_end; ++v_beg, ++index) {
+    boost::put(i_assocmap, *v_beg, index);
+  }
+
+  // build the components map
+  boost::connected_components(g, c_assocmap,
+                              boost::vertex_index_map(i_assocmap));
+
   for (RBVertex u : g.m_vertices)
-    if (is_species(u, g) && !exists(v, u, g))
+    if (c_map.at(v) == c_map.at(u) && is_species(u, g) && !exists(v, u, g))
       return false;
   return true;
 }
@@ -745,9 +780,8 @@ const std::list<RBVertex> maximal_characters(const RBGraph& g) {
   return cm;
 }
 
-RBGraph maximal_reducible_graph(const RBGraph& g, const bool active) {
+void maximal_reducible_graph(const RBGraph& g, RBGraph& gm, const bool active) {
   // copy g to gm
-  RBGraph gm;
   copy_graph(g, gm);
 
   // compute the maximal characters of gm
@@ -782,8 +816,6 @@ RBGraph maximal_reducible_graph(const RBGraph& g, const bool active) {
   }
 
   remove_singletons(gm);
-
-  return gm;
 }
 
 bool has_red_sigmagraph(const RBGraph& g) {
@@ -911,16 +943,11 @@ std::list<RBVertex> get_active_chars(const RBGraph& g) {
 }
 
 std::list<RBVertex> get_active_species(const RBGraph& g) {
-  std::list<RBVertex> ac;
-  RBVertexIter v, v_end;
-  
-  std::tie(v, v_end) = vertices(g);
-  while(v != v_end) {
-    if(is_species(*v, g) && is_active(*v, g))
-      ac.push_back(*v);
-    v++;
-  }
-  return ac;
+  std::list<RBVertex> active_species;
+  for (RBVertex v : g.m_vertices)
+    if (is_species(v, g) && is_active(v, g))
+      active_species.push_back(v);
+  return active_species;
 }
 
 std::list<RBVertex> get_comp_vertex(const RBVertex& u, const RBGraph& g) {
@@ -978,8 +1005,8 @@ bool is_degenerate(const RBGraph& g) {
       else
         ++count_inactive;
   
-    if (count_inactive == inactive_chars.size() - 1 && count_active > 0)
-      return true;      
+    if (count_inactive != inactive_chars.size() - 1 || count_active == 0)
+      return false;
   }
-  return false;
+  return true;
 }

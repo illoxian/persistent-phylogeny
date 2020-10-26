@@ -763,8 +763,10 @@ void test_maximal() {
   std::list<RBVertex> cm_check{c2, c3};
   std::list<RBVertex> cm = maximal_characters(g);
 
-  RBGraph gm1 = maximal_reducible_graph(g, false);
-  RBGraph gm2 = maximal_reducible_graph(g, true);
+  RBGraph gm1, gm2;
+
+  maximal_reducible_graph(g, gm1, false);
+  maximal_reducible_graph(g, gm2, true);
 
   assert(cm == cm_check);
   assert(num_species(gm1) == 5);
@@ -1102,12 +1104,34 @@ void test_singletons() {
 
 void test_universal() {
   RBGraph g;
-  RBVertex s3, s4, s5, s6,
-           c1, c2, c3, c4, c5, c6, c7;
+  RBVertex s1, s2,
+           c1, c2, c3;
 
+  s1 = add_vertex("s1", Type::species, g);
+  s2 = add_vertex("s2", Type::species, g);
+  c1 = add_vertex("c1", Type::character, g);
+  c2 = add_vertex("c2", Type::character, g);
+  c3 = add_vertex("c3", Type::character, g);
+
+  add_edge(s1, c1, Color::black, g);
+  assert(!is_red_universal(c1, g));
+  assert(is_universal(c1, g));
+
+  add_edge(s1, c2, Color::red, g);
+  add_edge(s2, c2, Color::red, g);
+  assert(is_red_universal(c2, g));
+  assert(!is_universal(c1, g));
+
+  std::cout << "test_universal: passed" << std::endl;
+}
+
+void test_is_degenerate() {
+  RBGraph g;
+  RBVertex s1, s2, c1, c2, c3, c4, c5, c6, c7, s3;
+
+  s1 = add_vertex("s1", Type::species, g);
+  s2 = add_vertex("s2", Type::species, g);
   s3 = add_vertex("s3", Type::species, g);
-  s4 = add_vertex("s4", Type::species, g);
-  s5 = add_vertex("s5", Type::species, g);
   c1 = add_vertex("c1", Type::character, g);
   c2 = add_vertex("c2", Type::character, g);
   c3 = add_vertex("c3", Type::character, g);
@@ -1115,73 +1139,55 @@ void test_universal() {
   c5 = add_vertex("c5", Type::character, g);
   c6 = add_vertex("c6", Type::character, g);
   c7 = add_vertex("c7", Type::character, g);
-       add_vertex("c8", Type::character, g);
-  s6 = add_vertex("s6", Type::species, g);
 
-  add_edge(s3, c2, g);
-  add_edge(s3, c3, g);
-  add_edge(s3, c4, Color::red, g);
-  add_edge(s4, c1, g);
-  add_edge(s4, c2, g);
-  add_edge(s4, c4, Color::red, g);
-  add_edge(s5, c1, g);
-  add_edge(s5, c2, g);
-  add_edge(s5, c3, g);
-  add_edge(s5, c4, Color::red, g);
-  add_edge(s5, c5, g);
-  add_edge(s6, c5, Color::red, g);
-  add_edge(s5, c7, g);
-  add_edge(s6, c6, g);
-  add_edge(s6, c2, g);
-  add_edge(s6, c4, Color::red, g);
-
-  assert(!is_red_universal(c5, g));
-  assert(!is_universal(c5, g));
-  assert(is_red_universal(c4, g));
-  assert(is_universal(c2, g));
-  assert(!is_universal(c6, g));
-
-  add_species("s7", g);
-  assert(!is_red_universal(c4, g));
-  assert(!is_universal(c2, g));
-
-  std::cout << "test_universal: passed" << std::endl;
-}
-
-void test_is_degenerate() {
-  RBGraph g;
-  RBVertex s1, s2, c1, c2, c3, c4, c5;
-
-  s1 = add_vertex("s1", Type::species, g);
-  s2 = add_vertex("s2", Type::species, g);
-  c1 = add_vertex("c1", Type::character, g);
-  c2 = add_vertex("c2", Type::character, g);
-  c3 = add_vertex("c3", Type::character, g);
-  c4 = add_vertex("c4", Type::character, g);
-  c5 = add_vertex("c5", Type::character, g);
-
+  assert(!is_degenerate(g));
   add_edge(s1, c1, Color::black, g);
+  assert(!is_degenerate(g));
   add_edge(s1, c2, Color::black, g);
-
-  assert(!is_degenerate(g));
-
   add_edge(s1, c3, Color::black, g);
-
+  add_edge(s1, c4, Color::black, g);
   assert(!is_degenerate(g));
-
+  add_edge(s2, c2, Color::black, g);
+  add_edge(s2, c3, Color::black, g);
   add_edge(s2, c4, Color::black, g);
-
+  add_edge(s2, c5, Color::black, g);
   assert(!is_degenerate(g));
-
-  add_edge(s2, c5, Color::red, g);
-
+  add_edge(s2, c6, Color::red, g);
   assert(!is_degenerate(g));
-
-  add_edge(s1, c5, Color::red, g);
-
+  add_edge(s1, c6, Color::red, g);
+  assert(!is_degenerate(g));
+  add_edge(s3, c7, Color::black, g);
+  assert(!is_degenerate(g));
+  add_edge(s1, c5, Color::black, g);
+  assert(!is_degenerate(g));
+  add_edge(s2, c1, Color::black, g);
+  assert(!is_degenerate(g));
+  add_edge(s3, c5, Color::black, g);
+  add_edge(s3, c4, Color::black, g);
+  add_edge(s3, c3, Color::black, g);
+  add_edge(s3, c2, Color::black, g);
+  assert(!is_degenerate(g));
+  add_edge(s3, c6, Color::red, g);
   assert(is_degenerate(g));
 
   std::cout << "test_is_degenerate: passed" << std::endl;
+}
+
+void test_ppp() {
+  RBGraph g, gm;
+  read_graph("test_paper.txt", g);
+  maximal_reducible_graph(g, gm, false);
+
+  //maximal_reducible_graph(g, gm, false);
+
+  std::list<SignedCharacter> lsc = ppp_maximal_reducible_graphs(g);
+
+  std::cout << "[";
+  for (SignedCharacter sc : lsc)
+    std::cout << "(" << sc << ") ";
+  std::cout << "]" << std::endl;
+
+  std::cout << "test_ppp: passed" << std::endl;
 }
 
 int main(int argc, char *argv[]) {
@@ -1213,4 +1219,5 @@ int main(int argc, char *argv[]) {
   test_singletons();
   test_universal();
   test_is_degenerate();
+  test_ppp();
 }

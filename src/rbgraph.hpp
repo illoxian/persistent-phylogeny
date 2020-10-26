@@ -649,7 +649,7 @@ inline bool is_inactive(const RBVertex& v, const RBGraph& g) {
 /**
   @brief Return true if \e s is a pending species in \e g . 
 
-  A species is pending in a red-black graph if it's a species that has just an incoming black edge.
+  A species is pending in a red-black graph if it's a species that has just an incoming black edge and has a node degree equal to one.
 
   @param[in] s Species
   @param[in] g Red-black graph
@@ -657,6 +657,17 @@ inline bool is_inactive(const RBVertex& v, const RBGraph& g) {
   @return bool
 */
 bool is_pending_species(const RBVertex& s, const RBGraph& g);
+
+/**
+  @brief Return a pending species in \e g if it exists. 
+
+  A species is pending in a red-black graph if it's a species that has just an incoming black edge and has a node degree equal to one.
+
+  @param[in] g Red-black graph
+
+  @return Vertex
+*/
+RBVertex get_pending_species(const RBGraph& g);
 
 /**
   @brief Return true if \e v is red-universal in \e g .
@@ -851,7 +862,7 @@ const std::list<RBVertex> maximal_characters(const RBGraph& g);
 
   @return Maximal reducible graph
 */
-RBGraph maximal_reducible_graph(const RBGraph& g, const bool active = false);
+void maximal_reducible_graph(const RBGraph& g, RBGraph& gm, const bool active = false);
 
 /**
   @brief Return true if \e g contains a red Σ-graph.
@@ -929,6 +940,9 @@ std::list<RBVertex> get_comp_active_characters(const RBVertex s, const RBGraph& 
 
 /**
   @brief Return true if \e g is degenerate.
+
+  A graph \e g is degenerate if it consists of species having all inactive
+  characters excepts for one and has at least an active character.
 
   @param[in] g Red-black graph
 
