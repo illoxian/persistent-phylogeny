@@ -1743,20 +1743,42 @@ std::list<SignedCharacter> ppp_maximal_reducible_graphs(RBGraph& g) {
 
   std::list<SignedCharacter> realized_chars;
   std::list<SignedCharacter> tmp;
+  RBVertex v;
+  bool case_entered;
 
   while (!is_empty(g)) {
+    case_entered = false;
 
-    if (get_pending_species(g) != 0)
-      tmp = realize_species(get_pending_species(g), g).first;
-    else if (get_minimal_p_active_species(g) != 0)    
-      tmp = realize_species(get_minimal_p_active_species(g), g).first;
-    else if (is_degenerate(g)) 
+    v = get_pending_species(g);
+    if (v != 0) {
+      case_entered = true;
+      tmp = realize_species(v, g).first;
+    }
+    
+    if (!case_entered) {
+      v = get_minimal_p_active_species(g);
+      if (v != 0) {
+        case_entered = true;
+        tmp = realize_species(v, g).first;
+      }
+    }    
+      
+    if (!case_entered && is_degenerate(g)) {
+      case_entered = true;
       // realize all inactive characters
       for (RBVertex c : get_inactive_chars(g))
         tmp.splice(tmp.end(), realize_character({g[c].name, State::gain}, g).first);
-    else if (get_active_species(g).size() == 1)
-      tmp = realize_species(*get_active_species(g).begin(), g).first;
-    else {
+    }
+    
+    if (!case_entered) {
+      std::list<RBVertex> active_species = get_active_species(g);
+      if (active_species.size() == 1) {
+        case_entered = true;
+        tmp = realize_species(*active_species.begin(), g).first;
+      }
+    }
+      
+    if (!case_entered) {
       if (has_red_sigmagraph(g))
         std::cout << "[INFO] Red sigma graph generated" << std::endl;
       throw std::runtime_error("[ERROR] In ppp_maximal_reducible_graphs(): could not build the PPP");

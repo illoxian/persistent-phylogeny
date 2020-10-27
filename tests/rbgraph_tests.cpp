@@ -7,6 +7,7 @@
  * 
  */
 
+#include <dirent.h>
 #include "../src/rbgraph.hpp"
 #include "../src/hdgraph.hpp"
 #include "../src/functions.hpp"
@@ -1127,7 +1128,7 @@ void test_universal() {
 
 void test_is_degenerate() {
   RBGraph g;
-  RBVertex s1, s2, c1, c2, c3, c4, c5, c6, c7, s3;
+  RBVertex s1, s2, c1, c2, c3, c4, c5, s3;
 
   s1 = add_vertex("s1", Type::species, g);
   s2 = add_vertex("s2", Type::species, g);
@@ -1137,12 +1138,9 @@ void test_is_degenerate() {
   c3 = add_vertex("c3", Type::character, g);
   c4 = add_vertex("c4", Type::character, g);
   c5 = add_vertex("c5", Type::character, g);
-  c6 = add_vertex("c6", Type::character, g);
-  c7 = add_vertex("c7", Type::character, g);
 
   assert(!is_degenerate(g));
   add_edge(s1, c1, Color::black, g);
-  assert(!is_degenerate(g));
   add_edge(s1, c2, Color::black, g);
   add_edge(s1, c3, Color::black, g);
   add_edge(s1, c4, Color::black, g);
@@ -1152,40 +1150,47 @@ void test_is_degenerate() {
   add_edge(s2, c4, Color::black, g);
   add_edge(s2, c5, Color::black, g);
   assert(!is_degenerate(g));
-  add_edge(s2, c6, Color::red, g);
-  assert(!is_degenerate(g));
-  add_edge(s1, c6, Color::red, g);
-  assert(!is_degenerate(g));
-  add_edge(s3, c7, Color::black, g);
-  assert(!is_degenerate(g));
-  add_edge(s1, c5, Color::black, g);
-  assert(!is_degenerate(g));
-  add_edge(s2, c1, Color::black, g);
-  assert(!is_degenerate(g));
   add_edge(s3, c5, Color::black, g);
   add_edge(s3, c4, Color::black, g);
   add_edge(s3, c3, Color::black, g);
   add_edge(s3, c2, Color::black, g);
-  assert(!is_degenerate(g));
-  add_edge(s3, c6, Color::red, g);
   assert(is_degenerate(g));
 
   std::cout << "test_is_degenerate: passed" << std::endl;
 }
 
 void test_ppp() {
-  RBGraph g, gm;
-  read_graph("test_paper.txt", g);
-  maximal_reducible_graph(g, gm, false);
+  
+  DIR *dir;
+  struct dirent *ent;
+  int count = 2;
+  std::string matrix_file;
+  if ((dir = opendir ("prova")) != NULL) {
+    /* for all the matrix files in maximal folder */
+    while ((ent = readdir (dir)) != NULL) {
+      matrix_file = ent->d_name;
+      //skip the first two files (they are not matrix files)
+      if (count-- > 0) continue;
+      std::cout << "Testing prova/" << matrix_file << "..." << std::endl;
 
-  //maximal_reducible_graph(g, gm, false);
+      RBGraph g, gm;
+      
+      read_graph("prova/" + matrix_file, g);
 
-  std::list<SignedCharacter> lsc = ppp_maximal_reducible_graphs(g);
+      //maximal_reducible_graph(g, gm, false);
 
-  std::cout << "[";
-  for (SignedCharacter sc : lsc)
-    std::cout << "(" << sc << ") ";
-  std::cout << "]" << std::endl;
+      std::list<SignedCharacter> lsc = ppp_maximal_reducible_graphs(g);
+
+      std::cout << "[";
+      for (SignedCharacter sc : lsc)
+        std::cout << "(" << sc << ") ";
+      std::cout << "]" << std::endl;
+
+      printf("Test passed for %s!\n\n", ent->d_name);
+      
+    }
+    closedir (dir);
+  }
 
   std::cout << "test_ppp: passed" << std::endl;
 }

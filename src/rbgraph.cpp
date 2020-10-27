@@ -323,8 +323,10 @@ void read_graph(const std::string& filename, RBGraph& g) {
           cont++;
         }
         else {
-          if(read >= num_c)
+          if(read >= num_c) {
+            file.close();
             throw std::runtime_error("[ERROR] Failed to read graph from file: Inexistent character");
+          }
           std::string s = "c" + std::to_string(read);
           a_chars.push_back(s);
         }
@@ -335,6 +337,7 @@ void read_graph(const std::string& filename, RBGraph& g) {
 
       if (species.size() == 0 || characters.size() == 0) {
         // input file parsing error
+        file.close();
         throw std::runtime_error(
             "[ERROR] Failed to read graph from file: badly formatted line 0");
       }
@@ -369,6 +372,7 @@ void read_graph(const std::string& filename, RBGraph& g) {
 
               if (s_index >= species.size() || c_index >= characters.size()) {
                 // input file parsing error
+                file.close();
                 throw std::runtime_error(
                     "[ERROR] Failed to read graph from file: oversized matrix");
               }
@@ -383,6 +387,7 @@ void read_graph(const std::string& filename, RBGraph& g) {
 
           default:
             // input file parsing error
+            file.close();
             throw std::runtime_error(
                 "[ERROR] Failed to read graph from file: unexpected value in matrix");
         }
@@ -396,17 +401,21 @@ void read_graph(const std::string& filename, RBGraph& g) {
 
   if (index != species.size() * characters.size()) {
     // input file parsing error
+    file.close();
     throw std::runtime_error(
         "[ERROR] Failed to read graph from file: undersized matrix");
   }
 
   if (species.size() == 0 || characters.size() == 0) {
     // input file parsing error
+    file.close();
     throw std::runtime_error("[ERROR] Failed to read graph from file: empty file");
   }
 
   for(const auto& elem : a_chars)
     change_char_type(vertex_map(g).at(elem), g);
+
+  file.close();
 }
 
 //=============================================================================
@@ -995,17 +1004,14 @@ bool is_degenerate(const RBGraph& g) {
   for (RBVertex v : g.m_vertices) {
     if (is_character(v, g)) continue;
 
-    count_active = count_inactive = 0;
+    count_inactive = 0;
 
     RBOutEdgeIter e, e_end;
     std::tie(e, e_end) = out_edges(v, g);
     for (; e != e_end; ++e)
-      if (is_active(e->m_target, g))
-        ++count_active;
-      else
+      if (is_inactive(e->m_target, g))
         ++count_inactive;
-  
-    if (count_inactive != inactive_chars.size() - 1 || count_active == 0)
+    if (count_inactive != inactive_chars.size() - 1)
       return false;
   }
   return true;
