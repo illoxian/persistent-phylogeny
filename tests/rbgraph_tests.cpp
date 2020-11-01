@@ -1159,32 +1159,109 @@ void test_is_degenerate() {
   std::cout << "test_is_degenerate: passed" << std::endl;
 }
 
+void test_all_species_with_red_edges() {
+  RBGraph g;
+  RBVertex s1, s2, c1, c2, c3, c4, c5, s3;
+
+  s1 = add_vertex("s1", Type::species, g);
+  s2 = add_vertex("s2", Type::species, g);
+  c1 = add_vertex("c1", Type::character, g);
+  c2 = add_vertex("c2", Type::character, g);
+  c3 = add_vertex("c3", Type::character, g);
+
+  assert(all_species_with_red_edges(g) == false);
+  add_edge(s1, c1, Color::black, g);
+  assert(all_species_with_red_edges(g) == false);
+  add_edge(s1, c2, Color::black, g);
+  add_edge(s2, c3, Color::red, g);
+  assert(all_species_with_red_edges(g) == false);
+  add_edge(s1, c3, Color::red, g);
+  assert(all_species_with_red_edges(g) == true);
+
+  std::cout << "test_all_species_with_red_edges: passed" << std::endl;
+}
+
+void test_quasi_active() {
+  RBGraph g;
+  RBVertex s1, s2, c1, c2, c3, c4, c5, s3;
+
+  s1 = add_vertex("s1", Type::species, g);
+  s2 = add_vertex("s2", Type::species, g);
+  c1 = add_vertex("c1", Type::character, g);
+  c2 = add_vertex("c2", Type::character, g);
+
+  assert(get_quasi_active_species(g) == 0);
+  add_edge(s1, c1, Color::black, g);
+  assert(get_quasi_active_species(g) == 0);
+  add_edge(s1, c2, Color::red, g);
+  assert(get_quasi_active_species(g) == s1);
+
+  std::cout << "test_quasi_active: passed" << std::endl;
+}
+
+void test_remove_duplicate_species() {
+  RBGraph g;
+  RBVertex s1, s2, s3, s4, s5, s6, c1, c2;
+  s1 = add_vertex("s1", Type::species, g);
+  s2 = add_vertex("s2", Type::species, g);
+  s3 = add_vertex("s3", Type::species, g);
+  s4 = add_vertex("s4", Type::species, g);
+  s5 = add_vertex("s5", Type::species, g);
+  s6 = add_vertex("s6", Type::species, g);
+  c1 = add_vertex("c1", Type::character, g);
+  c2 = add_vertex("c2", Type::character, g);
+  add_edge(s1, c2, Color::red, g);
+  add_edge(s2, c2, Color::red, g);
+  add_edge(s3, c2, Color::black, g);
+  add_edge(s4, c1, Color::black, g);
+  add_edge(s4, c2, Color::black, g);
+  add_edge(s5, c1, Color::black, g);
+  add_edge(s5, c2, Color::red, g);
+  add_edge(s6, c1, Color::black, g);
+  add_edge(s6, c2, Color::black, g);
+  remove_duplicate_species(g);
+  assert(exists(s1, g));
+  assert(exists(s3, g));
+  assert(exists(s4, g));
+  assert(exists(s5, g));
+  assert(!exists(s2, g));
+  assert(!exists(s6, g));
+}
+
 void test_ppp() {
   
   DIR *dir;
   struct dirent *ent;
   int count = 2;
   std::string matrix_file;
-  if ((dir = opendir ("prova")) != NULL) {
+  if ((dir = opendir ("test_ppp")) != NULL) {
     /* for all the matrix files in maximal folder */
     while ((ent = readdir (dir)) != NULL) {
       matrix_file = ent->d_name;
       //skip the first two files (they are not matrix files)
       if (count-- > 0) continue;
-      std::cout << "Testing prova/" << matrix_file << "..." << std::endl;
+      std::cout << "Testing test_ppp/" << matrix_file << "..." << std::endl;
 
       RBGraph g, gm;
       
-      read_graph("prova/" + matrix_file, g);
+      read_graph("test_ppp/" + matrix_file, g);
 
-      //maximal_reducible_graph(g, gm, false);
+      maximal_reducible_graph(g, gm, false);
 
-      std::list<SignedCharacter> lsc = ppp_maximal_reducible_graphs(g);
+      std::list<SignedCharacter> lsc = ppp_maximal_reducible_graphs(gm);
 
       std::cout << "[";
       for (SignedCharacter sc : lsc)
         std::cout << "(" << sc << ") ";
       std::cout << "]" << std::endl;
+
+      std::cout << "Verifying that the realization of the signed characters gives an empy graph..." << std::endl;
+      maximal_reducible_graph(g, gm, false);
+
+      for (SignedCharacter sc : lsc)
+        realize_character(sc, gm);
+
+      assert(is_empty(gm));
 
       printf("Test passed for %s!\n\n", ent->d_name);
       
@@ -1224,5 +1301,8 @@ int main(int argc, char *argv[]) {
   test_singletons();
   test_universal();
   test_is_degenerate();
+  test_all_species_with_red_edges();
+  test_quasi_active();
+  test_remove_duplicate_species();
   test_ppp();
 }

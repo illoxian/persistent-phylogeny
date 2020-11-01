@@ -382,16 +382,15 @@ void order_by_degree(std::list<RBVertex>& list_to_order, const RBGraph& g);
 RBVertex get_minimal_p_active_species(const RBGraph& g);
 
 /**
-  @brief Check if \e s is a quasi-active species in \e g .
+  @brief Return a quasi-active species in \e g if it exists.
 
   A vertex \e s is quasi-active in a red-black graph if it has red-incoming edges, but it can be removed from \e g without producing a red-Σ-graph.
 
-  @param[in] s Species vertex
   @param[in] g Red-black graph
 
-  @return True if \e s is quasi-active in \e g
+  @return Vertex
 */
-bool is_quasi_active(const RBVertex& s, const RBGraph& g);
+RBVertex get_quasi_active_species(const RBGraph& g);
 
 /**
   @brief Execute the algorithm on the maximal reducible graph \e g .

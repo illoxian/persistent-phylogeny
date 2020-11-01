@@ -1722,63 +1722,50 @@ RBVertex get_minimal_p_active_species(const RBGraph& g) {
   return p_active_candidate;
 }
 
-bool is_quasi_active(const RBVertex& s, const RBGraph& g) {
-  if (!is_species(s, g)) return false;
-
-  if (is_active(s, g)) return true;
-
-  // then s is a species with some red incoming edges
-  // then we have to check whether its realization generates a red-sigmagraph
-
-  RBGraph g_copy;
-  copy_graph(g, g_copy);
-  realize_species(get_vertex(g[s].name, g_copy), g_copy);
-  if (has_red_sigmagraph(g_copy))
-    return false;
-  else
-    return true;
+RBVertex get_quasi_active_species(const RBGraph& g) {
+  for (RBVertex v : g.m_vertices) {
+      if (!is_species(v, g)) continue;
+      RBOutEdgeIter e, e_end;
+      std::tie(e, e_end) = out_edges(v, g);
+      int black_edges = 0;
+      int red_edges = 0;
+      for (; e != e_end; ++e)
+        if (is_black(*e, g))
+          ++black_edges;
+        else
+          ++red_edges;
+      // if we are here then s is a species with some red incoming edges. So, we have to check whether its realization generates a red-sigmagraph
+      if (black_edges > 0 && red_edges > 0) {
+        RBGraph g_copy;
+        copy_graph(g, g_copy);
+        realize_species(get_vertex(g[v].name, g_copy), g_copy);
+        if (!has_red_sigmagraph(g_copy))
+          return v;
+      }
+  }
+  return 0;
 }
 
 std::list<SignedCharacter> ppp_maximal_reducible_graphs(RBGraph& g) {
 
-  std::list<SignedCharacter> realized_chars;
+  std::list<SignedCharacter> realized_chars = realize_red_univ_and_univ_chars(g).first;
+  remove_duplicate_species(g);
   std::list<SignedCharacter> tmp;
-  RBVertex v;
-  bool case_entered;
 
   while (!is_empty(g)) {
-    case_entered = false;
-
-    v = get_pending_species(g);
-    if (v != 0) {
-      case_entered = true;
-      tmp = realize_species(v, g).first;
-    }
-    
-    if (!case_entered) {
-      v = get_minimal_p_active_species(g);
-      if (v != 0) {
-        case_entered = true;
-        tmp = realize_species(v, g).first;
-      }
-    }    
-      
-    if (!case_entered && is_degenerate(g)) {
-      case_entered = true;
-      // realize all inactive characters
+     
+    if (get_pending_species(g).size() == 1)
+      tmp = realize_species(*get_pending_species(g).begin(), g).first;
+    else if (get_minimal_p_active_species(g) != 0) 
+      tmp = realize_species(get_minimal_p_active_species(g), g).first;
+    else if (is_degenerate(g)) 
       for (RBVertex c : get_inactive_chars(g))
         tmp.splice(tmp.end(), realize_character({g[c].name, State::gain}, g).first);
-    }
-    
-    if (!case_entered) {
-      std::list<RBVertex> active_species = get_active_species(g);
-      if (active_species.size() == 1) {
-        case_entered = true;
-        tmp = realize_species(*active_species.begin(), g).first;
-      }
-    }
-      
-    if (!case_entered) {
+    else if (get_active_species(g).size() == 1) 
+      tmp = realize_species(*get_active_species(g).begin(), g).first;
+    else if (get_quasi_active_species(g) != 0 && all_species_with_red_edges(g)) 
+      tmp = realize_species(get_quasi_active_species(g), g).first;
+    else {
       if (has_red_sigmagraph(g))
         std::cout << "[INFO] Red sigma graph generated" << std::endl;
       throw std::runtime_error("[ERROR] In ppp_maximal_reducible_graphs(): could not build the PPP");
@@ -1786,15 +1773,21 @@ std::list<SignedCharacter> ppp_maximal_reducible_graphs(RBGraph& g) {
 
     realized_chars.splice(realized_chars.end(), tmp);
     realized_chars.splice(realized_chars.end(), realize_red_univ_and_univ_chars(g).first);
+    remove_duplicate_species(g);
 
-    RBGraphVector conn_compnts = connected_components(g);
-    auto cc = conn_compnts.begin();
-    auto cc_end = conn_compnts.end();
-    for (; cc != cc_end; ++cc) {
-      tmp = ppp_maximal_reducible_graphs(*cc->get());
-      realized_chars.splice(realized_chars.end(), tmp);
+    if (!is_empty(g)) {
+      RBGraphVector conn_compnts = connected_components(g);
+      auto cc = conn_compnts.begin();
+      auto cc_end = conn_compnts.end();
+      for (; cc != cc_end; ++cc) {
+        RBGraph tmp_graph;
+        copy_graph(*cc->get(), tmp_graph);
+        tmp = ppp_maximal_reducible_graphs(*cc->get());
+        for (RBVertex v : tmp_graph.m_vertices)
+          remove_vertex(tmp_graph[v].name, g);
+        realized_chars.splice(realized_chars.end(), tmp);
+      }
     }
-
   }
   return realized_chars;
 }

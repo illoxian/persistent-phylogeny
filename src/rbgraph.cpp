@@ -456,11 +456,88 @@ bool is_pending_species(const RBVertex& s, const RBGraph& g) {
     return false;
 }
 
-RBVertex get_pending_species(const RBGraph& g) {
+std::list<RBVertex> get_pending_species(const RBGraph& g) {
+  std::list<RBVertex> pending_species;
   for (RBVertex v : g.m_vertices)
     if (is_pending_species(v, g))
-      return v;
-  return 0;
+      pending_species.push_back(v);
+  return pending_species;
+}
+
+void remove_duplicate_species(RBGraph& g) {
+  bool eql, found;
+  bool removed = false;
+
+  RBVertexIter u, u_end;
+  std::tie(u, u_end) = vertices(g);
+  for (; u != u_end; ++u) {
+
+    if (removed) {
+      // reinitialize iterators
+      std::tie(u, u_end) = vertices(g);
+      removed = false;
+    }
+
+    if (is_character(*u, g)) continue;
+
+    RBVertexIter v, v_end, next;
+    std::tie(v, v_end) = vertices(g);
+    for (next = v; v != v_end; v = next) {
+      next++;
+      if (*u == *v || is_character(*v, g)) continue;
+
+      eql = true;
+      RBOutEdgeIter e1, e1_end;
+      std::tie(e1, e1_end) = out_edges(*u, g);
+      RBOutEdgeIter e2, e2_end;
+      std::tie(e2, e2_end) = out_edges(*v, g);
+      if (std::distance(e1, e1_end) != std::distance(e2, e2_end))
+        // they have a different number of edges 
+        eql = false;
+      else {
+        // they have the same number of edges, but we have to check whether
+        // the edge lists are equal or not
+        for (; e1 != e1_end; ++e1) {
+          // for each edge, let's check if the other vertex has got the same edge in its edge list.
+          found = false;
+          std::tie(e2, e2_end) = out_edges(*v, g);
+          for (; e2 != e2_end; ++e2) {
+            if (g[*e1].color == g[*e2].color && e1->m_target == e2->m_target) {
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            // the second vertex does not have a particular edge, while the first edge has got it. Then the two vertices are different
+            eql = false;
+            break;
+          }
+        }
+      }
+      if (eql) {
+        // A vertex with the same edge list has been found. We have to delete it
+        remove_vertex(*v, g);
+        removed = true;
+      }
+    }
+  } 
+}
+
+bool all_species_with_red_edges(const RBGraph& g) {
+  for (RBVertex v : g.m_vertices) {
+    if (!is_species(v, g)) continue;
+    bool has_red_edge = false;
+    RBOutEdgeIter e, e_end;
+    std::tie(e, e_end) = out_edges(v, g);
+    for (; e != e_end; ++e)
+      if (is_red(*e, g)) {
+        has_red_edge = true;
+        break;
+      }
+    if (!has_red_edge) 
+      return false;
+  }
+  return true;
 }
 
 bool is_red_universal(const RBVertex& v, const RBGraph& g) {

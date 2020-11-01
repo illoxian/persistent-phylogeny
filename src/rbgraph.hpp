@@ -659,15 +659,33 @@ inline bool is_inactive(const RBVertex& v, const RBGraph& g) {
 bool is_pending_species(const RBVertex& s, const RBGraph& g);
 
 /**
-  @brief Return a pending species in \e g if it exists. 
+  @brief Remove duplicate species from \e g . 
+
+  Two species are duplicates if they are connected to the same species.
+
+  @param[in] g Red-black graph
+*/
+void remove_duplicate_species(RBGraph& g);
+
+/**
+  @brief Return true if all the species in \e g have a red edge. 
+
+  @param[in] g Red-black graph
+
+  @return bool
+*/
+bool all_species_with_red_edges(const RBGraph& g);
+
+/**
+  @brief Return the list of pending species in \e g. 
 
   A species is pending in a red-black graph if it's a species that has just an incoming black edge and has a node degree equal to one.
 
   @param[in] g Red-black graph
 
-  @return Vertex
+  @return List
 */
-RBVertex get_pending_species(const RBGraph& g);
+std::list<RBVertex> get_pending_species(const RBGraph& g);
 
 /**
   @brief Return true if \e v is red-universal in \e g .
