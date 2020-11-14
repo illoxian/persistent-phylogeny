@@ -1243,8 +1243,12 @@ void test_ppp() {
       std::cout << "Testing test_ppp/" << matrix_file << "..." << std::endl;
 
       RBGraph g, gm;
-      
+
+      std::cout << "Reading the matrix from the file..." << std::endl;
+
       read_graph("test_ppp/" + matrix_file, g);
+
+      std::cout << "Reading the matrix from the file... DONE" << std::endl;
 
       maximal_reducible_graph(g, gm, false);
 
@@ -1254,7 +1258,7 @@ void test_ppp() {
       for (SignedCharacter sc : lsc)
         std::cout << "(" << sc << ") ";
       std::cout << "]" << std::endl;
-
+      
       std::cout << "Verifying that the realization of the signed characters gives an empy graph..." << std::endl;
       maximal_reducible_graph(g, gm, false);
 

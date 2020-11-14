@@ -3,6 +3,7 @@
 #include <boost/graph/copy.hpp>
 #include <boost/graph/graph_utility.hpp>
 #include <fstream>
+#include "functions.hpp"
 
 //=============================================================================
 // Boost functions (overloading)
@@ -305,6 +306,7 @@ void read_graph(const std::string& filename, RBGraph& g) {
 
   size_t index = 0;
   while (std::getline(file, line)) {
+
     // for each line in file
     std::istringstream iss(line);
 
@@ -840,12 +842,14 @@ const std::list<RBVertex> maximal_characters(const RBGraph& g) {
   std::list<RBVertex> cm;
 
   std::list<RBVertex> inactive_chars = get_inactive_chars(g);
+  order_by_degree(inactive_chars, g);
 
   // for each inactive character c in g, if S(c) ⊄ S(c') for any
   // character c', then v is a maximal character and it
   // is inserted in cm
   RBVertexIter v = inactive_chars.begin(), v_end = inactive_chars.end();
   bool maximal_character;
+
   for (; v != v_end; ++v) {
     maximal_character = true;
 
@@ -853,7 +857,10 @@ const std::list<RBVertex> maximal_characters(const RBGraph& g) {
     for (; u != u_end; ++u) {
       if (*v == *u)
         continue;
-      
+
+      if (out_degree(*v, g) > out_degree(*u, g))
+        break;
+
       if (includes_characters(*u, *v, g)) {
         maximal_character = false;
         break;
@@ -866,9 +873,13 @@ const std::list<RBVertex> maximal_characters(const RBGraph& g) {
   return cm;
 }
 
+/*
 void maximal_reducible_graph(const RBGraph& g, RBGraph& gm, const bool active) {
   // copy g to gm
+
+  std::cout << "START COPYING" << std::endl;
   copy_graph(g, gm);
+  std::cout << "FINISH COPYING" << std::endl;
 
   // compute the maximal characters of gm
   const auto cm = maximal_characters(gm);
@@ -903,6 +914,53 @@ void maximal_reducible_graph(const RBGraph& g, RBGraph& gm, const bool active) {
 
   remove_singletons(gm);
 }
+*/
+
+void maximal_reducible_graph(const RBGraph& g, RBGraph& gm, const bool active) {
+  // compute the maximal characters of gm
+  const auto cm = maximal_characters(g);
+
+  if (logging::enabled) {
+    // verbosity enabled
+    std::cout << "Maximal characters Cm = { ";
+
+    for (const auto& kk : cm) {
+      std::cout << g[kk].name << " ";
+    }
+
+    std::cout << "} - Count: " << cm.size() << std::endl;
+  }
+
+  gm.clear();
+
+  for (RBVertex v : cm) {
+    add_character(g[v].name, gm);
+
+    RBOutEdgeIter e, e_end;
+    std::tie(e, e_end) = out_edges(v, g);
+    for (; e != e_end; ++e) {
+      if (!exists(g[e->m_target].name, gm))
+        add_species(g[e->m_target].name, gm);
+      add_edge(g[v].name, g[e->m_target].name, Color::black, gm);
+    }
+  }
+
+  if (active)
+    for (RBVertex v : g.m_vertices)
+      if (is_character(v, g) && is_active(v, g)) {
+        add_character(g[v].name, gm);
+
+        RBOutEdgeIter e, e_end;
+        std::tie(e, e_end) = out_edges(v, g);
+        for (; e != e_end; ++e) {
+          if (!exists(g[e->m_target].name, gm))
+            add_species(g[e->m_target].name, gm);
+          add_edge(g[v].name, g[e->m_target].name, Color::black, gm);
+        }
+      }
+  remove_singletons(gm);
+}
+
 
 bool has_red_sigmagraph(const RBGraph& g) {
   size_t count_actives = 0;
@@ -1092,4 +1150,55 @@ bool is_degenerate(const RBGraph& g) {
       return false;
   }
   return true;
+}
+
+void minimal_form_graph(const RBGraph g, RBGraph gmf) {
+  std::list<RBVertex> cmax = maximal_characters(g);
+
+  // get the minimal characters
+  std::list<RBVertex> cmin(g[boost::graph_bundle].num_characters);
+  std::list<RBVertex>::iterator it;
+  it = std::set_difference(g.m_vertices.begin(), g.m_vertices.end(), cmax.begin(), cmax.end(), cmin.begin());                                         
+  RBVertexIter b, e, next;
+  std::tie(b, e) = vertices(g);
+  for (next = b; b != e; b = next) {
+    next++;
+    if (!is_character(*b, g))
+      cmin.remove(*b);
+  }
+
+  // overlap_map[v] = set of minimal characters overlapping with v minimal character
+  std::map<RBVertex, std::set<RBVertex>> overlap_map;
+  for (RBVertex v : cmin) 
+    for (RBVertex u : cmin) {
+      if (v == u) 
+        continue;
+      if (overlaps_character(v, u, g))
+        overlap_map[v].insert(u);
+    }
+
+  // min_max_overlap is a set containing all the minimal characters that overlap with at least a maximal character
+  std::set<RBVertex> min_max_overlap;
+  for (RBVertex v : cmin) 
+    for (RBVertex u : cmax) 
+      if (overlaps_character(v, u, g))
+        min_max_overlap.insert(v);
+    
+  // make the union
+  std::set<RBVertex> minimal_form_characters;
+  for (RBVertex v : min_max_overlap)
+    minimal_form_characters.insert(overlap_map[v].begin(), overlap_map[v].end());
+
+  // build the minimal form graph
+  gmf.clear();
+  for (RBVertex v : minimal_form_characters) {
+    add_character(g[v].name, gmf);
+    RBOutEdgeIter edge, edge_end;
+    std::tie(edge, edge_end) = out_edges(v, g);
+    for (; edge != edge_end; ++edge) {
+      if (!exists(g[edge->m_target].name, gmf))
+        add_species(g[edge->m_target].name, gmf);
+      add_edge(g[v].name, g[edge->m_target].name, g[*edge].color, gmf);
+    }
+  }
 }

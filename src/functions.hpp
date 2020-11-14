@@ -373,6 +373,18 @@ void realize_species(RBVertex& s, RBGraph& g);
 void order_by_degree(std::list<RBVertex>& list_to_order, const RBGraph& g);
 
 /**
+  @brief Return the minimal p-active species in \e g.
+  
+  If \e all is set to false, then the output list will contain only the first minimal p-active species encountered.
+
+  @param[in] g Red-black graph
+  @param[in] all bool
+
+  @return The list of minimal p-active species
+*/
+std::list<RBVertex> get_all_minimal_p_active_species(const RBGraph& g, bool all=true);
+
+/**
   @brief Return the minimal p-active species in \e g. 
 
   @param[in] g Red-black graph

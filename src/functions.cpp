@@ -1678,15 +1678,15 @@ void order_by_degree(std::list<RBVertex>& list_to_order, const RBGraph& g) {
     list_to_order.push_back(pair.first);
 }
 
-RBVertex get_minimal_p_active_species(const RBGraph& g) {
-
+std::list<RBVertex> get_all_minimal_p_active_species(const RBGraph& g, bool all) {
+  std::list<RBVertex> out;
   std::list<RBVertex> active_species = get_active_species(g);
   order_by_degree(active_species, g);
 
-  RBVertex p_active_candidate = 0;
-  bool found = false;
+  bool found;
   int num_inctv_chars_v, num_inctv_chars_u;
   for (RBVertex v : active_species) {
+    found = false;
     // for every active species v in the ordered list of active species
     for (int i = 1; i < num_characters(g); ++i) {
       // index "i" is used after to check if vertex "u" has "i" more inactive characters than "v"
@@ -1708,7 +1708,7 @@ RBVertex get_minimal_p_active_species(const RBGraph& g) {
             realize_species(get_vertex(g[v].name, g_copy), g_copy);
             realize_species(get_vertex(g[u].name, g_copy), g_copy);
             if (!has_red_sigmagraph(g_copy)) {
-              p_active_candidate = v;
+              out.push_back(v);
               found = true;
               break;
             }
@@ -1717,9 +1717,14 @@ RBVertex get_minimal_p_active_species(const RBGraph& g) {
       }
       if (found) break;
     }
-    if (found) break;
+    if (found && !all)
+      break;
   }
-  return p_active_candidate;
+  return out;
+}
+
+RBVertex get_minimal_p_active_species(const RBGraph& g) {
+  return *get_all_minimal_p_active_species(g, false).begin();
 }
 
 RBVertex get_quasi_active_species(const RBGraph& g) {

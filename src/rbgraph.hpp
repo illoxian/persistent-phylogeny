@@ -968,4 +968,14 @@ std::list<RBVertex> get_comp_active_characters(const RBVertex s, const RBGraph& 
 **/
 bool is_degenerate(const RBGraph& g);
 
+/**
+  @brief It builds the minimal form graph \e gmf of \e g
+
+  @param[in] g Red-black graph
+  @param[in] gmf Red-black graph
+
+  @return void
+**/
+void minimal_form_graph(const RBGraph g, RBGraph gmf);
+
 #endif  // RBGRAPH_HPP
