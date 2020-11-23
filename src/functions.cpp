@@ -1543,7 +1543,7 @@ std::pair<std::list<SignedCharacter>, bool> realize_species(const RBVertex v,
 
   // build the list of inactive characters adjacent to v (species)
   
-  std::list<RBVertex> adjacent_chars = get_adj_character_map(g)[v];
+  std::list<RBVertex> adjacent_chars = get_adj_vertices(v, g);
 
   for (RBVertex c : adjacent_chars) 
     if (is_inactive(c, g))
@@ -1758,6 +1758,13 @@ std::list<SignedCharacter> ppp_maximal_reducible_graphs(RBGraph& g) {
   std::list<SignedCharacter> tmp;
 
   while (!is_empty(g)) {
+
+    /*
+    if (get_all_minimal_p_active_species(g).size() > 2){
+      std::cout << "GRAPH WITH MORE THAN 2 MINIMAL P ACTIVE SPECIES" << std::endl << "Total: " << get_all_minimal_p_active_species(g).size() << std::endl;
+      std::cout << g << "\n\n" << std::endl;
+      exit(1);
+    }*/
      
     if (get_pending_species(g).size() == 1)
       tmp = realize_species(*get_pending_species(g).begin(), g).first;

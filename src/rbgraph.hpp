@@ -752,7 +752,7 @@ RBGraphVector connected_components(const RBGraph& g, const RBVertexIMap& c_map,
 std::list<RBVertex> get_neighbors(const RBVertex& v, const RBGraph& g);
 
 /**
-  @brief Return a map M where M[v] is the list of verteces adjacent to vertex v.
+  @brief Return a map M where M[v] is the list of verteces adjacent to vertex \e v.
  
   @param[in] g            Red-black graph
 
@@ -761,13 +761,23 @@ std::list<RBVertex> get_neighbors(const RBVertex& v, const RBGraph& g);
 std::map<RBVertex, std::list<RBVertex>> get_adj_map(const RBGraph& g);
 
 /**
+  @brief Return the list of vertices adjacent to character \e v.
+ 
+  @param[in] v           RBVertex
+  @param[in] g            Red-black graph
+
+  @return  List
+*/
+std::list<RBVertex> get_adj_vertices(const RBVertex& v, const RBGraph& g);
+
+/**
   @brief Return a map M where M[c] is the list of species adjacent to character c.
  
   @param[in] g            Red-black graph
 
   @return  Map
-*/
-std::map<RBVertex, std::list<RBVertex>> get_adj_species_map(const RBGraph& g);
+
+std::map<RBVertex, std::list<RBVertex>> get_adj_species_map(const RBGraph& g); */
 
 /**
   @brief Return a map M where M[s] is the list of characters adjacent to species s.
@@ -775,8 +785,8 @@ std::map<RBVertex, std::list<RBVertex>> get_adj_species_map(const RBGraph& g);
   @param[in] g            Red-black graph
 
   @return  Map
-*/
-std::map<RBVertex, std::list<RBVertex>> get_adj_character_map(const RBGraph& g);
+
+std::map<RBVertex, std::list<RBVertex>> get_adj_character_map(const RBGraph& g); */
 
 /**
   @brief Given a species \e s, it returns the set of active characters adjacent to \e s
@@ -976,6 +986,6 @@ bool is_degenerate(const RBGraph& g);
 
   @return void
 **/
-void minimal_form_graph(const RBGraph g, RBGraph gmf);
+void minimal_form_graph(const RBGraph& g, RBGraph& gmf);
 
 #endif  // RBGRAPH_HPP

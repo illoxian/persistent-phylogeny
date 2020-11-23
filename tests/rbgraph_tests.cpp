@@ -1276,9 +1276,41 @@ void test_ppp() {
   std::cout << "test_ppp: passed" << std::endl;
 }
 
+void test_minimal_form_graph() {
+  RBGraph g, gmf;
+  RBVertex s1, s2, s3, s4, c1, c2, c3, c4;
+  s1 = add_vertex("s1", Type::species, g);
+  s2 = add_vertex("s2", Type::species, g);
+  s3 = add_vertex("s3", Type::species, g);
+  s4 = add_vertex("s4", Type::species, g);
+  c1 = add_vertex("c1", Type::character, g);
+  c2 = add_vertex("c2", Type::character, g);
+  c3 = add_vertex("c3", Type::character, g);
+  c4 = add_vertex("c4", Type::character, g);
+  add_edge(c1, s1, Color::black, g);
+  add_edge(c1, s2, Color::black, g);
+  add_edge(c2, s2, Color::black, g);
+  add_edge(c2, s4, Color::black, g);
+  add_edge(c3, s2, Color::black, g);
+  add_edge(c3, s3, Color::black, g);
+  add_edge(c3, s4, Color::black, g);
+  add_edge(c4, s2, Color::black, g);
+  add_edge(c4, s3, Color::black, g);
+
+  minimal_form_graph(g, gmf);
+
+  assert(gmf.m_vertices.size() == 5);
+  assert(exists(g[s2].name, gmf));
+  assert(exists(g[s3].name, gmf));
+  assert(exists(g[c2].name, gmf));
+  assert(exists(g[c4].name, gmf));
+
+  std::cout << "test_minimal_form_graph: passed" << std::endl;
+}
+
 int main(int argc, char *argv[]) {
   test_simple_add_vertex();
-  test_add_vertex_with_duplicates();
+  //test_add_vertex_with_duplicates();
   test_get_vertex();
   test_add_edge();
   test_graph_size();
@@ -1308,5 +1340,6 @@ int main(int argc, char *argv[]) {
   test_all_species_with_red_edges();
   test_quasi_active();
   test_remove_duplicate_species();
+  test_minimal_form_graph();
   test_ppp();
 }

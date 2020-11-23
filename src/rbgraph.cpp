@@ -2,7 +2,9 @@
 #include <boost/graph/connected_components.hpp>
 #include <boost/graph/copy.hpp>
 #include <boost/graph/graph_utility.hpp>
+#include <boost/algorithm/string.hpp>
 #include <fstream>
+#include <stdio.h>
 #include "functions.hpp"
 
 //=============================================================================
@@ -49,8 +51,12 @@ void remove_vertex(const std::string& name, RBGraph& g) {
 
 
 RBVertex add_vertex(const std::string& name, const Type type, RBGraph& g) {
- if (vertex_map(g).find(name) != vertex_map(g).end())
-  throw std::runtime_error("[ERROR] In add_vertex(): vertex already exists");
+  /* commented because it introduces overhead when reading a matrix from a txt 
+
+  if (vertex_map(g).find(name) != vertex_map(g).end())
+    throw std::runtime_error("[ERROR] In add_vertex(): vertex already exists");
+  
+  */
 
   const RBVertex v = boost::add_vertex(g);
 
@@ -69,10 +75,15 @@ RBVertex add_vertex(const std::string& name, const Type type, RBGraph& g) {
 }
 
 std::pair<RBEdge, bool> add_edge(const RBVertex& u, const RBVertex& v, const Color color, RBGraph& g) {
+
+  /*  commented because it introduces overhead when reading a matrix from a txt file
+  
   if (!exists(u, g) || !exists(v, g))
     throw std::runtime_error("[ERROR] In add_edge(): source vertex or target vertex does not exist");
   if (exists(u, v, g)) 
     throw std::runtime_error("[ERROR] In add_edge(): edge already exists");
+  */
+
   RBEdge e;
   bool exists;
   std::tie(e, exists) = boost::add_edge(u, v, g);
@@ -697,7 +708,7 @@ std::list<RBVertex> get_neighbors(const RBVertex& v, const RBGraph& g) {
   if (!is_species(v, g)) 
     return std::list<RBVertex>();
 
-  std::list<RBVertex> chars_adj_to_v = get_adj_character_map(g)[v];
+  std::list<RBVertex> chars_adj_to_v = get_adj_vertices(v, g);
 
   for (RBVertex u : chars_adj_to_v) {
     if (is_active(u, g)) continue;
@@ -733,7 +744,16 @@ std::map<RBVertex, std::list<RBVertex>> get_adj_map(const RBGraph& g) {
   return adj_map;
 }
 
-std::map<RBVertex, std::list<RBVertex>> get_adj_species_map(const RBGraph& g) {
+std::list<RBVertex> get_adj_vertices(const RBVertex& v, const RBGraph& g) {
+  std::list<RBVertex> out;
+  RBOutEdgeIter e, e_end;
+  std::tie(e, e_end) = out_edges(v, g);
+  for (; e != e_end; ++e) 
+    out.push_back(e->m_target);
+  return out;
+}
+
+/* std::map<RBVertex, std::list<RBVertex>> get_adj_species_map(const RBGraph& g) {
   std::map<RBVertex, std::list<RBVertex>> adj_spec = get_adj_map(g);
 
   // remove from the map all the keys that refer to species
@@ -744,9 +764,9 @@ std::map<RBVertex, std::list<RBVertex>> get_adj_species_map(const RBGraph& g) {
       adj_spec.erase(*v);
   }
   return adj_spec;
-}
+} */
 
-std::map<RBVertex, std::list<RBVertex>> get_adj_character_map(const RBGraph& g) {
+/* std::map<RBVertex, std::list<RBVertex>> get_adj_character_map(const RBGraph& g) {
     std::map<RBVertex, std::list<RBVertex>> adj_chars = get_adj_map(g);
 
   // remove from the map all the keys that refer to characters
@@ -757,11 +777,11 @@ std::map<RBVertex, std::list<RBVertex>> get_adj_character_map(const RBGraph& g) 
       adj_chars.erase(*v);
   }
   return adj_chars;
-}
+} */
 
 std::list<RBVertex> get_adj_active_characters(const RBVertex& s, const RBGraph& g) {
   std::list<RBVertex> adj_active_chars;
-  std::list<RBVertex> adj_chars = get_adj_character_map(g)[s];
+  std::list<RBVertex> adj_chars = get_adj_vertices(s, g);
 
   for (RBVertex c : adj_chars)
     if (is_character(c, g) && is_active(c, g))
@@ -771,7 +791,7 @@ std::list<RBVertex> get_adj_active_characters(const RBVertex& s, const RBGraph& 
 
 std::list<RBVertex> get_adj_inactive_characters(const RBVertex& s, const RBGraph& g) {
   std::list<RBVertex> adj_inactive_chars;
-  std::list<RBVertex> adj_chars = get_adj_character_map(g)[s];
+  std::list<RBVertex> adj_chars = get_adj_vertices(s, g);
 
   for (RBVertex c : adj_chars)
     if (is_inactive(c, g))
@@ -794,13 +814,13 @@ bool includes_species(const RBVertex& s1, const RBVertex& s2, const RBGraph& g) 
 }
 
 bool includes_characters(const RBVertex& c1, const RBVertex& c2, const RBGraph& g) {
-  auto adj_spec = get_adj_species_map(g);
-  // adj_spec is a map, where adj_spec[*v] contains the list of species adjacent to v
+  auto adj_spec_c1 = get_adj_vertices(c1, g);
+  auto adj_spec_c2 = get_adj_vertices(c2, g);
 
   bool included = true;
-  RBVertexIter c2_it = adj_spec[c2].begin(), c2_it_end = adj_spec[c2].end();
+  RBVertexIter c2_it = adj_spec_c2.begin(), c2_it_end = adj_spec_c2.end();
   while (c2_it != c2_it_end) {
-    if (!contains(adj_spec[c1], *c2_it)) {
+    if (!contains(adj_spec_c1, *c2_it)) {
       included = false;
       break;
     }
@@ -810,14 +830,15 @@ bool includes_characters(const RBVertex& c1, const RBVertex& c2, const RBGraph& 
 }
 
 bool overlaps_character(const RBVertex& c1, const RBVertex& c2, const RBGraph& g) {
-  auto adj_spec = get_adj_species_map(g);
-  // adj_spec is a map, where adj_spec[*v] contains the list of species adjacent to v
 
   if (includes_characters(c1, c2, g) || includes_characters(c2, c1, g))
     return false;
-  RBVertexIter c2_it = adj_spec[c2].begin(), c2_it_end = adj_spec[c2].end();
+  
+  auto adj_spec_c1 = get_adj_vertices(c1, g);
+  auto adj_spec_c2 = get_adj_vertices(c2, g);
+  RBVertexIter c2_it = adj_spec_c2.begin(), c2_it_end = adj_spec_c2.end();
   while (c2_it != c2_it_end) {
-    if (contains(adj_spec[c1], *c2_it))
+    if (contains(adj_spec_c1, *c2_it))
       return true;
     ++c2_it;
   }
@@ -838,6 +859,52 @@ std::list<RBVertex> get_inactive_chars(const RBGraph& g) {
   return list_result;
 }
 
+const std::list<RBVertex> maximal_characters(const RBGraph& g) {
+  std::list<RBVertex> cm;
+
+  std::list<RBVertex> inactive_chars = get_inactive_chars(g);
+  order_by_degree(inactive_chars, g);
+
+  // for each inactive character c in g, if S(c) ⊄ S(c') for any
+  // character c', then v is a maximal character and it
+  // is inserted in cm
+  bool is_maximal, v_includes_any_u;
+  for (RBVertex v : inactive_chars) {
+
+    is_maximal = true;
+    v_includes_any_u = false;
+    RBVertexIter u = cm.begin(), u_end = cm.end();
+    for (; u != u_end; ++u) {
+
+      if (out_degree(v, g) > out_degree(*u, g)) {
+        is_maximal = false;
+        break;
+      }
+      if (includes_characters(*u, v, g)) {
+        is_maximal = false;
+        break;
+      } else if (includes_characters(v, *u, g)) {
+        v_includes_any_u = true;
+        break;
+      }
+    }
+
+    if (is_maximal) {
+      if (v_includes_any_u) {
+        RBVertexIter u = cm.begin(), u_end = cm.end(), next;
+        for (next = u; u != u_end; u = next) {
+          next++;
+          if (includes_characters(v, *u, g))
+            cm.remove(*u);
+        }
+      }
+      cm.push_back(v);
+    }
+  }
+  return cm;
+}
+
+/*
 const std::list<RBVertex> maximal_characters(const RBGraph& g) {
   std::list<RBVertex> cm;
 
@@ -871,7 +938,7 @@ const std::list<RBVertex> maximal_characters(const RBGraph& g) {
       cm.push_back(*v);
   }
   return cm;
-}
+}*/
 
 /*
 void maximal_reducible_graph(const RBGraph& g, RBGraph& gm, const bool active) {
@@ -1152,39 +1219,46 @@ bool is_degenerate(const RBGraph& g) {
   return true;
 }
 
-void minimal_form_graph(const RBGraph g, RBGraph gmf) {
+void minimal_form_graph(const RBGraph& g, RBGraph& gmf) {
+
   std::list<RBVertex> cmax = maximal_characters(g);
 
-  // get the minimal characters
-  std::list<RBVertex> cmin(g[boost::graph_bundle].num_characters);
-  std::list<RBVertex>::iterator it;
-  it = std::set_difference(g.m_vertices.begin(), g.m_vertices.end(), cmax.begin(), cmax.end(), cmin.begin());                                         
-  RBVertexIter b, e, next;
-  std::tie(b, e) = vertices(g);
+  // get the minimal characters as follow:
+  // cmin = vertices(g) - cmax - species(g)
+  std::list<RBVertex> cmin(g.m_vertices.begin(), g.m_vertices.end());
+  RBVertexIter b = cmin.begin(), e = cmin.end(), next;
   for (next = b; b != e; b = next) {
-    next++;
-    if (!is_character(*b, g))
+    ++next;
+    if (is_species(*b, g))
       cmin.remove(*b);
+    for (RBVertex v : cmax)
+      if (g[*b].name == g[v].name) {
+        cmin.remove(*b);
+        break;
+      }
   }
 
-  // overlap_map[v] = set of minimal characters overlapping with v minimal character
+  // let v be a minimal character, then:
+  // overlap_map[v] = set of minimal characters that overlap with v
   std::map<RBVertex, std::set<RBVertex>> overlap_map;
-  for (RBVertex v : cmin) 
-    for (RBVertex u : cmin) {
-      if (v == u) 
-        continue;
-      if (overlaps_character(v, u, g))
-        overlap_map[v].insert(u);
+  RBVertexIter v = cmin.begin(), end = cmin.end(), u;
+  for (; v != end ; ++v)
+    for (u = v; u != end ; ++u) {
+      if (u == v) continue;
+      if (overlaps_character(*v, *u, g)) {
+        overlap_map[*v].insert(*u);
+        overlap_map[*u].insert(*v);
+      }
     }
 
-  // min_max_overlap is a set containing all the minimal characters that overlap with at least a maximal character
+  // min_max_overlap will contain all the minimal characters that overlap with at least a maximal character
   std::set<RBVertex> min_max_overlap;
   for (RBVertex v : cmin) 
     for (RBVertex u : cmax) 
       if (overlaps_character(v, u, g))
         min_max_overlap.insert(v);
     
-  // make the union
+  // make the union between the sets of overlapping minimal characters that also overlap with at least a maximal character
   std::set<RBVertex> minimal_form_characters;
   for (RBVertex v : min_max_overlap)
     minimal_form_characters.insert(overlap_map[v].begin(), overlap_map[v].end());
