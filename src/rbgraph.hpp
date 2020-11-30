@@ -606,6 +606,15 @@ void copy_graph(const RBGraph& g, RBGraph& g_copy, RBVertexMap& v_map);
 */
 std::ostream& operator<<(std::ostream& os, const RBGraph& g);
 
+
+/**
+  @brief Get the matrix representation \e m of \e g.
+
+  @param[in] g  Red-black graph
+  @param[in] m  Bool matrix containing the result
+*/
+void get_matrix_representation(const RBGraph& g, bool **m, size_t rows, size_t cols) ;
+
 // File I/O
 
 /**
@@ -987,5 +996,14 @@ bool is_degenerate(const RBGraph& g);
   @return void
 **/
 void minimal_form_graph(const RBGraph& g, RBGraph& gmf);
+
+/**
+  @brief It returns true if the matrix associated with \e g has the 01 property
+
+  @param[in] g Red-black graph
+
+  @return bool
+**/
+bool has_consecutive_ones_property(const RBGraph& g);
 
 #endif  // RBGRAPH_HPP

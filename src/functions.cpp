@@ -1762,6 +1762,16 @@ std::list<SignedCharacter> ppp_maximal_reducible_graphs(RBGraph& g) {
     /*
     if (get_all_minimal_p_active_species(g).size() > 2){
       std::cout << "GRAPH WITH MORE THAN 2 MINIMAL P ACTIVE SPECIES" << std::endl << "Total: " << get_all_minimal_p_active_species(g).size() << std::endl;
+
+      std::cout << "Realized characters: ";
+      for (SignedCharacter v : realized_chars)
+        std::cout << v.character << " ";
+      std::cout << std::endl << std::endl;
+
+      std::cout << "Minimal p-active species: ";
+      for (RBVertex v : get_all_minimal_p_active_species(g))
+        std::cout << g[v].name << " ";
+      std::cout << std::endl << std::endl;
       std::cout << g << "\n\n" << std::endl;
       exit(1);
     }*/

@@ -1252,6 +1252,9 @@ void test_ppp() {
 
       maximal_reducible_graph(g, gm, false);
 
+      //remove_duplicate_species(gm);
+      //std::cout << gm << std::endl;
+
       std::list<SignedCharacter> lsc = ppp_maximal_reducible_graphs(gm);
 
       std::cout << "[";
@@ -1308,9 +1311,63 @@ void test_minimal_form_graph() {
   std::cout << "test_minimal_form_graph: passed" << std::endl;
 }
 
+void test_get_matrix_representation() {
+  RBGraph g;
+
+  read_graph("test_6x3.txt", g);
+  
+  size_t rows = g[boost::graph_bundle].num_species;
+  size_t cols = g[boost::graph_bundle].num_characters;
+  bool **m = new bool*[rows];
+  for(int i = 0; i < rows; ++i) {
+    m[i] = new bool[cols];
+  }
+  get_matrix_representation(g, m, rows, cols);
+
+  bool m2[6][3];
+  m2[0][0] = 0;
+  m2[0][1] = 0;
+  m2[0][2] = 1;
+  m2[1][0] = 0;
+  m2[1][1] = 1;
+  m2[1][2] = 0;
+  m2[2][0] = 0;
+  m2[2][1] = 1;
+  m2[2][2] = 1;
+  m2[3][0] = 1;
+  m2[3][1] = 0;
+  m2[3][2] = 0;
+  m2[4][0] = 1;
+  m2[4][1] = 0;
+  m2[4][2] = 1;
+  m2[5][0] = 1;
+  m2[5][1] = 1;
+  m2[5][2] = 0;
+
+  for (size_t i = 0; i < rows; ++i)
+    for (size_t j = 0; j < cols; ++j)
+      assert(m2[i][j] == m[i][j]);
+
+  for(int i = 0; i < rows; ++i) {
+    delete [] m[i];
+  }
+  delete [] m;
+
+  std::cout << "test_get_matrix_representation: passed" << std::endl;
+}
+
+void test_01_property() {
+  RBGraph g;
+  read_graph("test_01_property1.txt", g);
+  assert(!has_consecutive_ones_property(g));
+  read_graph("test_01_property2.txt", g);
+  assert(has_consecutive_ones_property(g));
+  std::cout << "test_01_property: passed" << std::endl;
+}
+
 int main(int argc, char *argv[]) {
   test_simple_add_vertex();
-  //test_add_vertex_with_duplicates();
+  //test_add_vertex_with_duplicates(); this never happens if the graph is read from a file
   test_get_vertex();
   test_add_edge();
   test_graph_size();
@@ -1342,4 +1399,6 @@ int main(int argc, char *argv[]) {
   test_remove_duplicate_species();
   test_minimal_form_graph();
   test_ppp();
+  test_get_matrix_representation();
+  test_01_property();
 }

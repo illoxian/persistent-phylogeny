@@ -6,6 +6,7 @@
 #include <fstream>
 #include <stdio.h>
 #include "functions.hpp"
+#include "lexBFS-master/src/SparseMatrix.h"
 
 //=============================================================================
 // Boost functions (overloading)
@@ -298,6 +299,78 @@ std::ostream& operator<<(std::ostream& os, const RBGraph& g) {
   os << lines_str;
 
   return os;
+}
+
+bool has_consecutive_ones_property(const RBGraph& g) {
+
+  // prepare the input for the external library by Hackob
+  size_t rows = g[boost::graph_bundle].num_species;
+  size_t cols = g[boost::graph_bundle].num_characters;
+  bool **m = new bool*[rows];
+  for(int i = 0; i < rows; ++i) {
+    m[i] = new bool[cols];
+  }
+  get_matrix_representation(g, m, rows, cols);
+
+  // prepare input for external
+  bool *reshaped_m = new bool[rows * cols];
+  int k = 0;
+  for (int i = 0; i < rows; ++i)
+    for (int j = 0; j < cols; ++j) {
+      reshaped_m[k] = m[i][j];
+      ++k;
+    }
+
+  SparseMatrix prepared_input(reshaped_m, rows, cols);
+
+  bool has_01_propertry = prepared_input.hasConsecutiveOnesProperty();
+
+
+  // free memory allocated for reshaped_m
+  delete[] reshaped_m;
+
+  // free memory allocated for m
+  for(int i = 0; i < rows; ++i) {
+    delete[] m[i];
+  }
+  delete[] m;
+
+  return has_01_propertry;
+}
+
+void get_matrix_representation(const RBGraph& g, bool **m, size_t rows, size_t cols) {
+
+  // mapping is a helper data structure used to encode the mapping between
+  // a character and its column index in the matrix representation.
+  // Hence, mapping[v] will contain the column index in the m matrix of 
+  // character v
+  int ichar = 0;
+  std::map<RBVertex, int> mapping;
+  for (RBVertex v : g.m_vertices) {
+    if (is_character(v, g)) {
+      mapping[v] = ichar;
+      ++ichar;
+    }
+  }
+
+  // reinitialize matrix m with all zeros
+  for (size_t i = 0; i < rows; ++i)
+    for (size_t j = 0; j < cols; ++j)
+      m[i][j] = 0;
+
+  // generate the matrix representation m
+  int ispec = 0;
+  for (RBVertex v : g.m_vertices) {
+    if (is_species(v, g)) {
+      RBOutEdgeIter e, e_end;
+      std::tie(e, e_end) = out_edges(v, g);
+      for (; e != e_end; ++e) {
+        ichar = mapping[e->m_target];
+        m[ispec][ichar] = 1;
+      }
+      ++ispec;
+    }
+  }
 }
 
 // File I/O
