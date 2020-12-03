@@ -852,6 +852,17 @@ bool includes_species(const RBVertex& s1, const RBVertex& s2, const RBGraph& g);
 bool includes_characters(const RBVertex& c1, const RBVertex& c2, const RBGraph& g);
 
 /**
+  @brief Return true if the characters of \e s1 overlap with the ones of \e s2, false otherwise.
+
+  @param[in] s1         Vertex species
+  @param[in] s2         Vertex species
+  @param[in] g          Red black graph
+
+  @return bool
+*/
+bool overlaps_species(const RBVertex& s1, const RBVertex& s2, const RBGraph& g);
+
+/**
   @brief Return true if the species adjacent to \e c1 overlaps with the species adjacent to \e c2, false otherwise. More formally, return true if S(c1) ⊄ S(c2) and S(c2) ⊄ S(c1).
 
   @param[in] c1         Vertex character
@@ -1004,6 +1015,6 @@ void minimal_form_graph(const RBGraph& g, RBGraph& gmf);
 
   @return bool
 **/
-bool has_consecutive_ones_property(const RBGraph& g);
+bool has_consecutive_ones_property(RBGraph& g);
 
 #endif  // RBGRAPH_HPP

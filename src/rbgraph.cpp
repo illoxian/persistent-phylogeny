@@ -14,6 +14,8 @@
 void clear(RBGraph& g) {
   g.clear();
   vertex_map(g).clear();
+  num_characters(g) = 0;
+  num_species(g) = 0;
 }
 
 void remove_edge(const RBVertex& s, const RBVertex& t, RBGraph& g) {
@@ -301,7 +303,7 @@ std::ostream& operator<<(std::ostream& os, const RBGraph& g) {
   return os;
 }
 
-bool has_consecutive_ones_property(const RBGraph& g) {
+bool has_consecutive_ones_property(RBGraph& g) {
 
   // prepare the input for the external library by Hackob
   size_t rows = g[boost::graph_bundle].num_species;
@@ -365,8 +367,11 @@ void get_matrix_representation(const RBGraph& g, bool **m, size_t rows, size_t c
       RBOutEdgeIter e, e_end;
       std::tie(e, e_end) = out_edges(v, g);
       for (; e != e_end; ++e) {
-        ichar = mapping[e->m_target];
-        m[ispec][ichar] = 1;
+        // TODO solo quando è nero l'arco mettiamo 1?
+        if (g[*e].color == Color::black) {
+          ichar = mapping[e->m_target];
+          m[ispec][ichar] = 1;
+        }
       }
       ++ispec;
     }
@@ -918,6 +923,21 @@ bool overlaps_character(const RBVertex& c1, const RBVertex& c2, const RBGraph& g
   return false;
 }
 
+bool overlaps_species(const RBVertex& s1, const RBVertex& s2, const RBGraph& g) {
+  if (includes_species(s1, s2, g) || includes_species(s2, s1, g))
+    return false;
+  
+  auto adj_chars_s1 = get_adj_vertices(s1, g);
+  auto adj_chars_s2 = get_adj_vertices(s2, g);
+  RBVertexIter s2_it = adj_chars_s2.begin(), s2_it_end = adj_chars_s2.end();
+  while (s2_it != s2_it_end) {
+    if (contains(adj_chars_s1, *s2_it))
+      return true;
+    ++s2_it;
+  }
+  return false;
+}
+
 std::list<RBVertex> get_inactive_chars(const RBGraph& g) {
   std::list<RBVertex> list_result;
 
@@ -936,7 +956,7 @@ const std::list<RBVertex> maximal_characters(const RBGraph& g) {
   std::list<RBVertex> cm;
 
   std::list<RBVertex> inactive_chars = get_inactive_chars(g);
-  order_by_degree(inactive_chars, g);
+  sort_by_degree(inactive_chars, g);
 
   // for each inactive character c in g, if S(c) ⊄ S(c') for any
   // character c', then v is a maximal character and it
@@ -982,7 +1002,7 @@ const std::list<RBVertex> maximal_characters(const RBGraph& g) {
   std::list<RBVertex> cm;
 
   std::list<RBVertex> inactive_chars = get_inactive_chars(g);
-  order_by_degree(inactive_chars, g);
+  sort_by_degree(inactive_chars, g);
 
   // for each inactive character c in g, if S(c) ⊄ S(c') for any
   // character c', then v is a maximal character and it

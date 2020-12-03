@@ -365,12 +365,12 @@ void realize_species(RBVertex& s, RBGraph& g);
 */
 
 /**
-  @brief Given a list of vertices, it orders the list by using the concept of vertex degree  
+  @brief Given a list of vertices, it sorts the list by using the concept of vertex degree  
 
   @param[in] list_to_order  List of vertices
   @param[in] g              Red-black graph
 */
-void order_by_degree(std::list<RBVertex>& list_to_order, const RBGraph& g);
+void sort_by_degree(std::list<RBVertex>& list_to_sort, const RBGraph& g);
 
 /**
   @brief Return the minimal p-active species in \e g.
@@ -415,6 +415,16 @@ RBVertex get_quasi_active_species(const RBGraph& g);
 std::list<SignedCharacter> ppp_maximal_reducible_graphs(RBGraph& g);
 
 /**
+  @brief Execute the PPP algorithm on the graph \e g .
+  It returns the sequence of the realized characters.
+
+  @param[in] g Red-black graph
+
+  @return List
+*/
+std::list<SignedCharacter> ppp(RBGraph& g);
+
+/**
   @brief Realize the characters in \e g that are red-universal or universal.
 
   @param[in,out] g Red-black graph
@@ -422,5 +432,15 @@ std::list<SignedCharacter> ppp_maximal_reducible_graphs(RBGraph& g);
   @return Realized characters (list of signed characters)
 */
 std::pair<std::list<SignedCharacter>, bool> realize_red_univ_and_univ_chars(RBGraph& g);
+
+/**
+  @brief Return the extension of a species \e s.
+
+  @param[in] s A RBVertex as species
+  @param[in] gm Red-black graph (minimal form graph of \e g)
+
+  @return The extension of \e s.
+*/
+RBVertex get_extension(const RBVertex& s, const RBGraph& gm);
 
 #endif

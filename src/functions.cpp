@@ -1659,11 +1659,11 @@ void realize_species(RBVertex& s, RBGraph& g) {
       realize_character(c, g);
 }*/
 
-void order_by_degree(std::list<RBVertex>& list_to_order, const RBGraph& g) {
+void sort_by_degree(std::list<RBVertex>& list_to_sort, const RBGraph& g) {
   // constructing a list of pairs <RBVertex, int>, where the first element is a vertex and the second element is the degree of the vertex
   std::list<std::pair<RBVertex, int>> list_of_pairs;
   
-  for (RBVertex v : list_to_order)
+  for (RBVertex v : list_to_sort)
     list_of_pairs.push_back(std::make_pair(v, out_degree(v, g)));
   
   auto comparator = [](const std::pair<RBVertex, int> &a, const std::pair<RBVertex, int> &b) { 
@@ -1672,22 +1672,22 @@ void order_by_degree(std::list<RBVertex>& list_to_order, const RBGraph& g) {
 
   list_of_pairs.sort(comparator);
 
-  list_to_order.clear();
+  list_to_sort.clear();
 
   for (std::pair<RBVertex, int> pair : list_of_pairs)
-    list_to_order.push_back(pair.first);
+    list_to_sort.push_back(pair.first);
 }
 
 std::list<RBVertex> get_all_minimal_p_active_species(const RBGraph& g, bool all) {
   std::list<RBVertex> out;
   std::list<RBVertex> active_species = get_active_species(g);
-  order_by_degree(active_species, g);
+  sort_by_degree(active_species, g);
 
   bool found;
   int num_inctv_chars_v, num_inctv_chars_u;
   for (RBVertex v : active_species) {
     found = false;
-    // for every active species v in the ordered list of active species
+    // for every active species v in the sorted list of active species
     for (int i = 1; i < num_characters(g); ++i) {
       // index "i" is used after to check if vertex "u" has "i" more inactive characters than "v"
 
@@ -1814,6 +1814,34 @@ std::list<SignedCharacter> ppp_maximal_reducible_graphs(RBGraph& g) {
   return realized_chars;
 }
 
+std::list<SignedCharacter> ppp(RBGraph& g) {
+  RBGraph gmin, gmax;
+  minimal_form_graph(g, gmin);
+  maximal_reducible_graph(gmin, gmax);
+  // TODO: solo se non ci sono specie p-attive considero le specie pendenti?
+  // oppure considero contemporaneamente sia le p-attive che le pendenti?
+  std::list<RBVertex> sources = get_all_minimal_p_active_species(gmax, true);
+  std::list<RBVertex> pending_species = get_pending_species(gmax);
+  if (pending_species.size() == 1)
+    sources.push_back(*pending_species.begin());
+
+  if (sources.size() <= 2) {
+    RBVertex s1 = get_extension(get_vertex(gmax[*sources.begin()].name, gmin), gmin);
+    if (s1 == 0) {
+      // Then there is no extension for s1
+      // TODO
+    }
+    if (sources.size() == 2) {
+      RBVertex s2 = get_extension(get_vertex(gmax[*++sources.begin()].name, gmin), gmin);
+      if (s2 == 0) {
+      // Then there is no extension for s2
+      // TODO
+      }
+    }
+  }
+}
+
+
 std::pair<std::list<SignedCharacter>, bool> realize_red_univ_and_univ_chars(RBGraph& g) {
   std::list<SignedCharacter> output;
 
@@ -1861,4 +1889,44 @@ std::pair<std::list<SignedCharacter>, bool> realize_red_univ_and_univ_chars(RBGr
     return std::make_pair(output, true);
   else
     return std::make_pair(output, false);
+}
+
+RBVertex get_extension(const RBVertex& s, const RBGraph& gmin) {
+
+  // find a species that includes s and that is minimal.
+  // this species will be a possible candidate.
+  RBVertex s_ext = 0;
+  if (exists(s, gmin))
+    s_ext = s;
+  else {
+    std::list<RBVertex> sorted_vertices(gmin.m_vertices.begin(), gmin.m_vertices.end());
+    sort_by_degree(sorted_vertices, gmin);
+    sorted_vertices.reverse();
+    for (RBVertex v : sorted_vertices)
+      if (is_species(v, gmin) && includes_species(v, s, gmin)) {
+          s_ext = v;
+          break;
+        }
+  }
+
+  if (s_ext != 0) {
+    // if we have a possible candidate, then we get all the minimal characters
+    // that overlap with the minimal characters of s and then we check whether 
+    // the realization of s_ext and those minimal characters induce a red-sigma
+    // graph or not.
+    std::list<RBVertex> overlapping_min_chars;
+    for (RBVertex v : gmin.m_vertices)
+      if (is_species(v, gmin) && overlaps_species(v, s, gmin) )
+        overlapping_min_chars.push_back(v);
+
+    RBGraph g_copy;
+    copy_graph(gmin, g_copy);
+    realize_species(get_vertex(gmin[s_ext].name, g_copy), g_copy);
+    for (RBVertex v : overlapping_min_chars)
+      realize_species(get_vertex(gmin[v].name, g_copy), g_copy);
+    if (has_red_sigmagraph(g_copy))
+      s_ext = 0;
+  }
+
+  return s_ext;
 }

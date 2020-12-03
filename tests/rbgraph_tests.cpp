@@ -504,6 +504,22 @@ void test_overlap() {
   assert(!overlaps_character(c1, c2, g));
   add_edge(c1, s3, g);
   assert(overlaps_character(c2, c1, g));
+  
+  clear(g);
+  s1 = add_species("s1", g);
+  s2 = add_species("s2", g);
+  c1 = add_character("c1", g);
+  c2 = add_character("c2", g);
+  RBVertex c3 = add_character("c3", g);
+  assert(!overlaps_species(s2, s1, g));
+  add_edge(s1, c1, g);
+  assert(!overlaps_species(s2, s1, g));
+  add_edge(s2, c1, g);
+  assert(!overlaps_species(s2, s1, g));
+  add_edge(s2, c2, g);
+  assert(!overlaps_species(s2, s1, g));
+  add_edge(s1, c3, g);
+  assert(overlaps_species(s2, s1, g));
 
   std::cout << "test_overlap: passed" << std::endl;
 }
@@ -1362,7 +1378,71 @@ void test_01_property() {
   assert(!has_consecutive_ones_property(g));
   read_graph("test_01_property2.txt", g);
   assert(has_consecutive_ones_property(g));
+  clear(g);
+  add_vertex("s1", Type::species, g);
+  add_vertex("c1", Type::character, g);
+  assert(has_consecutive_ones_property(g));
+  add_edge("s1", "c1", Color::black, g);
+  assert(has_consecutive_ones_property(g));
+  add_vertex("c2", Type::character, g);
+  assert(has_consecutive_ones_property(g));
+  add_vertex("s2", Type::species, g);
+  assert(has_consecutive_ones_property(g));
+  add_edge("s2", "c2", Color::black, g);
+  assert(has_consecutive_ones_property(g));
+  add_edge("s2", "c1", Color::black, g);
+  assert(has_consecutive_ones_property(g));
+  add_edge("s1", "c2", Color::black, g);
+  assert(has_consecutive_ones_property(g));
+  add_vertex("c3", Type::character, g);
+  add_vertex("c4", Type::character, g);
+  assert(has_consecutive_ones_property(g));
+  add_edge("s1", "c4", Color::black, g);
+  assert(has_consecutive_ones_property(g));
+  add_edge("s2", "c3", Color::black, g);
+  assert(has_consecutive_ones_property(g));
+  add_vertex("c5", Type::character, g);
+  add_edge("s2", "c5", Color::black, g);
+  assert(has_consecutive_ones_property(g));
+  add_vertex("c6", Type::character, g);
+  add_edge("s1", "c6", Color::black, g);
+  add_edge("s1", "c5", Color::black, g);
+  assert(has_consecutive_ones_property(g));
+  add_vertex("s3", Type::species, g);
+  assert(has_consecutive_ones_property(g));
+  add_edge("s3", "c5", Color::black, g);
+  add_edge("s3", "c6", Color::black, g);
+  assert(has_consecutive_ones_property(g));
+  add_edge("s3", "c4", Color::black, g);
+  assert(has_consecutive_ones_property(g));
+  clear(g);
+  add_vertex("c1", Type::character, g);
+  add_vertex("c2", Type::character, g);
+  add_vertex("c3", Type::character, g);
+  add_vertex("s1", Type::species, g);
+  add_vertex("s2", Type::species, g);
+  add_vertex("s3", Type::species, g);
+  add_edge("s1", "c1", Color::black, g);
+  add_edge("s1", "c3", Color::black, g);
+  add_edge("s2", "c1", Color::black, g);
+  add_edge("s2", "c2", Color::black, g);
+  add_edge("s3", "c2", Color::black, g);
+  add_edge("s3", "c3", Color::black, g);
+  assert(!has_consecutive_ones_property(g));
+  add_vertex("s4", Type::species, g);
+  assert(!has_consecutive_ones_property(g));
+  add_vertex("c4", Type::character, g);
+  add_edge("s1", "c4", Color::black, g);
+  add_edge("s2", "c4", Color::black, g);
+  add_edge("s3", "c4", Color::black, g);
+  assert(!has_consecutive_ones_property(g));
+
   std::cout << "test_01_property: passed" << std::endl;
+}
+
+void test_get_extension() {
+  RBGraph g;
+  read_graph("ok_10_20_.02_1_M.txt", g);
 }
 
 int main(int argc, char *argv[]) {
@@ -1401,4 +1481,5 @@ int main(int argc, char *argv[]) {
   test_ppp();
   test_get_matrix_representation();
   test_01_property();
+  test_get_extension();
 }
