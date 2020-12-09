@@ -1441,8 +1441,47 @@ void test_01_property() {
 }
 
 void test_get_extension() {
-  RBGraph g;
-  read_graph("ok_10_20_.02_1_M.txt", g);
+  DIR *dir;
+  struct dirent *ent;
+  int count = 2;
+  std::string matrix_file;
+  if ((dir = opendir ("test_ppp2")) != NULL) {
+    /* for all the matrix files in maximal folder */
+    while ((ent = readdir (dir)) != NULL) {
+      matrix_file = ent->d_name;
+      //skip the first two files (they are not matrix files)
+      if (count-- > 0) continue;
+      std::cout << "Testing test_ppp2/" << matrix_file << "..." << std::endl;
+
+      RBGraph g;
+
+      std::cout << "Reading the matrix from the file..." << std::endl;
+
+      read_graph("test_ppp2/" + matrix_file, g);
+
+
+      std::cout << "Reading the matrix from the file... DONE" << std::endl;
+
+      remove_singletons(g); // ho notato che ci sono matrici scritte nel file che hanno caratteri non collegati a nessuna specie. In altri termini, ci sono delle colonne di soli zeri.
+      auto components = connected_components(g);
+      RBGraphVector conn_compnts = connected_components(g);
+      auto cc = conn_compnts.begin();
+      auto cc_end = conn_compnts.end();
+      int i = 0;
+      for (; cc != cc_end; ++cc) {
+        std::cout << "comp number " << ++i << std::endl;
+        if (!is_empty(*cc->get()))
+          ppp(*cc->get());
+        else
+          ppp(g);
+      }
+
+      printf("Test passed for %s!\n\n", ent->d_name);
+      
+    }
+    closedir (dir);
+  }
+
 }
 
 int main(int argc, char *argv[]) {
@@ -1477,8 +1516,8 @@ int main(int argc, char *argv[]) {
   test_all_species_with_red_edges();
   test_quasi_active();
   test_remove_duplicate_species();
-  test_minimal_form_graph();
-  test_ppp();
+  //test_minimal_form_graph();
+  //test_ppp();
   test_get_matrix_representation();
   test_01_property();
   test_get_extension();
