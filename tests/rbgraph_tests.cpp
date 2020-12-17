@@ -1520,5 +1520,5 @@ int main(int argc, char *argv[]) {
   //test_ppp();
   test_get_matrix_representation();
   test_01_property();
-  test_get_extension();
+  //test_get_extension();
 }

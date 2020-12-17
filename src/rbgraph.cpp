@@ -907,6 +907,7 @@ bool includes_characters(const RBVertex& c1, const RBVertex& c2, const RBGraph& 
   return included;
 }
 
+
 bool overlaps_character(const RBVertex& c1, const RBVertex& c2, const RBGraph& g) {
 
   if (includes_characters(c1, c2, g) || includes_characters(c2, c1, g))
@@ -922,6 +923,29 @@ bool overlaps_character(const RBVertex& c1, const RBVertex& c2, const RBGraph& g
   }
   return false;
 }
+
+/*
+bool overlaps_character(const RBVertex& c1, const RBVertex& c2, const RBGraph& g) {  
+  auto adj_spec_c1 = get_adj_vertices(c1, g);
+  auto adj_spec_c2 = get_adj_vertices(c2, g);
+  std::vector<std::string> adj_spec_c1_str;
+  std::vector<std::string> adj_spec_c2_str;
+  for (RBVertex v : adj_spec_c1)
+    adj_spec_c1_str.push_back(g[v].name);
+  for (RBVertex v : adj_spec_c2)
+    adj_spec_c2_str.push_back(g[v].name);
+
+  std::sort(adj_spec_c1_str.begin(), adj_spec_c1_str.end());
+  std::sort(adj_spec_c2_str.begin(), adj_spec_c2_str.end());
+
+  std::vector<std::string> intersection;
+  std::set_intersection(adj_spec_c1_str.begin(),adj_spec_c1_str.end(),
+                        adj_spec_c2_str.begin(),adj_spec_c2_str.end(),
+                        back_inserter(intersection));
+  return intersection.size() < adj_spec_c1_str.size() &&
+         intersection.size() < adj_spec_c2_str.size() &&
+         intersection.size() > 0;
+}*/
 
 bool overlaps_species(const RBVertex& s1, const RBVertex& s2, const RBGraph& g) {
   if (includes_species(s1, s2, g) || includes_species(s2, s1, g))
@@ -1315,7 +1339,7 @@ bool is_degenerate(const RBGraph& g) {
 void minimal_form_graph(const RBGraph& g, RBGraph& gmf) {
 
   std::list<RBVertex> cmax = maximal_characters(g);
-
+ 
   // get the minimal characters as follow:
   // cmin = vertices(g) - cmax - species(g)
   std::list<RBVertex> cmin(g.m_vertices.begin(), g.m_vertices.end());
@@ -1333,16 +1357,19 @@ void minimal_form_graph(const RBGraph& g, RBGraph& gmf) {
 
   // let v be a minimal character, then:
   // overlap_map[v] = set of minimal characters that overlap with v
+  // TODO if the matrix is big, overlaps_character is slow
   std::map<RBVertex, std::set<RBVertex>> overlap_map;
   RBVertexIter v = cmin.begin(), end = cmin.end(), u;
-  for (; v != end ; ++v)
+  for (; v != end ; ++v) {
+    //for all minimal characters from 1 to N
     for (u = v; u != end ; ++u) {
-      if (u == v) continue;
-      if (overlaps_character(*v, *u, g)) {
+      // for all minimal characters from v to N
+      if (u != v && overlaps_character(*v, *u, g)) {
         overlap_map[*v].insert(*u);
         overlap_map[*u].insert(*v);
       }
     }
+  }
 
   // min_max_overlap will contain all the minimal characters that overlap with at least a maximal character
   std::set<RBVertex> min_max_overlap;
@@ -1355,6 +1382,10 @@ void minimal_form_graph(const RBGraph& g, RBGraph& gmf) {
   std::set<RBVertex> minimal_form_characters;
   for (RBVertex v : min_max_overlap)
     minimal_form_characters.insert(overlap_map[v].begin(), overlap_map[v].end());
+
+  // add also the maximal characters
+  for (RBVertex v : cmax)
+    minimal_form_characters.insert(v);
 
   // build the minimal form graph
   gmf.clear();

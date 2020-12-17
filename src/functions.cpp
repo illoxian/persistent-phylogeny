@@ -1815,16 +1815,25 @@ std::list<SignedCharacter> ppp_maximal_reducible_graphs(RBGraph& g) {
 }
 
 std::list<SignedCharacter> ppp(RBGraph& g) {
+  return std::list<SignedCharacter>(); // TODO fix here
+}
+
+/*
+std::list<SignedCharacter> ppp(RBGraph& g) {
   // siccome il grafo in input può non essere connesso, allora devo trovare le componenti e ricorsivamente richiamare la procedura su queste componenti, perchè altrimenti succede che non va niente.. non riesce a trovare le sorgenti e quindi non riesce ad andare avanti.
   remove_duplicate_species(g); // remember to remove duplicates
   RBGraph gmin, gmax;
+  //std::cout << "maximal" << maximal_characters(g).size() << std::endl;
+  //for (RBVertex v : maximal_characters(g))
+  //  std::cout << g[v].name << " ";
+  //std::cout << std::endl;
   minimal_form_graph(g, gmin);
   remove_duplicate_species(gmin);
   maximal_reducible_graph(gmin, gmax);
   remove_duplicate_species(gmax);
-  //std::cout << g << "\n\n" << std::endl;
-  //std::cout << "gmin\n" << gmin << "\n\n" << std::endl;
-  //std::cout << "gmax\n" << gmax << "\n\n" << std::endl;
+   //std::cout << g << "\n\n" << std::endl;
+   //std::cout << "gmin\n" << gmin << "\n\n" << std::endl;
+   //std::cout << "gmax\n" << gmax << "\n\n" << std::endl;
   // TODO: solo se non ci sono specie p-attive considero le specie pendenti?
   // oppure considero contemporaneamente sia le p-attive che le pendenti?
   std::list<RBVertex> sources = get_all_minimal_p_active_species(gmax, true);
@@ -1834,37 +1843,45 @@ std::list<SignedCharacter> ppp(RBGraph& g) {
       sources.push_back(*pending_species.begin());
   }
   
-  //std::cout << "is_degenerate? " << is_degenerate(gmax) << std::endl;
-  std::cout << "size sources=" << sources.size() << std::endl;
   std::cout << "sources:\t";
   for (RBVertex v : sources)
     std::cout << gmax[v].name << "\t";
   std::cout << std::endl;
+
   if (sources.empty()) {
-    std::cout << "SOURCES == 0****************" << std::endl;
+    // significa che devo ralizzare tutti i caratteri inattivi perchè il grafo è degenere.
+    std::cout << "SOURCES == 0**************** il grafo è degenere: realizzo tutti i caratteri inattivi" << std::endl;
   } else if (sources.size() <= 2) {
-    RBVertex s1 = get_extension(get_vertex(gmax[*sources.begin()].name, gmin), gmin);
-    
+    RBVertex s1 = get_extension(*sources.begin(), gmax, gmin);
+    int numero_estensioni = 0;
     if (s1 == 0) {
+      // se ho 0 estensioni, allora è la sorgente stessa.
       std::cout << "extension: nessuna" << std::endl;
       // TODO
-    } else
+    } else {
       std::cout << "extension: " << gmin[s1].name << std::endl;
+      numero_estensioni++;
+    } 
     if (sources.size() == 2) {
-      RBVertex s2 = get_extension(get_vertex(gmax[*++sources.begin()].name, gmin), gmin);
+      RBVertex s2 = get_extension(*++sources.begin(), gmax, gmin);
       
       if (s2 == 0) {
         std::cout << "extension: nessuna" << std::endl;
       // TODO
       } else {
+        numero_estensioni++;
         std::cout << "extension: " << gmin[s2].name << std::endl;
       }
+    }
+    if (numero_estensioni == 0) {
+      std::cout << gmin << "\n\n" << gmax << "\n\nCI SONO ZERO ESTENSIONI!" << std::endl;
+      exit(0);
     }
   } else
     std::cout << "SOURCES > 2!!!!!!!!!!!!!!!!!!!!!";
 
   return std::list<SignedCharacter>(); // TODO fix here
-}
+}*/
 
 
 std::pair<std::list<SignedCharacter>, bool> realize_red_univ_and_univ_chars(RBGraph& g) {
@@ -1916,74 +1933,120 @@ std::pair<std::list<SignedCharacter>, bool> realize_red_univ_and_univ_chars(RBGr
     return std::make_pair(output, false);
 }
 
-RBVertex get_extension(const RBVertex& s, const RBGraph& gmin) {
+
+RBVertex get_extension(const RBVertex& s, const RBGraph& gmax, const RBGraph& gmin) {
   std::cout << "*** get_extension ***" << std::endl;
 
-  // find a species that includes s and that is minimal.
-  // this species will be a possible candidate.
-  // in other terms, we have to find a species v in gmin that includes s. This
-  // species could have also some more minimal characters than s, but it mustn't
-  // have additional maximal characters.
-  RBVertex s_ext = 0;
-  std::list<RBVertex> sorted_vertices(gmin.m_vertices.begin(), gmin.m_vertices.end());
-  sort_by_degree(sorted_vertices, gmin);
-  sorted_vertices.reverse();
-  int i = 0;
-  for (RBVertex v : sorted_vertices)
-    if (is_species(v, gmin) && includes_species(v, s, gmin)) {
-      std::list<RBVertex> max_chars_of_gmin = maximal_characters(gmin);
-      bool has_more_max_chars_than_s = false;
-      for (RBVertex u : max_chars_of_gmin) 
-        if (!exists(s, u, gmin) && exists(v, u, gmin)) {
-          has_more_max_chars_than_s = true;
-          break;
-        }
-      if (!has_more_max_chars_than_s) {
-        s_ext = v;
-        //break;
-        if (s_ext != s) {
-          std::cout << gmin << std::endl;
-          std::cout << gmin[s_ext].name << " " << gmin[s].name << std::endl;
-        }
-        
-        if (i > 1) {
-          std::cout << ++i << "===Found extension: " << gmin[v].name << std::endl;
-          exit(0);
-        }
-      }  
-    }
+  // ******** CASE 1 ********
+  // check whether s already exists in gmin without any additional minimal characters. If it exists, then we have already found the extension of s.
+
+  // find the characters of s
+  std::set<std::string> s_chars;
+  for (RBVertex v : get_adj_vertices(s, gmax)) 
+    s_chars.insert(gmax[v].name);
   
-  if (s_ext != 0) {
-    // if we have a possible candidate, then we get all the minimal characters
-    // that overlap with the minimal characters of s and then we check whether 
-    // the realization of s_ext and those minimal characters induce a red-sigma
-    // graph or not.
-    std::set<RBVertex> overlapping_min_chars(gmin.m_vertices.begin(), 
-                                             gmin.m_vertices.end());
-    std::list<RBVertex> s_ext_chars = get_adj_vertices(s_ext, gmin);
-
-    for (RBVertex v : gmin.m_vertices) 
-      if (is_species(v, gmin))
-        overlapping_min_chars.erase(v);
-    
-    for (RBVertex v : s_ext_chars) 
-      overlapping_min_chars.erase(v);
-    
-    for (RBVertex v : overlapping_min_chars) 
-      for (RBVertex u : s_ext_chars) 
-        if (!overlaps_character(v, u, gmin)) 
-          overlapping_min_chars.erase(v);
+  for (RBVertex v : gmin.m_vertices) {
+    if (is_species(v, gmin)) {
+      std::set<std::string> v_chars;
+      for (RBVertex u : get_adj_vertices(v, gmin)) 
+        v_chars.insert(gmin[u].name);
       
-    RBGraph g_copy;
-    copy_graph(gmin, g_copy);
-    realize_species(get_vertex(gmin[s_ext].name, g_copy), g_copy);
-    for (RBVertex v : overlapping_min_chars)
-      if (exists(gmin[v].name, g_copy))
-        realize_species(get_vertex(gmin[v].name, g_copy), g_copy);
-
-    if (has_red_sigmagraph(g_copy))
-      s_ext = 0;
+      if (v_chars == s_chars)
+        return v;
+    }
   }
 
-  return s_ext;
+  // ******** CASE 2 ********
+  // find all the species such that (1) they include s and (2) they do not have additional maximal characters. These species will be possible candidates
+
+  std::list<RBVertex> max_chars_of_gmin = maximal_characters(gmin);
+  std::list<RBVertex> candidates; // it contains the possible candidates
+  for (RBVertex v : gmin.m_vertices) { 
+    if (is_species(v, gmin)) {
+
+      // find the characters of v
+      std::set<std::string> v_chars; 
+      for (RBVertex u : get_adj_vertices(v, gmin)) 
+        v_chars.insert(gmin[u].name);
+
+      // v must include s
+      if (std::includes(v_chars.begin(), v_chars.end(), 
+                        s_chars.begin(), s_chars.end())) {
+        std::cout << "includes " << gmin[v].name << std::endl;
+
+        // v must not have more max chars than s
+        bool more_max_chars = false;
+        for (RBVertex max_char : max_chars_of_gmin) {
+          if (!exists(gmax[s].name, gmax[max_char].name, gmax) && 
+               exists(gmin[v].name, gmin[max_char].name, gmin)) {
+            more_max_chars = true;
+            break;
+          }
+        }
+
+        if (!more_max_chars) { 
+          std::cout << "has not more max chars than s " << gmin[v].name << std::endl;
+          candidates.push_back(v);
+        }
+
+      }
+    }
+  }
+
+  // if there is only a candidate, then return it
+  if (candidates.size() == 1)
+    return *candidates.begin();
+
+
+
+
+// if we have more candidates, we have to choose the candidate X that satisfies
+// the following property: (1) the realization of the characters of X and of
+// all the minimal characters that overlap with the minimal characters of s 
+// must not induce a red-sigma graph and (2) X must be minimal.
+
+// we first sort the candidate list so that (2) is satisfied
+sort_by_degree(candidates, gmin);
+candidates.reverse();
+for (RBVertex candidate : candidates) {
+
+  // this list will contain the minimal characters that overlap with the ones 
+  // of s. We are going to build it by first inserting all the vertices of gmin 
+  // and then reducing it progressively.
+  std::set<RBVertex> overlapping_min_chars(gmin.m_vertices.begin(), 
+                                           gmin.m_vertices.end());
+  for (RBVertex u : gmin.m_vertices) 
+    if (is_species(u, gmin))
+      overlapping_min_chars.erase(u);
+
+  std::list<RBVertex> candidate_chars = get_adj_vertices(candidate, gmin);
+  for (RBVertex u : candidate_chars) 
+    overlapping_min_chars.erase(u);
+
+  for (RBVertex u : max_chars_of_gmin) 
+    overlapping_min_chars.erase(u);
+
+  for (RBVertex z : overlapping_min_chars) 
+    for (RBVertex u : candidate_chars) 
+      if (!overlaps_character(z, u, gmin)) 
+        overlapping_min_chars.erase(z);
+
+  // check for the red-sigma graph
+  RBGraph g_copy;
+  copy_graph(gmin, g_copy);
+  realize_species(get_vertex(gmin[candidate].name, g_copy), g_copy);
+  for (RBVertex u : overlapping_min_chars) 
+    if (exists(gmin[u].name, g_copy))
+      realize_species(get_vertex(gmin[u].name, g_copy), g_copy);
+          
+  if (!has_red_sigmagraph(g_copy)) {
+    std::cout << "Candidate does not induce red sigmagraph" << std::endl;
+    return candidate;
+  } else {
+    std::cout << "RED sigmagraph" << std::endl;
+  }
+
+}
+
+return 0; // return null
 }

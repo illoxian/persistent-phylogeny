@@ -441,6 +441,6 @@ std::pair<std::list<SignedCharacter>, bool> realize_red_univ_and_univ_chars(RBGr
 
   @return The extension of \e s.
 */
-RBVertex get_extension(const RBVertex& s, const RBGraph& gm);
+RBVertex get_extension(const RBVertex& s, const RBGraph& gmax, const RBGraph& gmin);
 
 #endif
