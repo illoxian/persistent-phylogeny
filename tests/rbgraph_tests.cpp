@@ -3,13 +3,14 @@
  * @author Simone Paolo Mottadelli
  * 
  * @brief This file contains the tests for the basic functions
- * of the red black graph
+ * of the red black graph.
+ * 
+ * In order to launch the tests, simply compile the source files using the "make" command inside the "test/" folder and then execute "./test.exe".
  * 
  */
 
 #include <dirent.h>
 #include "../src/rbgraph.hpp"
-#include "../src/hdgraph.hpp"
 #include "../src/functions.hpp"
 #include <iostream>
 
@@ -38,20 +39,6 @@ void test_simple_add_vertex() {
   assert(g[g[boost::graph_bundle].vertex_map.at("v4")].type == Type::character);
 
   std::cout << "test_simple_add_vertex(): passed" << std::endl;
-}
-
-
-void test_add_vertex_with_duplicates() {
-  RBGraph g;
-  RBVertex v1;
-
-  try {
-    v1 = add_vertex("v1", Type::species, g);
-    v1 = add_vertex("v1", Type::species, g);
-    assert(false);
-  } catch(...) {
-    std::cout << "test_add_vertex_with_duplicates(): passed" << std::endl;
-  }
 }
 
 
@@ -320,7 +307,7 @@ void test_copy_graph() {
 
 void test_read_graph() {
   RBGraph g;
-  read_graph("test_5x2.txt", g);
+  read_graph("test_read_graph.txt", g);
   
   assert(num_characters(g) == 2);
   assert(num_species(g) == 5);
@@ -1244,32 +1231,29 @@ void test_remove_duplicate_species() {
   assert(!exists(s6, g));
 }
 
-void test_ppp() {
+void test_ppp_maximal_reducible_graphs() {
   
   DIR *dir;
   struct dirent *ent;
   int count = 2;
   std::string matrix_file;
-  if ((dir = opendir ("test_ppp")) != NULL) {
+  if ((dir = opendir ("test_ppp_maximal_reducible_graphs")) != NULL) {
     /* for all the matrix files in maximal folder */
     while ((ent = readdir (dir)) != NULL) {
       matrix_file = ent->d_name;
       //skip the first two files (they are not matrix files)
       if (count-- > 0) continue;
-      std::cout << "Testing test_ppp/" << matrix_file << "..." << std::endl;
+      std::cout << "Testing test_ppp_maximal_reducible_graphs/" << matrix_file << "..." << std::endl;
 
       RBGraph g, gm;
 
       std::cout << "Reading the matrix from the file..." << std::endl;
 
-      read_graph("test_ppp/" + matrix_file, g);
+      read_graph("test_ppp_maximal_reducible_graphs/" + matrix_file, g);
 
       std::cout << "Reading the matrix from the file... DONE" << std::endl;
 
       maximal_reducible_graph(g, gm, false);
-
-      //remove_duplicate_species(gm);
-      //std::cout << gm << std::endl;
 
       std::list<SignedCharacter> lsc = ppp_maximal_reducible_graphs(gm);
 
@@ -1292,12 +1276,12 @@ void test_ppp() {
     closedir (dir);
   }
 
-  std::cout << "test_ppp: passed" << std::endl;
+  std::cout << "test_ppp_maximal_reducible_graphs: passed" << std::endl;
 }
 
 void test_minimal_form_graph() {
   RBGraph g, gmf;
-  RBVertex s1, s2, s3, s4, c1, c2, c3, c4;
+  RBVertex s1, s2, s3, s4, c1, c2, c3, c4, c5;
   s1 = add_vertex("s1", Type::species, g);
   s2 = add_vertex("s2", Type::species, g);
   s3 = add_vertex("s3", Type::species, g);
@@ -1306,6 +1290,7 @@ void test_minimal_form_graph() {
   c2 = add_vertex("c2", Type::character, g);
   c3 = add_vertex("c3", Type::character, g);
   c4 = add_vertex("c4", Type::character, g);
+  c5 = add_vertex("c5", Type::character, g);
   add_edge(c1, s1, Color::black, g);
   add_edge(c1, s2, Color::black, g);
   add_edge(c2, s2, Color::black, g);
@@ -1315,13 +1300,18 @@ void test_minimal_form_graph() {
   add_edge(c3, s4, Color::black, g);
   add_edge(c4, s2, Color::black, g);
   add_edge(c4, s3, Color::black, g);
+  add_edge(c5, s4, Color::black, g);
 
   minimal_form_graph(g, gmf);
 
-  assert(gmf.m_vertices.size() == 5);
+  assert(gmf.m_vertices.size() == 8);
+  assert(exists(g[s1].name, gmf));
   assert(exists(g[s2].name, gmf));
   assert(exists(g[s3].name, gmf));
+  assert(exists(g[s4].name, gmf));
+  assert(exists(g[c1].name, gmf));
   assert(exists(g[c2].name, gmf));
+  assert(exists(g[c3].name, gmf));
   assert(exists(g[c4].name, gmf));
 
   std::cout << "test_minimal_form_graph: passed" << std::endl;
@@ -1330,7 +1320,7 @@ void test_minimal_form_graph() {
 void test_get_matrix_representation() {
   RBGraph g;
 
-  read_graph("test_6x3.txt", g);
+  read_graph("test_get_matrix_representation.txt", g);
   
   size_t rows = g[boost::graph_bundle].num_species;
   size_t cols = g[boost::graph_bundle].num_characters;
@@ -1440,53 +1430,35 @@ void test_01_property() {
   std::cout << "test_01_property: passed" << std::endl;
 }
 
-void test_get_extension() {
-  DIR *dir;
-  struct dirent *ent;
-  int count = 2;
-  std::string matrix_file;
-  if ((dir = opendir ("test_ppp2")) != NULL) {
-    /* for all the matrix files in maximal folder */
-    while ((ent = readdir (dir)) != NULL) {
-      matrix_file = ent->d_name;
-      //skip the first two files (they are not matrix files)
-      if (count-- > 0) continue;
-      std::cout << "Testing test_ppp2/" << matrix_file << "..." << std::endl;
+void test_closure() {
+  RBGraph g, gmf;
+  RBVertex s1, s2, s3, s4, c1, c2, c3, c4, c5;
+  s1 = add_vertex("s1", Type::species, g);
+  s2 = add_vertex("s2", Type::species, g);
+  s3 = add_vertex("s3", Type::species, g);
+  s4 = add_vertex("s4", Type::species, g);
+  c1 = add_vertex("c1", Type::character, g);
+  c2 = add_vertex("c2", Type::character, g);
+  c3 = add_vertex("c3", Type::character, g);
+  c4 = add_vertex("c4", Type::character, g);
+  c5 = add_vertex("c5", Type::character, g);
+  add_edge(c1, s1, Color::black, g);
+  add_edge(c1, s2, Color::black, g);
+  add_edge(c2, s2, Color::black, g);
+  add_edge(c3, s2, Color::black, g);
+  add_edge(c3, s3, Color::black, g);
+  add_edge(c4, s3, Color::black, g);
+  add_edge(c4, s4, Color::black, g);
+  add_edge(c5, s4, Color::black, g);
 
-      RBGraph g;
+  assert(closure(s2, g).size() == 1);
+  assert(g[*closure(s2, g).begin()].name == g[c2].name);
 
-      std::cout << "Reading the matrix from the file..." << std::endl;
-
-      read_graph("test_ppp2/" + matrix_file, g);
-
-
-      std::cout << "Reading the matrix from the file... DONE" << std::endl;
-
-      remove_singletons(g); // ho notato che ci sono matrici scritte nel file che hanno caratteri non collegati a nessuna specie. In altri termini, ci sono delle colonne di soli zeri.
-      auto components = connected_components(g);
-      RBGraphVector conn_compnts = connected_components(g);
-      auto cc = conn_compnts.begin();
-      auto cc_end = conn_compnts.end();
-      int i = 0;
-      for (; cc != cc_end; ++cc) {
-        std::cout << "comp number " << ++i << std::endl;
-        if (!is_empty(*cc->get()))
-          ppp(*cc->get());
-        else
-          ppp(g);
-      }
-
-      printf("Test passed for %s!\n\n", ent->d_name);
-      
-    }
-    closedir (dir);
-  }
-
+  std::cout << "test_closure: passed" << std::endl;
 }
 
 int main(int argc, char *argv[]) {
   test_simple_add_vertex();
-  //test_add_vertex_with_duplicates(); this never happens if the graph is read from a file
   test_get_vertex();
   test_add_edge();
   test_graph_size();
@@ -1516,9 +1488,9 @@ int main(int argc, char *argv[]) {
   test_all_species_with_red_edges();
   test_quasi_active();
   test_remove_duplicate_species();
-  //test_minimal_form_graph();
-  //test_ppp();
+  test_minimal_form_graph();
+  test_ppp_maximal_reducible_graphs();
   test_get_matrix_representation();
   test_01_property();
-  //test_get_extension();
+  test_closure();
 }

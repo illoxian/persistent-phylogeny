@@ -1,6 +1,6 @@
 # Persistent Phylogeny
 
-An implementation for the persistent phylogeny polynomial-time algorithm described the article [Solving the Persistent Phylogeny Problem in polynomial time](https://arxiv.org/abs/1611.01017).
+An implementation for the persistent phylogeny polynomial-time algorithm.
 
 ## Prerequisites
 
@@ -85,62 +85,6 @@ ___
 ```
 
 Display the operations performed by the program.
-
-___
-
-```
--t or --testpy
-```
-
-Test the output of the algorithm with check_reduction.py.
-This can be used to make sure the output of the program is correct.
-**Don't** use this option when benchmarking; the Python script takes time to complete.
-
-___
-
-```
--x or --exponential
-```
-
-Exponential version of the algorithm.  
-This option can be used to test every possible combination of safe sources.  
-It is also mutually exclusive with `--interactive` and `--nthsource`.
-
-___
-
-```
--i or --interactive
-```
-
-User input driven execution.  
-This option can be used to manually select which safe source to realize.  
-It is also mutually exclusive with `--exponential` and `--nthsource`.
-
-___
-
-```
--m or --maximal
-```
-
-Run the algorithm on the maximal subgraph instead of the full graph.  
-This is done by calculating a maximal reducible graph before running the algorithm.
-
-___
-
-```
--n N or --nthsource N
-```
-
-Select the nth safe source when possible (default 0 - the option can be omitted).  
-This option can be used to automatically select the nth safe source to realize (instead of manually selecting it each time with `--interactive`).  
-It is also mutually exclusive with `--exponential` and `--interactive`.
-
-___
-
-```
--a or --active
-```
-Use this option if you want to include active characters when building the hasse diagram.
 
 ___
 

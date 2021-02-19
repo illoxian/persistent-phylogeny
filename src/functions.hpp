@@ -1,278 +1,74 @@
 #ifndef FUNCTIONS_HPP
 #define FUNCTIONS_HPP
 
-#include "hdgraph.hpp"
 #include "rbgraph.hpp"
 
-//=============================================================================
-// Auxiliary structs and classes
+// ************************************************
+// ************************************************
+// ********** Auxiliary data structures ***********
 
 /**
-  @brief Safe chain DFS Visitor exception
+  Scoped enumeration type whose underlying size is 1 byte, used for character
+  state.
 
-  Thrown when \e initial_state_visitor finds a safe chain with a safe source
+  State is paired with a character in the struct SignedCharacter.
 */
-class InitialState : public std::exception {
- public:
-  /**
-    @brief Returns the reason of the exception
-
-    @return C String
-  */
-  inline const char* what() const throw() { return "Found initial state"; }
+enum class State : bool {
+  lose,  ///< The paired character is lost
+  gain   ///< The paired character is gained
 };
 
 /**
-  @brief Reduce exception
+  @brief Struct used to represent a signed character
 
-  Thrown when \e reduce can't reduce the graph anymore
+  Each character c+ and c− is called a signed character.
 */
-class NoReduction : public std::exception {
- public:
-  /**
-    @brief Returns the reason of the exception
-
-    @return C String
-  */
-  inline const char* what() const throw() { return "Could not reduce graph"; }
+struct SignedCharacter {
+  std::string character{};    ///< Character name
+  State state = State::gain;  ///< Character state
 };
 
 /**
-  @brief DFS Visitor used in depth_first_search
+  @brief Overloading of operator<< for State
+
+  @param[in] os Output stream
+  @param[in] s  State
+
+  @return Updated output stream
 */
-class initial_state_visitor : public boost::default_dfs_visitor {
- public:
-  /**
-    @brief DFS Visitor default constructor
-  */
-  initial_state_visitor();
+inline std::ostream& operator<<(std::ostream& os, const State s) {
+  const bool sign = (s == State::lose);
 
-  /**
-    @brief DFS Visitor constructor
+  return os << (sign ? "-" : "+");
+}
 
-    @param[out] safe_sources List of vertices representing the safe sources of
-                             the diagram
-    @param[out] sources      List of vertices representing the maybe-safe
-                             sources of the diagram
-  */
-  initial_state_visitor(std::list<HDVertex>& safe_sources,
-                        std::list<HDVertex>& sources);
-
-  /**
-    @brief Invoked on every vertex of the graph before the start of the graph
-           search
-
-    @param[in] v     Vertex
-    @param[in] hasse Hasse diagram graph
-  */
-  void initialize_vertex(const HDVertex v, const HDGraph& hasse) const;
-
-  /**
-    @brief Invoked on the source vertex once before the start of the search
-
-    @param[in] v     Vertex
-    @param[in] hasse Hasse diagram graph
-  */
-  void start_vertex(const HDVertex v, const HDGraph& hasse);
-
-  /**
-    @brief Invoked when a vertex is encountered for the first time
-
-    @param[in] v     Vertex
-    @param[in] hasse Hasse diagram graph
-  */
-  void discover_vertex(const HDVertex v, const HDGraph& hasse);
-
-  /**
-    @brief Invoked on every out-edge of each vertex after it is discovered
-
-    @param[in] e     Edge
-    @param[in] hasse Hasse diagram graph
-  */
-  void examine_edge(const HDEdge e, const HDGraph& hasse);
-
-  /**
-    @brief Invoked on each edge as it becomes a member of the edges that form
-           the search tree
-
-    @param[in] e     Edge
-    @param[in] hasse Hasse diagram graph
-  */
-  void tree_edge(const HDEdge e, const HDGraph& hasse) const;
-
-  /**
-    @brief Invoked on the back edges in the graph
-
-    @param[in] e     Edge
-    @param[in] hasse Hasse diagram graph
-  */
-  void back_edge(const HDEdge e, const HDGraph& hasse) const;
-
-  /**
-    @brief Invoked on forward or cross edges in the graph
-
-    @param[in] e     Edge
-    @param[in] hasse Hasse diagram graph
-  */
-  void forward_or_cross_edge(const HDEdge e, const HDGraph& hasse);
-
-  /**
-    @brief Invoked on vertex \e v after finish_vertex has been called for all
-           the vertices in the DFS-tree rooted at vertex \e v
-
-    If vertex \e v is a leaf in the DFS-tree, then the finish_vertex function
-    is called on \e v after all the out-edges of \e v have been examined.
-
-    @param[in] v     Vertex
-    @param[in] hasse Hasse diagram graph
-  */
-  void finish_vertex(const HDVertex v, const HDGraph& hasse);
-
-  /**
-    @brief Test if \e chain is a safe chain with \e source_v as source
-
-    Call \e safe_chain to check if \e chain is a safe chain. If it is, run
-    Test 1 on \e source_v.
-    If Test 1 succeds, add \e source_v to the list of safe sources.
-    If Test 1 fails, add \e source_v to the list of sources (maybe safe).
-
-    @param[in] v     Current vertex
-    @param[in] hasse Hasse diagram graph
-  */
-  void perform_test(const HDVertex v, const HDGraph& hasse);
-
-  /**
-    @brief Check if \e chain is a safe chain in \e hasse
-
-    Let GRB be a red-black graph, let P be the Hasse diagram for GRB|CM and let
-    C be a chain of P.
-    Then C is safe if the c-reduction S(C) of C is feasible for the graph and
-    applying S(C) to GRB results in a graph that has no red Σ-graphs.
-
-    @param[in] v     Current vertex
-    @param[in] hasse Hasse diagram graph
-
-    @return True if \e chain is a safe chain in \e hasse
-  */
-  bool safe_chain(const HDVertex v, const HDGraph& hasse);
-
-  /**
-    @brief Test if \e source_v satisfies the test 1 in \e hasse
-
-    Test 1:
-    A source s is safe for GRB if there exists a species s' in GRB|CM∪A that
-    consists of C(s), is connected to only inactive characters and the
-    realization of C(s') in GRB does not induce red Σ-graphs in GRB.
-
-    @param[in] hasse Hasse diagram graph
-
-    @return True if \e source_v satisfies the test 1
-  */
-  bool safe_source_test1(const HDGraph& hasse);
-
- private:
-  std::list<HDVertex>* const m_safe_sources{};
-  std::list<HDVertex>* const m_sources{};
-  std::list<HDEdge> chain{};
-  HDVertex source_v{};
-  HDVertex last_v{};
-};
-
-//=============================================================================
-// Algorithm functions
 
 /**
-  @brief Returns a list of safe sources
+  @brief Overloading of operator<< for SignedCharacter
 
-  Let GM be a maximal reducible red-black graph, let P be the Hasse diagram for
-  GM, and let C be a chain of P.
-  Then C is safe if the c-reduction S(C) of C is feasible for the graph GM and
-  applying S(C) to GM results in a graph that has no red Σ-graph.
+  @param[in] os Output stream
+  @param[in] sc SignedCharacter
 
-  The source s of a safe chain C is the initial state of a tree T solving GRB
-  if s is safe.
-
-  @param[in] hasse Hasse diagram graph
-
-  @return List of safe sources
+  @return Updated output stream
 */
-std::list<HDVertex> initial_states(const HDGraph& hasse);
+inline std::ostream& operator<<(std::ostream& os, const SignedCharacter sc) {
+  return os << sc.character << sc.state;
+}
 
 /**
-  @brief Test if \e sources contain a source that satisfies the test 2 in
-         \e hasse
+  @brief Overloading of operator== for a pair of signed characters
 
-  Test 2:
-  A source s is safe for GRB if there exists a species s' in GRB|CM∪A that
-  consists of C(s) + other maximal characters, is connected to only inactive
-  characters and the realization of C(s') in GRB does not induce red Σ-graphs
-  in GRB.
+  @param[in] a SignedCharacter
+  @param[in] b SignedCharacter
 
-  @param[in] sources List of source vertices
-  @param[in] hasse Hasse diagram graph
-
-  @return List of sources that satisfy the test 2
+  @return True if a is equal to b
 */
-std::list<HDVertex> safe_source_test2(const std::list<HDVertex>& sources,
-                                      const HDGraph& hasse);
+inline bool operator==(const SignedCharacter& a, const SignedCharacter b) {
+  return (a.character == b.character && a.state == b.state);
+}
 
-/**
-  @brief Test if \e sources contain a source that satisfies the test 3 in
-         \e hasse
-
-  Test 3:
-  All sources species must be incident on active characters.
-  A source s is safe for GRB if there exists a species s' in GRB|CM∪A that
-  consists of C(s) + minimum number of active characters, and the realization
-  of C(s') in GRB does not induce red Σ-graphs in GRB.
-
-  @param[in] sources List of source vertices
-  @param[in] hasse   Hasse diagram graph
-
-  @return List of sources that satisfy the test 3
-*/
-std::list<HDVertex> safe_source_test3(const std::list<HDVertex>& sources,
-                                      const HDGraph& hasse);
-
-/**
-  @brief Check if the realization of \e source does not induce red Σ-graph
-
-  @param[in] source Source vertex
-  @param[in] hasse  Hasse diagram graph
-
-  @return True if the realization \e source does not induce red Σ-graph
-*/
-bool realize_source(const HDVertex source, const HDGraph& hasse);
-
-/**
-  @brief Check if \e reduction is not a complete c-reduction
-
-  @param[in] reduction List of signed characters
-
-  @return True if \e reduction is partial (with missing gained characters)
-*/
-bool is_partial(const std::list<SignedCharacter>& reduction);
-
-//=============================================================================
-// Algorithm main functions
-
-/**
-  @brief Compute an extended c-reduction that is a successful reduction of a
-         reducible graph
-
-  A tree traversal of the positive characters of a tree T solving a graph GRB
-  is a c-reduction R that is feasible for GRB and its application to GRB
-  results in an empty graph.
-  Then R is called a successful reduction for GRB.
-  The extended c-reduction of R is the sequence of positive and negative
-  characters obtained by the application of R to GRB.
-
-  @param[in,out] g Red-black graph
-
-  @return Realized characters (list of signed characters), that is a
-          c-reduction of \e g
-*/
-std::list<SignedCharacter> reduce(RBGraph& g);
+// ************************************************
+// ************************************************
 
 /**
   @brief Realize the character \e c (+ or -) in \e g
@@ -300,8 +96,8 @@ std::list<SignedCharacter> reduce(RBGraph& g);
           If the realization was successful then the bool flag will be true.
           When the flag is false, the returned list is empty
 */
-std::pair<std::list<SignedCharacter>, bool> realize_character(const SignedCharacter& sc,
-                                                    RBGraph& g);
+std::pair<std::list<SignedCharacter>, bool> realize_character(const SignedCharacter& sc, RBGraph& g);
+
 
 /**
   @brief Realize the inactive characters of the species \e v in \e g
@@ -325,6 +121,7 @@ std::pair<std::list<SignedCharacter>, bool> realize_character(const SignedCharac
 std::pair<std::list<SignedCharacter>, bool> realize_species(const RBVertex v,
                                                     RBGraph& g);
 
+
 /**
   @brief Realize the list of characters \e lsc (+ or - each) in \e g
 
@@ -344,25 +141,6 @@ std::pair<std::list<SignedCharacter>, bool> realize(
 
 bool is_complete(std::list<SignedCharacter> sc, const RBGraph& gm);
 
-/**
-  @brief Realize the character \e c in \e g
-
-  @param[in]     c    The character to be realized in \e g
-  @param[in,out] g    Red-black graph
-
-void realize_character(RBVertex& c, RBGraph& g);
-
-
-  @brief Realize the species \e s in \e g .
-
-  The realization of a species s on graph GRB is the realization of its set C(s)
-  of inactive characters in any order, while all of its active characters are red-universal in GRB.
-
-  @param[in]     s    The species to be realized in \e g
-  @param[in,out] g    Red-black graph
-
-void realize_species(RBVertex& s, RBGraph& g);
-*/
 
 /**
   @brief Given a list of vertices, it sorts the list by using the concept of vertex degree  
@@ -371,6 +149,7 @@ void realize_species(RBVertex& s, RBGraph& g);
   @param[in] g              Red-black graph
 */
 void sort_by_degree(std::list<RBVertex>& list_to_sort, const RBGraph& g);
+
 
 /**
   @brief Return the minimal p-active species in \e g.
@@ -384,6 +163,7 @@ void sort_by_degree(std::list<RBVertex>& list_to_sort, const RBGraph& g);
 */
 std::list<RBVertex> get_all_minimal_p_active_species(const RBGraph& g, bool all=true);
 
+
 /**
   @brief Return the minimal p-active species in \e g. 
 
@@ -392,6 +172,7 @@ std::list<RBVertex> get_all_minimal_p_active_species(const RBGraph& g, bool all=
   @return The minimal p-active species
 */
 RBVertex get_minimal_p_active_species(const RBGraph& g);
+
 
 /**
   @brief Return a quasi-active species in \e g if it exists.
@@ -404,6 +185,7 @@ RBVertex get_minimal_p_active_species(const RBGraph& g);
 */
 RBVertex get_quasi_active_species(const RBGraph& g);
 
+
 /**
   @brief Execute the algorithm on the maximal reducible graph \e g .
   It returns the sequence of the realized characters.
@@ -414,15 +196,6 @@ RBVertex get_quasi_active_species(const RBGraph& g);
 */
 std::list<SignedCharacter> ppp_maximal_reducible_graphs(RBGraph& g);
 
-/**
-  @brief Execute the PPP algorithm on the graph \e g .
-  It returns the sequence of the realized characters.
-
-  @param[in] g Red-black graph
-
-  @return List
-*/
-std::list<SignedCharacter> ppp(RBGraph& g);
 
 /**
   @brief Realize the characters in \e g that are red-universal or universal.
@@ -433,14 +206,48 @@ std::list<SignedCharacter> ppp(RBGraph& g);
 */
 std::pair<std::list<SignedCharacter>, bool> realize_red_univ_and_univ_chars(RBGraph& g);
 
+
 /**
   @brief Return the extension of a species \e s.
 
   @param[in] s A RBVertex as species
-  @param[in] gm Red-black graph (minimal form graph of \e g)
+  @param[in] gmax Red-black graph (maximal reducible graph)
+  @param[in] gmin Red-black graph (minimal form graph)
 
   @return The extension of \e s.
 */
 RBVertex get_extension(const RBVertex& s, const RBGraph& gmax, const RBGraph& gmin);
+
+
+/**
+  @brief Returns the sources in the maximal reducible graph \e gm.
+
+  @param[in] gm Red-black graph (maximal reducible graph)
+
+  @return The sources of \e gm.
+*/
+std::list<RBVertex> get_sources(const RBGraph& gm);
+
+
+/**
+  @brief Returns true if gm is 2-solvable
+
+  @param[in] sources List of sources
+  @param[in] gm Red-black graph (maximal reducible graph))
+
+  @return bool
+*/
+bool is_2_solvable(std::list<RBVertex>& sources, const RBGraph& gm);
+
+
+/**
+  @brief It returns the closure CL of \e v. In particular, a ∈ CL(v) if and only if a is minimal in G and moreover it is included in all maximal characters of \e v.
+
+  @param[in] v Species
+  @param[in] g Red-black graph
+
+  @return List
+**/
+std::list<RBVertex> closure(const RBVertex& v, const RBGraph& g);
 
 #endif

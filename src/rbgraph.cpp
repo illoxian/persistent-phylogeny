@@ -18,6 +18,7 @@ void clear(RBGraph& g) {
   num_species(g) = 0;
 }
 
+
 void remove_edge(const RBVertex& s, const RBVertex& t, RBGraph& g) {
   if (!exists(s, g) || !exists(t, g))
     throw std::runtime_error("[ERROR] In remove_edge(): source vertex or target vertex does not exist");
@@ -27,9 +28,11 @@ void remove_edge(const RBVertex& s, const RBVertex& t, RBGraph& g) {
   boost::remove_edge(s, t, g);
 }
 
+
 void remove_edge(const std::string& s, const std::string& t, RBGraph& g) {
   remove_edge(get_vertex(s, g), get_vertex(t, g), g);
 }
+
 
 void remove_vertex(const RBVertex& v, RBGraph& g) {
   if (!exists(v, g))
@@ -77,6 +80,7 @@ RBVertex add_vertex(const std::string& name, const Type type, RBGraph& g) {
   return v;
 }
 
+
 std::pair<RBEdge, bool> add_edge(const RBVertex& u, const RBVertex& v, const Color color, RBGraph& g) {
 
   /*  commented because it introduces overhead when reading a matrix from a txt file
@@ -95,9 +99,11 @@ std::pair<RBEdge, bool> add_edge(const RBVertex& u, const RBVertex& v, const Col
   return std::make_pair(e, exists);   
 }
 
+
 std::pair<RBEdge, bool> add_edge(const std::string& source, const std::string& target, Color color, RBGraph& g) {
   return add_edge(get_vertex(source, g), get_vertex(target, g), color, g);
 }
+
 
 RBEdge get_edge(const RBVertex &source, const RBVertex &target, const RBGraph &g) {
   if (!exists(source, g) || !exists(target, g)) 
@@ -110,6 +116,7 @@ RBEdge get_edge(const RBVertex &source, const RBVertex &target, const RBGraph &g
   return e;  
 }
 
+
 //=============================================================================
 // General functions
 
@@ -119,6 +126,7 @@ const RBVertex& get_vertex(const std::string& name, const RBGraph& g) {
     
   return vertex_map(g).at(name);   
 }
+
 
 bool exists(const RBVertex &source, const RBVertex &target, const RBGraph &g) {
   if (!exists(source, g) || !exists(target, g))
@@ -134,6 +142,7 @@ bool exists(const RBVertex &source, const RBVertex &target, const RBGraph &g) {
   return false;
 }
 
+
 bool exists(const std::string &source, const std::string &target, const RBGraph &g) {
   if (!exists(source, g) || !exists(target, g))
     return false;
@@ -141,16 +150,19 @@ bool exists(const std::string &source, const std::string &target, const RBGraph 
     return exists(get_vertex(source, g), get_vertex(target, g), g);
 }
 
+
 bool exists(const RBVertex &v, const RBGraph &g) {
   auto vertices = g.m_vertices;
   return std::find(vertices.begin(), vertices.end(), v) != vertices.end();
 }
+
 
 bool exists(const std::string &name, const RBGraph &g) {
   if (vertex_map(g).find(name) != vertex_map(g).end())
     return true;
   return false;
 }
+
 
 void build_vertex_map(RBGraph& g) {
   vertex_map(g).clear();
@@ -162,6 +174,7 @@ void build_vertex_map(RBGraph& g) {
   }
 }
 
+
 void remove_singletons(RBGraph& g) {
   RBVertexIter v, v_end, next;
   std::tie(v, v_end) = vertices(g);
@@ -170,6 +183,7 @@ void remove_singletons(RBGraph& g) {
     remove_vertex_if(*v, if_singleton(), g);
   }
 }
+
 
 void copy_graph(const RBGraph& g, RBGraph& g_copy) {
   RBVertexIMap index_map;
@@ -192,6 +206,7 @@ void copy_graph(const RBGraph& g, RBGraph& g_copy) {
   // rebuild g_copy's map
   build_vertex_map(g_copy);
 }
+
 
 void copy_graph(const RBGraph& g, RBGraph& g_copy, RBVertexMap& v_map) {
   RBVertexIMap index_map;
@@ -216,6 +231,7 @@ void copy_graph(const RBGraph& g, RBGraph& g_copy, RBVertexMap& v_map) {
   // rebuild g_copy's map
   build_vertex_map(g_copy);
 }
+
 
 std::ostream& operator<<(std::ostream& os, const RBGraph& g) {
   std::list<std::string> lines;
@@ -303,6 +319,7 @@ std::ostream& operator<<(std::ostream& os, const RBGraph& g) {
   return os;
 }
 
+
 bool has_consecutive_ones_property(RBGraph& g) {
 
   // prepare the input for the external library by Hackob
@@ -340,6 +357,7 @@ bool has_consecutive_ones_property(RBGraph& g) {
   return has_01_propertry;
 }
 
+
 void get_matrix_representation(const RBGraph& g, bool **m, size_t rows, size_t cols) {
 
   // mapping is a helper data structure used to encode the mapping between
@@ -367,7 +385,7 @@ void get_matrix_representation(const RBGraph& g, bool **m, size_t rows, size_t c
       RBOutEdgeIter e, e_end;
       std::tie(e, e_end) = out_edges(v, g);
       for (; e != e_end; ++e) {
-        // TODO solo quando è nero l'arco mettiamo 1?
+        // TODO if the edge is red? what happens? (to be verified)
         if (g[*e].color == Color::black) {
           ichar = mapping[e->m_target];
           m[ispec][ichar] = 1;
@@ -379,6 +397,7 @@ void get_matrix_representation(const RBGraph& g, bool **m, size_t rows, size_t c
 }
 
 // File I/O
+
 
 void read_graph(const std::string& filename, RBGraph& g) {
   std::vector<RBVertex> species, characters;
@@ -509,6 +528,7 @@ void read_graph(const std::string& filename, RBGraph& g) {
   file.close();
 }
 
+
 //=============================================================================
 // Algorithm functions
 
@@ -530,6 +550,7 @@ bool is_active(const RBVertex& v, const RBGraph& g) {
   return true;
 }
 
+
 bool is_pending_species(const RBVertex& s, const RBGraph& g) {
   if (!is_species(s, g))
     return false;
@@ -547,6 +568,7 @@ bool is_pending_species(const RBVertex& s, const RBGraph& g) {
     return false;
 }
 
+
 std::list<RBVertex> get_pending_species(const RBGraph& g) {
   std::list<RBVertex> pending_species;
   for (RBVertex v : g.m_vertices)
@@ -554,6 +576,7 @@ std::list<RBVertex> get_pending_species(const RBGraph& g) {
       pending_species.push_back(v);
   return pending_species;
 }
+
 
 void remove_duplicate_species(RBGraph& g) {
   bool eql, found;
@@ -614,6 +637,7 @@ void remove_duplicate_species(RBGraph& g) {
   } 
 }
 
+
 bool all_species_with_red_edges(const RBGraph& g) {
   for (RBVertex v : g.m_vertices) {
     if (!is_species(v, g)) continue;
@@ -630,6 +654,7 @@ bool all_species_with_red_edges(const RBGraph& g) {
   }
   return true;
 }
+
 
 bool is_red_universal(const RBVertex& v, const RBGraph& g) {
   if (!is_character(v, g)) 
@@ -657,6 +682,7 @@ bool is_red_universal(const RBVertex& v, const RBGraph& g) {
   return true;
 }
 
+
 bool is_universal(const RBVertex v, const RBGraph& g) {
   if (!is_character(v, g)) 
     return false;
@@ -683,6 +709,7 @@ bool is_universal(const RBVertex v, const RBGraph& g) {
   return true;
 }
 
+
 RBGraphVector connected_components(const RBGraph& g) {
   RBVertexIMap index_map, comp_map;
   RBVertexIAssocMap index_assocmap(index_map), comp_assocmap(comp_map);
@@ -702,6 +729,7 @@ RBGraphVector connected_components(const RBGraph& g) {
   // comp_map[i] => < vertex_in_g, component_index >
   return connected_components(g, comp_map, comp_count);
 }
+
 
 RBGraphVector connected_components(const RBGraph& g, const RBVertexIMap& c_map,
                                    const size_t c_count) {
@@ -765,19 +793,20 @@ RBGraphVector connected_components(const RBGraph& g, const RBVertexIMap& c_map,
 
   if (logging::enabled) {
     
-    if (c_count == 1) {
-      std::cout << "G connected" << std::endl;
-    } else {
-      std::cout << "Connected components: " << c_count << std::endl;
+    //if (c_count == 1) {
+    //  std::cout << "G connected" << std::endl;
+    //} else {
+    //  std::cout << "Connected components: " << c_count << std::endl;
 
-      for (const auto& component : components) {
-        std::cout << *component.get() << std::endl << std::endl;
-      }
-    }
+    //  for (const auto& component : components) {
+    //    std::cout << *component.get() << std::endl << std::endl;
+    //  }
+    //}
   }
 
   return components;
 }
+
 
 std::list<RBVertex> get_neighbors(const RBVertex& v, const RBGraph& g) {
 
@@ -803,6 +832,7 @@ std::list<RBVertex> get_neighbors(const RBVertex& v, const RBGraph& g) {
   return std::list<RBVertex>(output.begin(), output.end());
 }
 
+
 std::map<RBVertex, std::list<RBVertex>> get_adj_map(const RBGraph& g) {
   std::map<RBVertex, std::list<RBVertex>> adj_map;
   // adj_map will be structured as follows:
@@ -822,6 +852,7 @@ std::map<RBVertex, std::list<RBVertex>> get_adj_map(const RBGraph& g) {
   return adj_map;
 }
 
+
 std::list<RBVertex> get_adj_vertices(const RBVertex& v, const RBGraph& g) {
   std::list<RBVertex> out;
   RBOutEdgeIter e, e_end;
@@ -831,31 +862,6 @@ std::list<RBVertex> get_adj_vertices(const RBVertex& v, const RBGraph& g) {
   return out;
 }
 
-/* std::map<RBVertex, std::list<RBVertex>> get_adj_species_map(const RBGraph& g) {
-  std::map<RBVertex, std::list<RBVertex>> adj_spec = get_adj_map(g);
-
-  // remove from the map all the keys that refer to species
-  RBVertexIter v, v_end;
-  std::tie(v, v_end) = vertices(g);
-  for (; v != v_end; ++v) {
-    if (!is_character(*v, g)) 
-      adj_spec.erase(*v);
-  }
-  return adj_spec;
-} */
-
-/* std::map<RBVertex, std::list<RBVertex>> get_adj_character_map(const RBGraph& g) {
-    std::map<RBVertex, std::list<RBVertex>> adj_chars = get_adj_map(g);
-
-  // remove from the map all the keys that refer to characters
-  RBVertexIter v, v_end;
-  std::tie(v, v_end) = vertices(g);
-  for (; v != v_end; ++v) {
-    if (!is_species(*v, g)) 
-      adj_chars.erase(*v);
-  }
-  return adj_chars;
-} */
 
 std::list<RBVertex> get_adj_active_characters(const RBVertex& s, const RBGraph& g) {
   std::list<RBVertex> adj_active_chars;
@@ -867,6 +873,7 @@ std::list<RBVertex> get_adj_active_characters(const RBVertex& s, const RBGraph& 
   return adj_active_chars;
 }
 
+
 std::list<RBVertex> get_adj_inactive_characters(const RBVertex& s, const RBGraph& g) {
   std::list<RBVertex> adj_inactive_chars;
   std::list<RBVertex> adj_chars = get_adj_vertices(s, g);
@@ -876,6 +883,7 @@ std::list<RBVertex> get_adj_inactive_characters(const RBVertex& s, const RBGraph
       adj_inactive_chars.push_back(c);
   return adj_inactive_chars;
 }
+
 
 bool includes_species(const RBVertex& s1, const RBVertex& s2, const RBGraph& g) {
   std::list<RBVertex> inactive_chars_s1 = get_adj_inactive_characters(s1, g);
@@ -890,6 +898,7 @@ bool includes_species(const RBVertex& s1, const RBVertex& s2, const RBGraph& g) 
     }
   return included;
 }
+
 
 bool includes_characters(const RBVertex& c1, const RBVertex& c2, const RBGraph& g) {
   auto adj_spec_c1 = get_adj_vertices(c1, g);
@@ -924,28 +933,6 @@ bool overlaps_character(const RBVertex& c1, const RBVertex& c2, const RBGraph& g
   return false;
 }
 
-/*
-bool overlaps_character(const RBVertex& c1, const RBVertex& c2, const RBGraph& g) {  
-  auto adj_spec_c1 = get_adj_vertices(c1, g);
-  auto adj_spec_c2 = get_adj_vertices(c2, g);
-  std::vector<std::string> adj_spec_c1_str;
-  std::vector<std::string> adj_spec_c2_str;
-  for (RBVertex v : adj_spec_c1)
-    adj_spec_c1_str.push_back(g[v].name);
-  for (RBVertex v : adj_spec_c2)
-    adj_spec_c2_str.push_back(g[v].name);
-
-  std::sort(adj_spec_c1_str.begin(), adj_spec_c1_str.end());
-  std::sort(adj_spec_c2_str.begin(), adj_spec_c2_str.end());
-
-  std::vector<std::string> intersection;
-  std::set_intersection(adj_spec_c1_str.begin(),adj_spec_c1_str.end(),
-                        adj_spec_c2_str.begin(),adj_spec_c2_str.end(),
-                        back_inserter(intersection));
-  return intersection.size() < adj_spec_c1_str.size() &&
-         intersection.size() < adj_spec_c2_str.size() &&
-         intersection.size() > 0;
-}*/
 
 bool overlaps_species(const RBVertex& s1, const RBVertex& s2, const RBGraph& g) {
   if (includes_species(s1, s2, g) || includes_species(s2, s1, g))
@@ -962,6 +949,7 @@ bool overlaps_species(const RBVertex& s1, const RBVertex& s2, const RBGraph& g) 
   return false;
 }
 
+
 std::list<RBVertex> get_inactive_chars(const RBGraph& g) {
   std::list<RBVertex> list_result;
 
@@ -975,6 +963,7 @@ std::list<RBVertex> get_inactive_chars(const RBGraph& g) {
 
   return list_result;
 }
+
 
 const std::list<RBVertex> maximal_characters(const RBGraph& g) {
   std::list<RBVertex> cm;
@@ -1021,84 +1010,6 @@ const std::list<RBVertex> maximal_characters(const RBGraph& g) {
   return cm;
 }
 
-/*
-const std::list<RBVertex> maximal_characters(const RBGraph& g) {
-  std::list<RBVertex> cm;
-
-  std::list<RBVertex> inactive_chars = get_inactive_chars(g);
-  sort_by_degree(inactive_chars, g);
-
-  // for each inactive character c in g, if S(c) ⊄ S(c') for any
-  // character c', then v is a maximal character and it
-  // is inserted in cm
-  RBVertexIter v = inactive_chars.begin(), v_end = inactive_chars.end();
-  bool maximal_character;
-
-  for (; v != v_end; ++v) {
-    maximal_character = true;
-
-    RBVertexIter u = inactive_chars.begin(), u_end = inactive_chars.end();
-    for (; u != u_end; ++u) {
-      if (*v == *u)
-        continue;
-
-      if (out_degree(*v, g) > out_degree(*u, g))
-        break;
-
-      if (includes_characters(*u, *v, g)) {
-        maximal_character = false;
-        break;
-      }
-    }
-
-    if (maximal_character)
-      cm.push_back(*v);
-  }
-  return cm;
-}*/
-
-/*
-void maximal_reducible_graph(const RBGraph& g, RBGraph& gm, const bool active) {
-  // copy g to gm
-
-  std::cout << "START COPYING" << std::endl;
-  copy_graph(g, gm);
-  std::cout << "FINISH COPYING" << std::endl;
-
-  // compute the maximal characters of gm
-  const auto cm = maximal_characters(gm);
-
-  if (logging::enabled) {
-    // verbosity enabled
-    std::cout << "Maximal characters Cm = { ";
-
-    for (const auto& kk : cm) {
-      std::cout << gm[kk].name << " ";
-    }
-
-    std::cout << "} - Count: " << cm.size() << std::endl;
-  }
-
-  // remove non-maximal characters of gm
-  RBVertexIter v, v_end, next;
-  std::tie(v, v_end) = vertices(gm);
-  for (next = v; v != v_end; v = next) {
-    next++;
-
-    if (!is_character(*v, gm))
-      // don't remove non-character vertices
-      continue;
-
-    if (active && is_active(*v, gm))
-      // don't remove active or non-character vertices
-      continue;
-
-    remove_vertex_if(*v, if_not_maximal(cm), gm);
-  }
-
-  remove_singletons(gm);
-}
-*/
 
 void maximal_reducible_graph(const RBGraph& g, RBGraph& gm, const bool active) {
   // compute the maximal characters of gm
@@ -1106,13 +1017,13 @@ void maximal_reducible_graph(const RBGraph& g, RBGraph& gm, const bool active) {
 
   if (logging::enabled) {
     // verbosity enabled
-    std::cout << "Maximal characters Cm = { ";
+    //std::cout << "Maximal characters Cm = { ";
 
-    for (const auto& kk : cm) {
-      std::cout << g[kk].name << " ";
-    }
+    //for (const auto& kk : cm) {
+    //  std::cout << g[kk].name << " ";
+    //}
 
-    std::cout << "} - Count: " << cm.size() << std::endl;
+    //std::cout << "} - Count: " << cm.size() << std::endl;
   }
 
   gm.clear();
@@ -1177,6 +1088,7 @@ bool has_red_sigmagraph(const RBGraph& g) {
   return false;
 }
 
+
 bool has_red_sigmapath(const RBVertex c0, const RBVertex c1, const RBGraph& g) {
   // vertex that connects c0 and c1 (always with red edges)
   RBVertex junction = 0;
@@ -1229,6 +1141,7 @@ bool has_red_sigmapath(const RBVertex c0, const RBVertex c1, const RBGraph& g) {
   return false;
 }
 
+
 void change_char_type(const RBVertex& v, RBGraph& g) {
   // get the black edges in v
   RBOutEdgeIter e, e_end;
@@ -1257,6 +1170,7 @@ void change_char_type(const RBVertex& v, RBGraph& g) {
   }
 }
 
+
 std::list<RBVertex> get_active_chars(const RBGraph& g) {
   std::list<RBVertex> ac;
   RBVertexIter v, v_end;
@@ -1270,6 +1184,7 @@ std::list<RBVertex> get_active_chars(const RBGraph& g) {
   return ac;
 }
 
+
 std::list<RBVertex> get_active_species(const RBGraph& g) {
   std::list<RBVertex> active_species;
   for (RBVertex v : g.m_vertices)
@@ -1277,6 +1192,7 @@ std::list<RBVertex> get_active_species(const RBGraph& g) {
       active_species.push_back(v);
   return active_species;
 }
+
 
 std::list<RBVertex> get_comp_vertex(const RBVertex& u, const RBGraph& g) {
   
@@ -1303,6 +1219,7 @@ std::list<RBVertex> get_comp_vertex(const RBVertex& u, const RBGraph& g) {
   return result;
 }
 
+
 std::list<RBVertex> get_comp_active_characters(const RBVertex s, const RBGraph& g) {
   std::list<RBVertex> result;
   std::list<RBVertex> char_list = get_comp_vertex(s, g);
@@ -1313,6 +1230,7 @@ std::list<RBVertex> get_comp_active_characters(const RBVertex s, const RBGraph& 
 
   return result;
 }
+
 
 bool is_degenerate(const RBGraph& g) {
 
@@ -1335,6 +1253,7 @@ bool is_degenerate(const RBGraph& g) {
   }
   return true;
 }
+
 
 void minimal_form_graph(const RBGraph& g, RBGraph& gmf) {
 

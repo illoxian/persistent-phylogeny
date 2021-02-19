@@ -1,17 +1,6 @@
 #include <boost/program_options.hpp>
-#include <boost/python.hpp>
-#include "hdgraph.hpp"
 #include "rbgraph.hpp"
 #include "functions.hpp"
-
-void conflicting_options(const boost::program_options::variables_map& vm,
-                         const std::string& opt1, const std::string& opt2) {
-  if (vm.count(opt1) && !vm[opt1].defaulted() && vm.count(opt2) &&
-      !vm[opt2].defaulted()) {
-    throw std::logic_error(std::string("conflicting options --") + opt1 +
-                           " and --" + opt2);
-  }
-}
 
 int main(int argc, const char* argv[]) {
  // declare the vector of input files
@@ -20,10 +9,8 @@ int main(int argc, const char* argv[]) {
   // initialize options menu
   boost::program_options::options_description general_options(
       "Usage: ppp [OPTION...] FILE..."
-      "\n"
-      "Calculate a successful c-reduction for the matrix(ces) in FILE(s), if "
-      "it "
-      "exists."
+      "\n\n"
+      "Compute the PPP algorithm on the matrices in input. Note that the algorithm will be executed on the maximal reducible graphs generated from the input matrices."
       "\n\n"
       "Options");
 
@@ -32,35 +19,8 @@ int main(int argc, const char* argv[]) {
       ("help,h", "Display this message.\n")
       // option: verbose, print information on the ongoing operations
       ("verbose,v", boost::program_options::bool_switch(&logging::enabled),
-       "Display the operations performed by the program.\n")
+       "Display the operations performed by the program.\n");
       // option: testpy, test reduce output with a python script
-      ("testpy,t", boost::program_options::bool_switch()->default_value(false),
-       "Test the output of the algorithm with check_reduction.py.\n")
-      // option: exponential, test every possible combination of safe sources
-      ("exponential,x",
-       boost::program_options::bool_switch(&exponential::enabled),
-       "Exponential version of the algorithm.\n"
-       "(Mutually exclusive with --interactive)\n"
-       "(Mutually exclusive with --nthsource)\n")
-      // option: interactive, let the user select which path to take
-      ("interactive,i",
-       boost::program_options::bool_switch(&interactive::enabled),
-       "User input driven execution.\n"
-       "(Mutually exclusive with --exponential)\n"
-       "(Mutually exclusive with --nthsource)\n")
-      // option: maximal, read graph and reduce it to maximal
-      ("maximal,m", boost::program_options::bool_switch()->default_value(false),
-       "Run the algorithm on the maximal subgraph.\n")
-      // option: active, include active characters during hasse diagram construction
-      ("active,a", boost::program_options::bool_switch(&active::enabled),
-       "Hasse diagram with active characters.\n")
-      // option: help message
-      ("nthsource,n",
-       boost::program_options::value<size_t>(&nthsource::index)
-           ->default_value(0),
-       "Select the nth safe source when possible.\n"
-       "(Mutually exclusive with --exponential)\n"
-       "(Mutually exclusive with --interactive)\n");
 
   // initialize hidden options (not shown in --help)
   boost::program_options::options_description hidden_options;
@@ -91,11 +51,6 @@ int main(int argc, const char* argv[]) {
             .run(),
         vm);
 
-    conflicting_options(vm, "exponential", "interactive");
-
-    conflicting_options(vm, "nthsource", "exponential");
-    conflicting_options(vm, "nthsource", "interactive");
-
     boost::program_options::notify(vm);
   } catch (const std::exception& e) {
     // error while parsing the options given in input
@@ -122,196 +77,71 @@ int main(int argc, const char* argv[]) {
     return 1;
   }
 
+  std::cout << "\n[INFO] This program executes the PPP algorithm on the matrices specified in input. Please note that the algorithm will be executed on the maximal reducible graphs generated from the input matrices. Future extensions of the program will allow to process general graphs too." << std::endl;
+
+  std::cout << "[INFO] Starting..." << std::endl;
   if (files.size() > 1) {
-    std::cout << "Running PPP on " << files.size() << " files." << std::endl
-              << std::endl;
-  }
-
-  boost::python::object pymod;
-
-  if (vm["testpy"].as<bool>()) {
-    // initialize the python interpreter
-    setenv("PYTHONPATH", "bin", 1);
-    Py_Initialize();
-
-    // import check_reduction.py
-    pymod = boost::python::import("check_reduction");
+    std::cout << "[INFO] Running PPP on " << files.size() << " files." << std::endl;
   }
 
   size_t count_file = 0;
   for (const auto& file : files) {
-    // for each filename in files
-
-    if (logging::enabled) {
-      // verbosity enabled
-      std::cout << "F  (" << file << ")" << std::endl;
-    } else {
-      // verbosity disabled
-      if (files.size() > 1) {
-        const auto d_perc = std::floor(100.0 * count_file / files.size());
-        const auto perc = static_cast<size_t>(d_perc);
-
-        if (perc < 10) std::cout << " ";
-
-        std::cout << "\033[32m" << perc << "\033[39m (" << file << ")"
-                  << std::flush;
-      } else {
-        std::cout << "F  (" << file << ")" << std::flush;
-      }
-    }
 
     count_file++;
 
-    RBGraph g{};
+    std::cout << "[INFO] Processing  \"" << file << "\"..." << std::endl;
+
+    if (logging::enabled) {
+      // verbosity enabled
+      std::cout << "Reading the matrix from the file..." << std::endl;
+    }
+
+    RBGraph g;
 
     try {
       read_graph(file, g);
-      std::stringstream keep_c{};
-
-      if (vm["maximal"].as<bool>()) {
-        if (logging::enabled) {
-          // verbosity enabled
-          std::cout << "Graph G:" 
-                << std::endl
-                << g 
-                << std::endl;
-        }
-        const auto gm = maximal_reducible_graph(g);
-
-        if (vm["testpy"].as<bool>()) {
-          RBVertexIter v, v_end;
-          std::tie(v, v_end) = vertices(gm);
-          for (; v != v_end; ++v) {
-            if (!is_character(*v, gm)) continue;
-
-            keep_c << g[*v].name.substr(1) << " ";
-          }
-        }
-
-        g.clear();
-        copy_graph(gm, g);
-      }
-
-      const auto output = reduce(g);
-
-      std::stringstream reduction;
-      for (const auto& sc : output) {
-        reduction << sc << " ";
-      }
-
-      if (vm["testpy"].as<bool>()) {
-        if (vm["maximal"].as<bool>()) {
-          // run the function check_reduction(filename, reduction), store its
-          // output in pycheck
-          const auto pycheck = pymod.attr("check_reduction")(
-              file, reduction.str(), keep_c.str());
-
-          if (!boost::python::extract<bool>(pycheck)())
-            // check_reduction(filename, reduction) returned False
-            throw NoReduction();
-        } else {
-          // run the function check_reduction(filename, reduction), store its
-          // output in pycheck
-          const auto pycheck =
-              pymod.attr("check_reduction")(file, reduction.str());
-
-          if (!boost::python::extract<bool>(pycheck)())
-            // check_reduction(filename, reduction) returned False
-            throw NoReduction();
-        }
-      }
-
-      if (!logging::enabled) {
-        // verbosity disabled
-        std::cout << '\r';
-      }
-
-      std::cout << "Ok (" << file << ")";
-
-      if (logging::enabled) {
-        // verbosity enabled
-        if (exponential::enabled) {
-          // exponential algorithm enabled
-          std::cout << ": Successful reductions have been logged";
-        } else {
-          std::cout << ": < " << reduction.str() << ">";
-        }
-      }
-
-      std::cout << std::endl;
-    } catch (const boost::python::error_already_set& e) {
-      if (!logging::enabled) {
-        // verbosity disabled
-        std::cout << '\r';
-      }
-
-      std::cout << "No (" << file << ")";
-
-      if (logging::enabled) {
-        // verbosity enabled
-        std::cout << ": Python error";
-      }
-
-      std::cout << std::endl;
-    } catch (const std::exception& e) {
-      if (!logging::enabled) {
-        // verbosity disabled
-        std::cout << '\r';
-      }
-
-      std::cout << "No (" << file << ")";
-
-      if (logging::enabled) {
-        // verbosity enabled
-        std::cout << ": " << e.what();
-      }
-
-      std::cout << std::endl;
+    } catch(std::runtime_error e) {
+      std::cout << e.what() << std::endl;
+      exit(0);
     }
+
+    if (logging::enabled) {
+      // verbosity enabled
+      std::cout << "[INFO] Extracting the maximal reducible graph..."  << std::endl;
+    }
+
+    RBGraph gm;
+    maximal_reducible_graph(g, gm, false);
+
+    if (logging::enabled) {
+      // verbosity enabled
+      std::cout << "[INFO] Executing the PPP algorithm on the extracted maximal reducible graph..." << std::endl;
+    }
+
+    bool successfully_reduced = false;
+    std::list<SignedCharacter> realized_characters;
+
+    try {
+      realized_characters = ppp_maximal_reducible_graphs(gm);
+      successfully_reduced = true;
+    } catch(...) {
+      successfully_reduced = false;
+    }
+
+    if (!successfully_reduced) {
+      std::cout << "[WARNING] The graph can not be reduced!" << std::endl;
+    } else {
+      std::cout << "[OK] The graph has been successfully reduced! The realized characters are: ";
+      std::cout << "<";
+      for (SignedCharacter sc : realized_characters)
+        std::cout << "(" << sc << ") ";
+      std::cout << ">" << std::endl;
+    }
+
+    std::cout << "[INFO] Processing  \"" << file << "\"... DONE!\n" << std::endl;
   }
+
+  std::cout << "[INFO] Finished processing the input files. Terminated successfully." << std::endl;
 
   return 0;
 }
-
-/*int main(int argc, const char* argv[]){
-  RBGraph g, gm;
-  bool rsg;
-  std::list<std::string> s_chain;
-  read_graph(argv[1],g);
-  active::enabled = true;
-  
-  gm = maximal_reducible_graph(g, true);
-  std::cout << gm << std::endl;
-  
-  HDGraph hasse;
-  hasse_diagram(hasse, g, gm);
-  std::cout << hasse << std::endl;
-
-  const auto cr = reduce(gm);
-
-  std::stringstream reduction;
-  for (const auto& sc : cr) {
-    reduction << sc << " ";
-  }
-  std::cout << ": < " << reduction.str() << ">";
-
-  RBGraph g{};
-  RBGraph gm{};
-
-  read_graph(argv[1], g);
-  gm = maximal_reducible_graph(g, true);
-
-  auto l = active_characters(gm);
-
-  for(auto& elem : l)
-    std::cout << elem << " ";
-  std::cout << std::endl;
-
-  auto v = g[boost::graph_bundle].vertex_map.at("s0");
-  auto sl = active_char_list(v, g);
-
-  for(auto& elem : sl)
-    std::cout << elem << " ";
-  std::cout << std::endl;
-}
-*/
