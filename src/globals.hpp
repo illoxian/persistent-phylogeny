@@ -1,3 +1,11 @@
+/** 
+ * 
+ * @file globals.cpp
+ * 
+ * @author Simone Paolo Mottadelli
+ * 
+ */
+
 #ifndef GLOBALS_HPP
 #define GLOBALS_HPP
 

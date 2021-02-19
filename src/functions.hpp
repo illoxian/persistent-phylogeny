@@ -1,3 +1,11 @@
+/** 
+ * 
+ * @file functions.hpp
+ * 
+ * @author Simone Paolo Mottadelli
+ * 
+ */
+
 #ifndef FUNCTIONS_HPP
 #define FUNCTIONS_HPP
 

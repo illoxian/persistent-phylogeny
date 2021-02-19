@@ -1,3 +1,11 @@
+/** 
+ * 
+ * @file functions.cpp
+ * 
+ * @author Simone Paolo Mottadelli
+ * 
+ */
+
 #include "functions.hpp"
 #include "rbgraph.hpp"
 #include <boost/graph/connected_components.hpp>

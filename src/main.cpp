@@ -1,3 +1,11 @@
+/** 
+ * 
+ * @file main.cpp
+ * 
+ * @author Simone Paolo Mottadelli
+ * 
+ */
+
 #include <boost/program_options.hpp>
 #include "rbgraph.hpp"
 #include "functions.hpp"

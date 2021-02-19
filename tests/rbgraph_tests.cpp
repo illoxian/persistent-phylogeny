@@ -1,5 +1,5 @@
 /** 
- * @file basic_rbgraph_functions.cpp
+ * @file rbgraph_tests.cpp
  * @author Simone Paolo Mottadelli
  * 
  * @brief This file contains the tests for the basic functions

@@ -1,3 +1,11 @@
+/** 
+ * 
+ * @file globals.cpp
+ * 
+ * @author Simone Paolo Mottadelli
+ * 
+ */
+
 #include "globals.hpp"
 
 //=============================================================================

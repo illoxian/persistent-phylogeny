@@ -1,3 +1,11 @@
+/** 
+ * 
+ * @file rbgraph.hpp
+ * 
+ * @author Simone Paolo Mottadelli
+ * 
+ */
+
 #ifndef RBGRAPH_HPP
 #define RBGRAPH_HPP
 

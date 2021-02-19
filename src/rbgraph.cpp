@@ -1,3 +1,11 @@
+/** 
+ * 
+ * @file rbgraph.cpp
+ * 
+ * @author Simone Paolo Mottadelli
+ * 
+ */
+
 #include "rbgraph.hpp"
 #include <boost/graph/connected_components.hpp>
 #include <boost/graph/copy.hpp>
