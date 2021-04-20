@@ -14,7 +14,7 @@
 #include <fstream>
 #include <stdio.h>
 #include "functions.hpp"
-#include "lexBFS-master/src/SparseMatrix.h"
+#include "LexBFS-master/src/SparseMatrix.h"
 
 //=============================================================================
 // Boost functions (overloading)
