@@ -548,3 +548,36 @@ std::list<RBVertex> closure(const RBVertex& v, const RBGraph& g) {
 
   return cmin;
 }
+
+
+// new implementation
+
+void ppa_general(const RBGraph& g, std::list<SignedCharacter> a) {
+  std::list<SignedCharacter> r;
+  bool flag;
+
+  while (! is_empty(g)) {
+    // Compute the g-skeleton Gm
+    //if (is_2_solvable(a, g)) {
+      // r = source 2-solvable (g, a)
+
+    //}
+
+    if (! r.empty()) {
+      //realize
+      RBGraph g_temp;
+      copy_graph(g, g_temp);
+      std::make_pair(r, flag) = realize(r, g_temp);
+    // G in che modo deve essere aggiornato?????
+      a = r;
+    
+    RBGraphVector conn_comp = connected_components(g);
+    auto cc = conn_comp.begin();
+    auto cc_end = conn_comp.end();
+    for (; cc != cc_end; ++cc) {      //itera sulle componenti connesse
+      ppa_general(*cc->get(), a);
+    } 
+
+  }
+
+}

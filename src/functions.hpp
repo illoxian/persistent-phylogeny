@@ -258,4 +258,16 @@ bool is_2_solvable(std::list<RBVertex>& sources, const RBGraph& gm);
 **/
 std::list<RBVertex> closure(const RBVertex& v, const RBGraph& g);
 
+// new implementation
+
+/**
+  @brief It iterates the graph if it's valid. General procedure descripted in Algorithm 3.
+
+  @param[in] g Red-black graph
+  @param[in] a Set of Characters
+
+  @return void
+**/
+void ppa_general(const RBGraph& g, std::list<RBVertex> a);
+
 #endif
