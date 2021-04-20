@@ -19,3 +19,6 @@ docs/
 
 # Tarballs
 *.tar.gz
+
+# Bin directory files
+./bin/*
