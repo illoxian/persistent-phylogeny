@@ -22,6 +22,7 @@ Debian example:
 ```
 # apt install libboost-all-dev
 ```
+Fedora:
 
 #### From source
 
