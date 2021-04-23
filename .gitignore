@@ -12,6 +12,11 @@
 # Doxygen
 Doxyfile
 docs/
+/src/html
+/src/latex
+
+# VSCode
+settings.json
 
 # Python byte code
 *.pyc
