@@ -26,7 +26,6 @@ void clear(RBGraph& g) {
   num_species(g) = 0;
 }
 
-
 void remove_edge(const RBVertex& s, const RBVertex& t, RBGraph& g) {
   if (!exists(s, g) || !exists(t, g))
     throw std::runtime_error("[ERROR] In remove_edge(): source vertex or target vertex does not exist");

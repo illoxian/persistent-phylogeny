@@ -13,34 +13,14 @@
 #include <boost/graph/depth_first_search.hpp>
 
 
+void compute_gskeleton(const RBGraph &g, RBGraph &g_skeleton) {
+    RBGraph g_min;
+    minimal_form_graph(g, g_min);
+    maximal_reducible_graph(g_min, g_skeleton, true);
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// RBGraph compute_gskeleton(const RBGraph &g) {
-//   RBGraph g_skeleton;
-//   RBGraph g_minimal_form;
-// //
-// //  get_active_chars
-// //  get_inactive_chars
-// // computes 
-//   minimal_form_graph(g, g_minimal_form);
-//   maximal_reducible_graph(g_minimal_form, g_skeleton, true);
-//   return g_skeleton;
+// void source_2_solvable(RBGraph &g) {
+    
 // }
 
 
@@ -75,6 +55,52 @@
 // //   maximal_characters()
 // // }
 
+
+
+std::list<SignedCharacter> ppr_general(RBGraph &g, std::list<SignedCharacter> a) {
+
+    std::list<SignedCharacter> realized_chars = realize_red_univ_and_univ_chars(g).first;
+
+    while (is_empty(g)) {
+        RBGraph g_maximal;
+        compute_gskeleton(g, g_maximal);
+
+        std::list<RBVertex> sources = get_sources(g_maximal);
+        std::list<SignedCharacter> tmp;
+
+        if(is_2_solvable(sources, g_maximal)) {
+            //tmp = source_2_solvable(g, );
+
+        }
+        // if tmp is not empty 
+        if (true) {
+            //prendo il primo carattere e lo realizzo (unico carattere, maybe tmp non e' una lista)
+            realize_character(*tmp.begin(), g);
+            
+            realized_chars.splice(realized_chars.end(), tmp);
+            realized_chars.splice(realized_chars.end(), realize_red_univ_and_univ_chars(g).first);
+            remove_duplicate_species(g);
+
+        }
+
+     
+
+      // iterates over connected components
+      RBGraphVector conn_comp = connected_components(g);
+      auto cc = conn_comp.begin();
+      auto cc_end = conn_comp.end();
+      for (; cc != cc_end; ++cc)
+      { //itera sulle componenti connesse
+        RBGraph tmp_graph;
+        copy_graph(*cc->get(), tmp_graph);
+        tmp = ppr_general(*cc->get());
+        for (RBVertex v : tmp_graph.m_vertices)
+          remove_vertex(tmp_graph[v].name, g);
+        realized_chars.splice(realized_chars.end(), tmp);
+      }
+    }
+    return realized_chars;
+}
 
 // std::list<SignedCharacter> ppr_general(RBGraph &g, std::list<SignedCharacter> a) {
 //   std::list<SignedCharacter> realized_chars = realize_red_univ_and_univ_chars(g).first; // A == realized chars, as in algorithm 2
