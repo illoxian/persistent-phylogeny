@@ -1,15 +1,12 @@
 
-./bin/ppp.exe: ./obj/main.o ./obj/rbgraph.o ./obj/globals.o ./obj/functions.o ./obj/nfuns.o ./obj/sparsematrix.o ./obj/graph.o ./obj/edge.o ./obj/clique.o
-	g++ ./obj/main.o ./obj/rbgraph.o ./obj/globals.o ./obj/functions.o ./obj/nfuns.o ./obj/sparsematrix.o ./obj/graph.o ./obj/edge.o ./obj/clique.o -o ./bin/ppp.exe -lboost_program_options
+./bin/ppp.exe: ./obj/main.o ./obj/rbgraph.o ./obj/globals.o ./obj/functions.o ./obj/sparsematrix.o ./obj/graph.o ./obj/edge.o ./obj/clique.o
+	g++ ./obj/main.o ./obj/rbgraph.o ./obj/globals.o ./obj/functions.o ./obj/sparsematrix.o ./obj/graph.o ./obj/edge.o ./obj/clique.o -o ./bin/ppp.exe -lboost_program_options
 	
 ./obj/main.o: ./src/main.cpp
 	mkdir ./obj/
 	mkdir ./bin/
 	g++ -c -I./src/ ./src/main.cpp -o ./obj/main.o
 	
-./obj/nfuns.o: ./src/nfuns.cpp
-	g++ -c ./src/nfuns.cpp -o ./obj/nfuns.o
-
 ./obj/functions.o: ./src/functions.cpp
 	g++ -c ./src/functions.cpp -o ./obj/functions.o
 
@@ -32,4 +29,4 @@
 	g++ -c ./src/LexBFS-master/src/Edge.cpp -o ./obj/edge.o
 	
 clean:
-	rm -r obj bin
+	rm -r ./obj ./bin

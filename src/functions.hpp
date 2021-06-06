@@ -260,15 +260,10 @@ std::list<RBVertex> closure(const RBVertex& v, const RBGraph& g);
 
 // new implementation
 
-/**
-  @brief It iterates the graph if it's valid. General procedure descripted in Algorithm 3.
-  // General algorithm for 2-solvable graphs
+void compute_gskeleton(const RBGraph &g, RBGraph &g_skeleton);
 
-  @param[in] g Red-black graph
-  @param[in] a Set of Characters
+std::list<SignedCharacter> source_2_solvable(std::list<RBVertex>& sources, const RBGraph &g);
 
-  @return void
-**/
-std::list<SignedCharacter> ppr_general(const RBGraph& g);
+std::list<SignedCharacter> ppr_general(RBGraph &g);
 
 #endif 

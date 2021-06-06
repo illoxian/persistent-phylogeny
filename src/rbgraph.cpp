@@ -1263,6 +1263,7 @@ bool is_degenerate(const RBGraph& g) {
 
 
 void minimal_form_graph(const RBGraph& g, RBGraph& gmf) {
+  
 
   std::list<RBVertex> cmax = maximal_characters(g);
  

@@ -30,6 +30,7 @@ int main(int argc, const char* argv[]) {
        "Display the operations performed by the program.\n");
       // option: testpy, test reduce output with a python script
 
+
   // initialize hidden options (not shown in --help)
   boost::program_options::options_description hidden_options;
   // option: input files
@@ -118,8 +119,9 @@ int main(int argc, const char* argv[]) {
       std::cout << "[INFO] Extracting the maximal reducible graph..."  << std::endl;
     }
 
-    RBGraph gm;
-    maximal_reducible_graph(g, gm, false);
+// general ppr executes on the G SKELETON
+    // RBGraph gm;
+    // maximal_reducible_graph(g, gm, false);
 
     if (logging::enabled) {
       // verbosity enabled
@@ -130,7 +132,7 @@ int main(int argc, const char* argv[]) {
     std::list<SignedCharacter> realized_characters;
 
     try {
-      realized_characters = ppp_maximal_reducible_graphs(gm);
+      realized_characters = ppr_general(g);
       successfully_reduced = true;
     } catch(...) {
       successfully_reduced = false;
