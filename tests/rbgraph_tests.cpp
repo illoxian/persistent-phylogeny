@@ -12,7 +12,6 @@
 #include <dirent.h>
 #include "../src/rbgraph.hpp"
 #include "../src/functions.hpp"
-#include "../src/nfuns.hpp"
 #include <iostream>
 
 void test_simple_add_vertex() {

@@ -138,7 +138,7 @@ int main(int argc, const char* argv[]) {
       successfully_reduced = false;
     }
 
-    if (!successfully_reduced) {
+    if (realized_characters.empty()) {
       std::cout << "[WARNING] The graph can not be reduced!" << std::endl;
     } else {
       std::cout << "[OK] The graph has been successfully reduced! The realized characters are: ";

@@ -616,7 +616,7 @@ bool is_m_solvable(std::list<RBVertex> &sources, const RBGraph &gm) {
 
 
 std::list<RBVertex> closure(const RBVertex &v, const RBGraph &g)
-
+//C(S) char massimali
 {
 
   // get the minimal characters as follow:
@@ -667,9 +667,17 @@ std::list<RBVertex> closure(const RBVertex &v, const RBGraph &g)
 
 
 // new
-void test_l_source(const RBVertex &s) {
+void test_l_source(const RBVertex &s, const std::list<SignedCharacter> &interjection, const RBGraph &g_skeleton) {
 if (logging::enabled) std::cout<< "[TODO] test_l_source " << std::endl;
+// minimali di g
+// get_all_minimal_p_active_species
+
+
 }
+
+
+
+
 
 void compute_gskeleton(const RBGraph &g, RBGraph &g_skeleton) {
     RBGraph g_min;
@@ -744,11 +752,16 @@ std::list<SignedCharacter> source_2_solvable(std::list<RBVertex> &sources, const
       if (logging::enabled) std::cout<< "[LOGIC] Unique extension or list of vertex extensions?"
                                       << "get_extension gives only one extension " << std::endl;
       RBVertex source_extension = get_extension(source, g_skeleton, minform);
-      
+    
       //extension
       //tmp is the s-extension to source_2_solvable
       if (is_species(source_extension, g_skeleton)) {
-        if (logging::enabled) std::cout<< "[INFO] auto computed " << std::endl;
+        if (logging::enabled) std::cout<< "[INFO] Is species! " << std::endl;
+        RBGraph g;
+        copy_graph(g_skeleton, g);
+        tmp = realize_species( source_extension, g).first;
+
+
 
       }
 
@@ -765,11 +778,24 @@ std::list<SignedCharacter> source_2_solvable(std::list<RBVertex> &sources, const
       RBVertex source2 = *++sources.begin();
       RBVertex extension1 = get_extension(source1, g_skeleton, minform);
       RBVertex extension2 = get_extension(source2, g_skeleton, minform);
+      
+    // ritorno l'estensione corretta
+      
+      if (is_species(extension1, g_skeleton) && is_species(extension2, g_skeleton)){
+        if (logging::enabled) std::cout<< "[INFO] 2-sources are species! " << std::endl;
+        RBGraph g;
+        copy_graph(g_skeleton, g);
+        tmp.splice(tmp.end(), realize_species(extension1, g).first);
+        tmp.splice(tmp.end(), realize_species(extension2, g).first);
+      }
+      
       if (logging::enabled) std::cout << "[LOGIC] given an s common to extension1 and extension2"
                                       << " test-l-source on s AND s beeing non type1 " << std::endl;
 
       RBVertex common;
       if (logging::enabled) std::cout<< "[TODO] Test-1 Procedure " << std::endl;
+
+      
 
       if (logging::enabled) std::cout<< "[TODO] Return the 2-extension! " << std::endl;
       
@@ -802,14 +828,16 @@ std::list<SignedCharacter> ppr_general(RBGraph &g) /*, std::list<SignedCharacter
     if (logging::enabled) std::cout<< "[INFO] Entering ppr_general procedure." << std::endl;
 
 
-    while (!is_empty(g)) {
+    //while (!is_empty(g)) {
         tmp.clear(); // cleans the temporary list 
         
         if(logging::enabled) std::cout << " [INFO] Graph is not empty! Running procedure recursively."
                              << std::endl;
         RBGraph g_skeleton;  
         compute_gskeleton(g, g_skeleton);
+                // std::list<RBVertex> sources = get_sources(g_skeleton);
         std::list<RBVertex> sources = get_sources(g_skeleton);
+        if (logging::enabled) std::cout<< "[TODO] Verificare con Mottadelli " << std::endl;
         if (logging::enabled) std::cout<< " [INFO] Got " << sources.size() << " source(s)!" << std::endl;
 
         if(is_mono_solvable(sources, g_skeleton)) {
@@ -818,7 +846,8 @@ std::list<SignedCharacter> ppr_general(RBGraph &g) /*, std::list<SignedCharacter
           //tmp = source_2_solvable(sources, g_skeleton);
           tmp_vertex = source_1_solvable(sources, g_skeleton);
         }
-        else if( /*is_2_solvable(sources, g_skeleton)*/true) {
+
+        else if(sources.size()==2) {
           if (logging::enabled) std::cout<< "[INFO] g-skeleton is 2-solvable (2-sources)" << std::endl;
 
           tmp = source_2_solvable(sources, g_skeleton);
@@ -830,16 +859,16 @@ std::list<SignedCharacter> ppr_general(RBGraph &g) /*, std::list<SignedCharacter
           //
         } 
         
-        else if(is_m_solvable(sources, g_skeleton)) {}
+        else if(is_degenerate(g_skeleton))  {
+          if (logging::enabled) std::cout<< "[INFO] Graph is degenerate! " << std::endl;
+        }
 
-        // if tmp is not empty 
+
         if (! tmp.empty()) {
-            if (logging::enabled) std::cout<< "[INFO] Temp is not empty " << std::endl;
-            //prendo il primo carattere e lo realizzo (unico carattere, maybe tmp non e' una lista)
-            realize_character(*tmp.begin(), g);
-            std::pair<std::list<SignedCharacter>, bool> res = realize(tmp, g);
+            if (logging::enabled) std::cout<< "[INFO] Temp is not empty, realizing characters... " << std::endl;
+            // realize intero carattere o prima riga?
             realized_chars.splice(realized_chars.end(), tmp);
-            realized_chars.splice(realized_chars.end(), realize_character(*tmp.begin(), g).first);
+            realized_chars.splice(realized_chars.end(), realize(tmp, g).first);
             remove_duplicate_species(g);
        
 
@@ -857,12 +886,12 @@ std::list<SignedCharacter> ppr_general(RBGraph &g) /*, std::list<SignedCharacter
               remove_vertex(tmp_graph[v].name, g);
             realized_chars.splice(realized_chars.end(), tmp);
           }
-        }
 
+/*  
       if( tmp_vertex != nullptr) {
         if (logging::enabled) std::cout<< "[INFO] TempVertex is not empty " << std::endl;
         //prendo il primo carattere e lo realizzo (unico carattere, maybe tmp non e' una lista)
-        realize_character(*tmp.begin(), g);
+        // realize_character(*tmp.begin(), g);
         
         realized_chars.splice(realized_chars.end(), tmp);
         realized_chars.splice(realized_chars.end(), realize_character(*tmp.begin(), g).first);
@@ -886,7 +915,7 @@ std::list<SignedCharacter> ppr_general(RBGraph &g) /*, std::list<SignedCharacter
         }
 
       }
-
+*/
     }
     return realized_chars;
 }
