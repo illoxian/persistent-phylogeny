@@ -48,7 +48,17 @@
 		"description": "If logging enabled prints LOGIC message"
 	},
 
+	"GeneralSwitch": {
+		"prefix": "gen",
+		"body": [
+			"if (general::enabled) {",
+			"\t$0",
+			"}"
+		],
+		"description": "If logging enabled prints LOGIC message"
+	},
+}
+
 	
 	
 
-}

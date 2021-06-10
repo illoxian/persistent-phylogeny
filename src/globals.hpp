@@ -22,6 +22,10 @@ namespace logging {
 extern bool enabled;  ///< Logging toggle
 };
 
+namespace general {
+  extern bool enabled;
+}
+
 //=============================================================================
 // Algorithm modifiers
 

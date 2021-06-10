@@ -27,11 +27,9 @@ int main(int argc, const char* argv[]) {
       ("help,h", "Display this message.\n")
       // option: verbose, print information on the ongoing operations
       ("verbose,v", boost::program_options::bool_switch(&logging::enabled),
-       "Display the operations performed by the program.\n")
+       "Display the operations performed by the program.\n");
       // option: testpy, test reduce output with a python script
 
-      // option: test ppr-general algorithm
-      ("general,g", boost::program_options::bool_switch(&general::enabled));
 
   // initialize hidden options (not shown in --help)
   boost::program_options::options_description hidden_options;
@@ -92,13 +90,7 @@ int main(int argc, const char* argv[]) {
 
   std::cout << "[INFO] Starting..." << std::endl;
   if (files.size() > 1) {
-    if (general::enabled) {
-      std::cout<< "[INFO] Running PPPH on " << files.size() << " files." << std::endl;
-      
-    }
-    else {
-      std::cout << "[INFO] Running PPP on " << files.size() << " files." << std::endl;
-    }
+    std::cout << "[INFO] Running PPP on " << files.size() << " files." << std::endl;
   }
 
   size_t count_file = 0;
@@ -122,70 +114,43 @@ int main(int argc, const char* argv[]) {
       exit(0);
     }
 
-    if (general::enabled) {
-      if (logging::enabled) std::cout<< "[INFO] Executing the PPPH algorithm on the Graph" << std::endl;
-
-
-      bool successfully_reduced = false;
-      std::list<SignedCharacter> realized_characters;
-
-      try {
-        realized_characters = ppr_general(g);
-        successfully_reduced = true;
-      } catch(...) {
-        successfully_reduced = false;
-      }
-
-      if (realized_characters.empty()) {
-        std::cout << "[WARNING] The graph can not be reduced!" << std::endl;
-      } else {
-        std::cout << "[OK] The graph has been successfully reduced! The realized characters are: ";
-        std::cout << "<";
-        for (SignedCharacter sc : realized_characters)
-          std::cout << "(" << sc << ") ";
-        std::cout << ">" << std::endl;
-      }
-
-      std::cout << "[INFO] Processing  \"" << file << "\"... DONE!\n" << std::endl;
-    
+    if (logging::enabled) {
+      // verbosity enabled
+      std::cout << "[INFO] Extracting the maximal reducible graph..."  << std::endl;
     }
-    else {
-      if (logging::enabled) {
-        // verbosity enabled
-        std::cout << "[INFO] Extracting the maximal reducible graph..."  << std::endl;
-      }
 
-      RBGraph gm;
-      maximal_reducible_graph(g, gm, false);
+// general ppr executes on the G SKELETON
+    // RBGraph gm;
+    // maximal_reducible_graph(g, gm, false);
 
-      if (logging::enabled) {
-        // verbosity enabled
-        std::cout << "[INFO] Executing the PPP algorithm on the extracted maximal reducible graph..." << std::endl;
-      }
-
-      bool successfully_reduced = false;
-      std::list<SignedCharacter> realized_characters;
-
-      try {
-        realized_characters = ppp_maximal_reducible_graphs(gm);
-        successfully_reduced = true;
-      } catch(...) {
-        successfully_reduced = false;
-      }
-
-      if (!successfully_reduced) {
-        std::cout << "[WARNING] The graph can not be reduced!" << std::endl;
-      } else {
-        std::cout << "[OK] The graph has been successfully reduced! The realized characters are: ";
-        std::cout << "<";
-        for (SignedCharacter sc : realized_characters)
-          std::cout << "(" << sc << ") ";
-        std::cout << ">" << std::endl;
-      }
-
-      std::cout << "[INFO] Processing  \"" << file << "\"... DONE!\n" << std::endl;
+    if (logging::enabled) {
+      // verbosity enabled
+      std::cout << "[INFO] Executing the PPP algorithm on the extracted maximal reducible graph..." << std::endl;
     }
+
+    bool successfully_reduced = false;
+    std::list<SignedCharacter> realized_characters;
+
+    try {
+      realized_characters = ppr_general(g);
+      successfully_reduced = true;
+    } catch(...) {
+      successfully_reduced = false;
+    }
+
+    if (realized_characters.empty()) {
+      std::cout << "[WARNING] The graph can not be reduced!" << std::endl;
+    } else {
+      std::cout << "[OK] The graph has been successfully reduced! The realized characters are: ";
+      std::cout << "<";
+      for (SignedCharacter sc : realized_characters)
+        std::cout << "(" << sc << ") ";
+      std::cout << ">" << std::endl;
+    }
+
+    std::cout << "[INFO] Processing  \"" << file << "\"... DONE!\n" << std::endl;
   }
+
   std::cout << "[INFO] Finished processing the input files. Terminated successfully." << std::endl;
 
   return 0;

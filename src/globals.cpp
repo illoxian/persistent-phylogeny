@@ -13,6 +13,8 @@
 
 bool logging::enabled = false;
 
+bool general::enabled = false;
+
 //=============================================================================
 // Algorithm modifiers
 
