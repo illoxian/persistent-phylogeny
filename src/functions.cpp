@@ -818,7 +818,6 @@ std::list<SignedCharacter> source_m_solvable(std::list<RBVertex> &sources, const
 }
 
 
-
 std::list<SignedCharacter> ppr_general(RBGraph &g) /*, std::list<SignedCharacter> a) */{
 
     std::list<SignedCharacter> realized_chars = realize_red_univ_and_univ_chars(g).first;
@@ -828,7 +827,7 @@ std::list<SignedCharacter> ppr_general(RBGraph &g) /*, std::list<SignedCharacter
     if (logging::enabled) std::cout<< "[INFO] Entering ppr_general procedure." << std::endl;
 
 
-    //while (!is_empty(g)) {
+    //while (!is_empty(g)) { // is_empty g is completed when all connected omponents are processed, hence we need only 1 run of the while?
         tmp.clear(); // cleans the temporary list 
         
         if(logging::enabled) std::cout << " [INFO] Graph is not empty! Running procedure recursively."
