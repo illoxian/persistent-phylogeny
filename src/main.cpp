@@ -139,7 +139,7 @@ int main(int argc, const char* argv[]) {
       if (realized_characters.empty()) {
         std::cout << "[WARNING] The graph can not be reduced!" << std::endl;
       } else {
-        std::cout << "[OK] The graph has been successfully reduced! The realized characters are: ";
+        std::cout << "[OK] The graph" << file << " has been successfully reduced! The realized characters are: ";
         std::cout << "<";
         for (SignedCharacter sc : realized_characters)
           std::cout << "(" << sc << ") ";

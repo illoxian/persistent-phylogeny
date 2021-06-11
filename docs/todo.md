@@ -1,14 +1,5 @@
 # todo
 
-## call lunedi 14 maggio - bonizzoni/soto
-
-### Domande
-
-- G-skeleton G-min/G-max
-- Esempi per testare le matrici
-
-### problema
-
 ### Soto
 
 Input del problema
@@ -35,3 +26,12 @@ Input del problema
 
 ---
 ## prima call - algoritmi 3 e 4
+
+## algorithm 4 -- source-2-solvable
+
+- trovare le estensione di `s` (specie?)
+  - `ext1` e `ext2`
+- se ho due estensioni, devo eseguire il test su entrambe e trovare la "migliore" che passi il `test-l-source` e NOT `type-1` (line tree)
+  - allora posso ritornare una delle due come `ext` migliore
+
+##

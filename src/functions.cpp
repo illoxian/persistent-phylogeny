@@ -216,7 +216,8 @@ void sort_by_degree(std::list<RBVertex> &list_to_sort, const RBGraph &g)
   for (RBVertex v : list_to_sort)
     list_of_pairs.push_back(std::make_pair(v, out_degree(v, g)));
 
-  auto comparator = [](const std::pair<RBVertex, int> &a, const std::pair<RBVertex, int> &b) {
+  auto comparator = [](const std::pair<RBVertex, int> &a, const std::pair<RBVertex, int> &b)
+  {
     return a.second > b.second;
   };
 
@@ -559,17 +560,17 @@ std::list<RBVertex> get_sources(const RBGraph &gm)
   return sources;
 }
 
-
-
 // new
-bool is_mono_solvable(std::list<RBVertex> &sources, const RBGraph &gm) {
+bool is_mono_solvable(std::list<RBVertex> &sources, const RBGraph &gm)
+{
   if (sources.size() != 1)
     return false;
-  
+
   RBVertex source = *sources.begin();
-  if (get_adj_vertices(source, gm).size() < 1)
-    return false;
-  if (logging::enabled) std::cout<< " [INFO] mono_solvable " << std::endl;
+  //if (get_adj_vertices(source, gm).size() < 1)
+  //return false;
+  if (logging::enabled)
+    std::cout << " [INFO] mono_solvable " << std::endl;
   return true;
 }
 // end new
@@ -583,37 +584,40 @@ bool is_2_solvable(std::list<RBVertex> &sources, const RBGraph &gm)
   RBVertex source1 = *sources.begin();
   RBVertex source2 = *++sources.begin();
   if (get_adj_vertices(source1, gm).size() < 2 ||
-      get_adj_vertices(source2, gm).size() < 2) {
-        if (logging::enabled) std::cout<< "[INFO] got 2 sources, less than 2 adj vertices " << std::endl;
+      get_adj_vertices(source2, gm).size() < 2)
+  {
+    if (logging::enabled)
+      std::cout << "[INFO] got 2 sources, less than 2 adj vertices " << std::endl;
     return false;
   }
 
-  if (logging::enabled) std::cout<< " [TODO]: is_2_solvable semantics " << std::endl;
+  if (logging::enabled)
+    std::cout << " [TODO]: is_2_solvable semantics " << std::endl;
   // TODO da correggere???? la due solvable puo essere risolta sia con uno che con due soruces??
   return true;
 }
 
-bool is_3_canonical(std::list<RBVertex> &sources, const RBGraph &gm){
+bool is_3_canonical(std::list<RBVertex> &sources, const RBGraph &gm)
+{
   if (sources.size() != 3)
     return false;
   RBVertex source1 = *sources.begin();
   RBVertex source2 = *++sources.begin();
   RBVertex source3 = *++++sources.begin();
 
-  if (logging::enabled) std::cout<< " [TODO]: is_3_solvable semantics " << std::endl;
+  if (logging::enabled)
+    std::cout << " [TODO]: is_3_solvable semantics " << std::endl;
   return true;
-
-  
 }
 
-bool is_m_solvable(std::list<RBVertex> &sources, const RBGraph &gm) {
+bool is_m_solvable(std::list<RBVertex> &sources, const RBGraph &gm)
+{
   if (sources.size() <= 3)
     return false;
   //
-  
+
   return true;
 }
-
 
 std::list<RBVertex> closure(const RBVertex &v, const RBGraph &g)
 //C(S) char massimali
@@ -662,30 +666,25 @@ std::list<RBVertex> closure(const RBVertex &v, const RBGraph &g)
   return cmin;
 }
 
-
 ////////////////////////////////////////////////
 
-
 // new
-void test_l_source(const RBVertex &s, const std::list<SignedCharacter> &interjection, const RBGraph &g_skeleton) {
-if (logging::enabled) std::cout<< "[TODO] test_l_source " << std::endl;
-// minimali di g
-// get_all_minimal_p_active_species
-
-
+void test_l_source(const RBVertex &s, const std::list<SignedCharacter> &interjection, const RBGraph &g_skeleton)
+{
+  if (logging::enabled)
+    std::cout << "[TODO] test_l_source " << std::endl;
+  // minimali di g
+  // get_all_minimal_p_active_species
 }
 
-
-
-
-
-void compute_gskeleton(const RBGraph &g, RBGraph &g_skeleton) {
-    RBGraph g_min;
-    minimal_form_graph(g, g_min);
-    maximal_reducible_graph(g_min, g_skeleton, true);
-    if(logging::enabled) std::cout << " [INFO] Computing g-skeleton... " << std::endl;
+void compute_gskeleton(const RBGraph &g, RBGraph &g_skeleton)
+{
+  RBGraph g_min;
+  minimal_form_graph(g, g_min);
+  maximal_reducible_graph(g_min, g_skeleton, true);
+  if (logging::enabled)
+    std::cout << " [INFO] Computing g-skeleton... " << std::endl;
 }
-
 
 /*
 std::list<SignedCharacter> source_2_solvable(RBGraph &g)
@@ -721,172 +720,202 @@ std::list<SignedCharacter> source_2_solvable(RBGraph &g)
 bool is_3_canonical(std::list<)
 **/
 
-
 // source 1 solvable REMOVE
-RBVertex source_1_solvable(std::list<RBVertex> &sources, const RBGraph &g_skeleton) {
- if (logging::enabled) std::cout<< "[TODO] REMOVE THIS -- implement logic in source 2 solvable " << std::endl;
+RBVertex source_1_solvable(std::list<RBVertex> &sources, const RBGraph &g_skeleton)
+{
+  if (logging::enabled)
+    std::cout << "[TODO] REMOVE THIS -- implement logic in source 2 solvable " << std::endl;
   RBGraph minform;
   minimal_form_graph(g_skeleton, minform);
   RBVertex tmp;
-  if (sources.size() == 1) {
-    RBVertex source = *sources.begin(); 
+  if (sources.size() == 1)
+  {
+    RBVertex source = *sources.begin();
     RBVertex source_extension = get_extension(source, g_skeleton, minform);
-      //extension
-      //tmp is the sextension to source_2_solvable      
+    //extension
+    //tmp is the sextension to source_2_solvable
     return source_extension;
   }
   return nullptr;
 }
 
-std::list<SignedCharacter> source_2_solvable(std::list<RBVertex> &sources, const RBGraph &g_skeleton) {
+std::list<SignedCharacter> source_2_solvable(std::list<RBVertex> &sources, const RBGraph &g_skeleton)
+{
 
   RBGraph minform;
   minimal_form_graph(g_skeleton, minform);
   std::list<SignedCharacter> tmp;
-  if (sources.size() == 1) {
+  if (sources.size() == 1)
+  {
 
-      if(logging::enabled)
-        std::cout << " - [INFO] -> 1-source" << std::endl;
-      RBVertex source = *sources.begin(); 
+    if (logging::enabled)
+      std::cout << " - [INFO] -> 1-source" << std::endl;
+    RBVertex source = *sources.begin();
 
-      if (logging::enabled) std::cout<< "[LOGIC] Unique extension or list of vertex extensions?"
-                                      << "get_extension gives only one extension " << std::endl;
-      RBVertex source_extension = get_extension(source, g_skeleton, minform);
-    
-      //extension
-      //tmp is the s-extension to source_2_solvable
-      if (is_species(source_extension, g_skeleton)) {
-        if (logging::enabled) std::cout<< "[INFO] Is species! " << std::endl;
-        RBGraph g;
-        copy_graph(g_skeleton, g);
-        tmp = realize_species( source_extension, g).first;
+    if (logging::enabled)
+      std::cout << "[LOGIC] Unique extension or list of vertex extensions?"
+                << "get_extension gives only one extension " << std::endl;
+    RBVertex source_extension = get_extension(source, g_skeleton, minform);
 
+    //extension
+    //tmp is the s-extension to source_2_solvable
+    if (is_species(source_extension, g_skeleton))
+    {
+      if (logging::enabled)
+        std::cout << "[INFO] Is species! " << std::endl;
+      RBGraph g;
+      copy_graph(g_skeleton, g);
+      tmp = realize_species(source_extension, g).first;
+    }
 
+    if (logging::enabled)
+      std::cout << "[TODO] Return the 1-extension! " << std::endl;
 
-      }
-
-      if (logging::enabled) std::cout<< "[TODO] Return the 1-extension! " << std::endl;
-      
-      return tmp;
-  
+    return tmp;
   }
 
-  else if (sources.size() == 2) {
-      if(logging::enabled)
-        std::cout << " - [INFO] -> 2-sources" << std::endl;
-      RBVertex source1 = *sources.begin();
-      RBVertex source2 = *++sources.begin();
-      RBVertex extension1 = get_extension(source1, g_skeleton, minform);
-      RBVertex extension2 = get_extension(source2, g_skeleton, minform);
-      
+  else if (sources.size() == 2)
+  {
+    if (logging::enabled)
+      std::cout << " - [INFO] -> 2-sources" << std::endl;
+    RBVertex source1 = *sources.begin();
+    RBVertex source2 = *++sources.begin();
+    RBVertex extension1 = get_extension(source1, g_skeleton, minform);
+    RBVertex extension2 = get_extension(source2, g_skeleton, minform);
+
     // ritorno l'estensione corretta
-      
-      if (is_species(extension1, g_skeleton) && is_species(extension2, g_skeleton)){
-        if (logging::enabled) std::cout<< "[INFO] 2-sources are species! " << std::endl;
-        RBGraph g;
-        copy_graph(g_skeleton, g);
-        tmp.splice(tmp.end(), realize_species(extension1, g).first);
-        tmp.splice(tmp.end(), realize_species(extension2, g).first);
-      }
-      
-      if (logging::enabled) std::cout << "[LOGIC] given an s common to extension1 and extension2"
-                                      << " test-l-source on s AND s beeing non type1 " << std::endl;
 
-      RBVertex common;
-      if (logging::enabled) std::cout<< "[TODO] Test-1 Procedure " << std::endl;
+    if (is_species(extension1, g_skeleton) && is_species(extension2, g_skeleton))
+    {
+      if (logging::enabled)
+        std::cout << "[INFO] 2-sources are species! " << std::endl;
+      RBGraph g;
+      copy_graph(g_skeleton, g);
+      tmp.splice(tmp.end(), realize_species(extension1, g).first);
+      tmp.splice(tmp.end(), realize_species(extension2, g).first);
+    }
 
-      
+    if (logging::enabled)
+      std::cout << "[LOGIC] given an s common to extension1 and extension2"
+                << " test-l-source on s AND s beeing non type1 " << std::endl;
 
-      if (logging::enabled) std::cout<< "[TODO] Return the 2-extension! " << std::endl;
-      
-      // if s is in s1_ext and s2_ext
-      return tmp;
+    RBVertex common;
+    if (logging::enabled)
+      std::cout << "[TODO] Test-1 Procedure " << std::endl;
+
+    if (logging::enabled)
+      std::cout << "[TODO] Return the 2-extension! " << std::endl;
+
+    // if s is in s1_ext and s2_ext
+    return tmp;
   }
 
   return tmp;
 }
 
-
-
-std::list<SignedCharacter> source_3_canonical(std::list<RBVertex> &sources, const RBGraph &g_skeleton) {
+std::list<SignedCharacter> source_3_canonical(std::list<RBVertex> &sources, const RBGraph &g_skeleton)
+{
 }
 
-
-
-std::list<SignedCharacter> source_m_solvable(std::list<RBVertex> &sources, const RBGraph &g_skeleton) {
-
+std::list<SignedCharacter> source_m_solvable(std::list<RBVertex> &sources, const RBGraph &g_skeleton)
+{
 }
 
+std::list<SignedCharacter> ppr_general(RBGraph &g) /*, std::list<SignedCharacter> a) */
+{
 
-std::list<SignedCharacter> ppr_general(RBGraph &g) /*, std::list<SignedCharacter> a) */{
+  std::list<SignedCharacter> realized_chars = realize_red_univ_and_univ_chars(g).first;
+  remove_duplicate_species(g);
+  std::list<SignedCharacter> tmp;
+  RBVertex tmp_vertex = nullptr;
+  if (logging::enabled)
+    std::cout << "[INFO] Entering ppr_general procedure." << std::endl;
+  bool pass = false;
 
-    std::list<SignedCharacter> realized_chars = realize_red_univ_and_univ_chars(g).first;
-    remove_duplicate_species(g);
-    std::list<SignedCharacter> tmp;
-    RBVertex tmp_vertex = nullptr;
-    if (logging::enabled) std::cout<< "[INFO] Entering ppr_general procedure." << std::endl;
+  while (!is_empty(g))
+  {              // is_empty g is completed when all connected omponents are processed, hence we need only 1 run of the while?
+    tmp.clear(); // cleans the temporary list
 
+    if (logging::enabled)
+      std::cout << " [INFO] Graph is not empty! Running procedure recursively." << std::endl;
 
-    //while (!is_empty(g)) { // is_empty g is completed when all connected omponents are processed, hence we need only 1 run of the while?
-        tmp.clear(); // cleans the temporary list 
-        
-        if(logging::enabled) std::cout << " [INFO] Graph is not empty! Running procedure recursively."
-                             << std::endl;
-        RBGraph g_skeleton;  
-        compute_gskeleton(g, g_skeleton);
-                // std::list<RBVertex> sources = get_sources(g_skeleton);
-        std::list<RBVertex> sources = get_sources(g_skeleton);
-        if (logging::enabled) std::cout<< "[TODO] Verificare con Mottadelli " << std::endl;
-        if (logging::enabled) std::cout<< " [INFO] Got " << sources.size() << " source(s)!" << std::endl;
+    RBGraph g_skeleton;
+    compute_gskeleton(g, g_skeleton);
+    std::list<RBVertex> sources = get_sources(g_skeleton);
 
-        if(is_mono_solvable(sources, g_skeleton)) {
-          if (logging::enabled) std::cout << " [INFO] g-skeleton is 2-solvable (1 source)" << std::endl;
-          //tmp = source_2_solvable(g, );
-          //tmp = source_2_solvable(sources, g_skeleton);
-          tmp_vertex = source_1_solvable(sources, g_skeleton);
-        }
+    if (logging::enabled)
+      std::cout << "[TODO] Verificare con Mottadelli " << std::endl;
+    if (logging::enabled)
+      std::cout << " [INFO] Got " << sources.size() << " source(s)!" << std::endl;
 
-        else if(sources.size()==2) {
-          if (logging::enabled) std::cout<< "[INFO] g-skeleton is 2-solvable (2-sources)" << std::endl;
+    if (is_mono_solvable(sources, g_skeleton))
+    {
+      if (logging::enabled)
+        std::cout << " [INFO] g-skeleton is 2-solvable (1 source)" << std::endl;
+      //tmp = source_2_solvable(g, );
+      //tmp = source_2_solvable(sources, g_skeleton);
+      tmp = source_2_solvable(sources, g_skeleton);
+      // tmp_vertex = source_1_solvable(sources, g_skeleton);
+    }
 
-          tmp = source_2_solvable(sources, g_skeleton);
-          //
-        }
-        else if (is_3_canonical(sources, g_skeleton)) {
-          if (logging::enabled) std::cout<< "[INFO] g-skeleton is 3 canonical " << std::endl;
+    else if (is_2_solvable(sources, g_skeleton))
+    {
+      if (logging::enabled && is_2_solvable(sources, g_skeleton))
+        std::cout << "[PASSED] check 2 solvable passed " << std::endl;
 
-          //
-        } 
-        
-        else if(is_degenerate(g_skeleton))  {
-          if (logging::enabled) std::cout<< "[INFO] Graph is degenerate! " << std::endl;
-        }
+      if (logging::enabled)
+        std::cout << "[INFO] g-skeleton is 2-solvable (2-sources)" << std::endl;
 
+      tmp = source_2_solvable(sources, g_skeleton);
+      //
+    }
+    else if (is_3_canonical(sources, g_skeleton))
+    {
+      if (logging::enabled)
+        std::cout << "[INFO] g-skeleton is 3 canonical " << std::endl;
+      pass = true;
 
-        if (! tmp.empty()) {
-            if (logging::enabled) std::cout<< "[INFO] Temp is not empty, realizing characters... " << std::endl;
-            // realize intero carattere o prima riga?
-            realized_chars.splice(realized_chars.end(), tmp);
-            realized_chars.splice(realized_chars.end(), realize(tmp, g).first);
-            remove_duplicate_species(g);
-       
+      //
+    }
 
-        // iterates over connected components
-          RBGraphVector conn_comp = connected_components(g);
-          if (logging::enabled) std::cout<< "[INFO] Iterating over connected components" << std::endl;
-          auto cc = conn_comp.begin();
-          auto cc_end = conn_comp.end();
-          for (; cc != cc_end; ++cc)
-          { //itera sulle componenti connesse
-            RBGraph tmp_graph;
-            copy_graph(*cc->get(), tmp_graph);
-            tmp = ppr_general(*cc->get());
-            for (RBVertex v : tmp_graph.m_vertices)
-              remove_vertex(tmp_graph[v].name, g);
-            realized_chars.splice(realized_chars.end(), tmp);
-          }
+    else if (is_degenerate(g_skeleton))
+    {
+      if (logging::enabled)
+        std::cout << "[INFO] Graph is degenerate! " << std::endl;
+      pass = true;
+    }
+    else
+    {
+      throw "Graph Cannot Be Reduced!";
+    }
 
-/*  
+    if (!tmp.empty())
+    {
+      if (logging::enabled)
+        std::cout << "[INFO] Temp is not empty, realizing characters... " << std::endl;
+      // realize intero carattere o prima riga?
+      realized_chars.splice(realized_chars.end(), tmp);
+      realized_chars.splice(realized_chars.end(), realize(tmp, g).first);
+      remove_duplicate_species(g);
+
+      // iterates over connected components
+      RBGraphVector conn_comp = connected_components(g);
+      if (logging::enabled)
+        std::cout << "[INFO] Iterating over connected components" << std::endl;
+      auto cc = conn_comp.begin();
+      auto cc_end = conn_comp.end();
+      for (; cc != cc_end; ++cc)
+      { //itera sulle componenti connesse
+        RBGraph tmp_graph;
+        copy_graph(*cc->get(), tmp_graph);
+        tmp = ppr_general(*cc->get());
+        for (RBVertex v : tmp_graph.m_vertices)
+          remove_vertex(tmp_graph[v].name, g);
+        realized_chars.splice(realized_chars.end(), tmp);
+      }
+    }
+  }
+  /*  
       if( tmp_vertex != nullptr) {
         if (logging::enabled) std::cout<< "[INFO] TempVertex is not empty " << std::endl;
         //prendo il primo carattere e lo realizzo (unico carattere, maybe tmp non e' una lista)
@@ -913,10 +942,9 @@ std::list<SignedCharacter> ppr_general(RBGraph &g) /*, std::list<SignedCharacter
           realized_chars.splice(realized_chars.end(), tmp);
         }
 
-      }
 */
-    }
-    return realized_chars;
+
+  return realized_chars;
 }
 
 /*
