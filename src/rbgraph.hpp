@@ -719,6 +719,7 @@ bool is_active(const RBVertex& v, const RBGraph& g);
   @return bool
 */
 inline bool is_inactive(const RBVertex& v, const RBGraph& g) {
+  if (logging::enabled) std::cout<< "[TODO] is_inactive not needed, use !is_active instead " << std::endl;
   return !is_active(v, g);
 }
 
@@ -1096,5 +1097,8 @@ void minimal_form_graph(const RBGraph& g, RBGraph& gmf);
   @return bool
 **/
 bool has_consecutive_ones_property(RBGraph& g);
+
+
+bool is_linetree(RBGraph& g);
 
 #endif  // RBGRAPH_HPP

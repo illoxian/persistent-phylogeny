@@ -1,3 +1,4 @@
+
 /** 
  * 
  * @file rbgraph.cpp
@@ -1326,4 +1327,13 @@ void minimal_form_graph(const RBGraph& g, RBGraph& gmf) {
       add_edge(g[v].name, g[edge->m_target].name, g[*edge].color, gmf);
     }
   }
+}
+
+
+bool is_linetree(RBGraph &g) {
+  bool check = true;
+  if (false) // exist a branch in the graph
+    check = false;
+
+  return true;
 }

@@ -31,7 +31,8 @@ int main(int argc, const char* argv[]) {
       // option: testpy, test reduce output with a python script
 
       // option: test ppr-general algorithm
-      ("general,g", boost::program_options::bool_switch(&general::enabled));
+      ("general,g", boost::program_options::bool_switch(&general::enabled))
+      ("print,p", boost::program_options::bool_switch(&print_graph::enabled));
 
   // initialize hidden options (not shown in --help)
   boost::program_options::options_description hidden_options;
@@ -136,10 +137,10 @@ int main(int argc, const char* argv[]) {
         successfully_reduced = false;
       }
 
-      if (realized_characters.empty()) {
-        std::cout << "[WARNING] The graph can not be reduced!" << std::endl;
+      if (!successfully_reduced) {
+        std::cout << "[RES] [WARNING] The graph can not be reduced!" << std::endl;
       } else {
-        std::cout << "[OK] The graph" << file << " has been successfully reduced! The realized characters are: ";
+        std::cout << "[RES] [OK] The graph" << file << " has been successfully reduced! The realized characters are: ";
         std::cout << "<";
         for (SignedCharacter sc : realized_characters)
           std::cout << "(" << sc << ") ";
@@ -157,7 +158,6 @@ int main(int argc, const char* argv[]) {
 
       RBGraph gm;
       maximal_reducible_graph(g, gm, false);
-
       if (logging::enabled) {
         // verbosity enabled
         std::cout << "[INFO] Executing the PPP algorithm on the extracted maximal reducible graph..." << std::endl;
@@ -174,9 +174,9 @@ int main(int argc, const char* argv[]) {
       }
 
       if (!successfully_reduced) {
-        std::cout << "[WARNING] The graph can not be reduced!" << std::endl;
+        std::cout << "[RES] [WARNING] The graph can not be reduced!" << std::endl;
       } else {
-        std::cout << "[OK] The graph has been successfully reduced! The realized characters are: ";
+        std::cout << "[RES] [OK] The graph has been successfully reduced! The realized characters are: ";
         std::cout << "<";
         for (SignedCharacter sc : realized_characters)
           std::cout << "(" << sc << ") ";

@@ -24,7 +24,11 @@ extern bool enabled;  ///< Logging toggle
 
 namespace general {
   extern bool enabled;
-}
+};
+
+namespace print_graph {
+  extern bool enabled;
+};
 
 //=============================================================================
 // Algorithm modifiers

@@ -3,8 +3,8 @@
 	g++ ./obj/main.o ./obj/rbgraph.o ./obj/globals.o ./obj/functions.o ./obj/sparsematrix.o ./obj/graph.o ./obj/edge.o ./obj/clique.o -o ./bin/ppp.exe -lboost_program_options
 	
 ./obj/main.o: ./src/main.cpp
-	mkdir ./obj/
-	mkdir ./bin/
+	mkdir -p ./obj/
+	mkdir -p ./bin/
 	g++ -c -I./src/ ./src/main.cpp -o ./obj/main.o
 	
 ./obj/functions.o: ./src/functions.cpp

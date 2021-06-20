@@ -185,7 +185,8 @@ RBVertex get_minimal_p_active_species(const RBGraph& g);
 /**
   @brief Return a quasi-active species in \e g if it exists.
 
-  A vertex \e s is quasi-active in a red-black graph if it has red-incoming edges, but it can be removed from \e g without producing a red-Σ-graph.
+  A vertex \e s is quasi-active in a red-black graph if it has red-incoming edges,
+  but it can be removed from \e g without producing a red-Σ-graph.
 
   @param[in] g Red-black graph
 
@@ -258,11 +259,23 @@ bool is_2_solvable(std::list<RBVertex>& sources, const RBGraph& gm);
 **/
 std::list<RBVertex> closure(const RBVertex& v, const RBGraph& g);
 
-// new implementation
+
+
+
+bool is_3_canonical(std::list<RBVertex> &sources, const RBGraph &gm);
+
+bool is_m_solvable(std::list<RBVertex> &sources, const RBGraph &gm);
+
+void test_l_source(const RBVertex &s, const std::list<SignedCharacter> &interjection, const RBGraph &g_skeleton);
 
 void compute_gskeleton(const RBGraph &g, RBGraph &g_skeleton);
 
+
 std::list<SignedCharacter> source_2_solvable(std::list<RBVertex>& sources, const RBGraph &g);
+
+std::list<SignedCharacter> source_3_canonical(std::list<RBVertex> &sources, const RBGraph &g_skeleton);
+
+std::list<SignedCharacter> source_m_solvable(std::list<RBVertex> &sources, const RBGraph &g_skeleton);
 
 std::list<SignedCharacter> ppr_general(RBGraph &g);
 

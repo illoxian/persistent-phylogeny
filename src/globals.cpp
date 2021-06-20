@@ -15,6 +15,7 @@ bool logging::enabled = false;
 
 bool general::enabled = false;
 
+bool print_graph::enabled = false;
 //=============================================================================
 // Algorithm modifiers
 

@@ -425,8 +425,8 @@ std::pair<std::list<SignedCharacter>, bool> realize_red_univ_and_univ_chars(RBGr
 
 RBVertex get_extension(const RBVertex &s, const RBGraph &gmax, const RBGraph &gmin)
 {
-  std::cout << "*** get_extension ***" << std::endl;
-
+  if (logging::enabled) std::cout<< "[INFO] get_extension " << std::endl;
+  
   // ******** CASE 1 ********
   // check whether s already exists in gmin without any additional minimal characters. If it exists, then we have already found the extension of s.
 
@@ -560,25 +560,18 @@ std::list<RBVertex> get_sources(const RBGraph &gm)
   return sources;
 }
 
-// new
-bool is_mono_solvable(std::list<RBVertex> &sources, const RBGraph &gm)
+bool is_2_solvable(std::list<RBVertex> &sources, const RBGraph &gm)
 {
-  if (sources.size() != 1)
-    return false;
-
+  if (sources.size() == 1) {
   RBVertex source = *sources.begin();
   //if (get_adj_vertices(source, gm).size() < 1)
   //return false;
   if (logging::enabled)
     std::cout << " [INFO] mono_solvable " << std::endl;
-  return true;
-}
-// end new
+    return true;
+  }
 
-bool is_2_solvable(std::list<RBVertex> &sources, const RBGraph &gm)
-{
-
-  if (sources.size() != 2)
+  else if (sources.size() != 2)
     return false;
 
   RBVertex source1 = *sources.begin();
@@ -619,8 +612,7 @@ bool is_m_solvable(std::list<RBVertex> &sources, const RBGraph &gm)
   return true;
 }
 
-std::list<RBVertex> closure(const RBVertex &v, const RBGraph &g)
-//C(S) char massimali
+std::list<RBVertex> closure(const RBVertex &v, const RBGraph &g) //C(S) char massimali
 {
 
   // get the minimal characters as follow:
@@ -721,10 +713,10 @@ bool is_3_canonical(std::list<)
 **/
 
 // source 1 solvable REMOVE
+/**
 RBVertex source_1_solvable(std::list<RBVertex> &sources, const RBGraph &g_skeleton)
 {
-  if (logging::enabled)
-    std::cout << "[TODO] REMOVE THIS -- implement logic in source 2 solvable " << std::endl;
+  if (logging::enabled) std::cout<< "[WARNING] DEPRECATED " << std::endl;
   RBGraph minform;
   minimal_form_graph(g_skeleton, minform);
   RBVertex tmp;
@@ -738,23 +730,21 @@ RBVertex source_1_solvable(std::list<RBVertex> &sources, const RBGraph &g_skelet
   }
   return nullptr;
 }
+**/
 
-std::list<SignedCharacter> source_2_solvable(std::list<RBVertex> &sources, const RBGraph &g_skeleton)
+std::list<SignedCharacter> source_2_solvable(std::list<RBVertex> &sources, const RBGraph &g)
 {
 
   RBGraph minform;
-  minimal_form_graph(g_skeleton, minform);
+  RBGraph g_skeleton;
+  compute_gskeleton(g, g_skeleton);
+  minimal_form_graph(g, minform);
+
+
   std::list<SignedCharacter> tmp;
   if (sources.size() == 1)
   {
-
-    if (logging::enabled)
-      std::cout << " - [INFO] -> 1-source" << std::endl;
     RBVertex source = *sources.begin();
-
-    if (logging::enabled)
-      std::cout << "[LOGIC] Unique extension or list of vertex extensions?"
-                << "get_extension gives only one extension " << std::endl;
     RBVertex source_extension = get_extension(source, g_skeleton, minform);
 
     //extension
@@ -768,7 +758,7 @@ std::list<SignedCharacter> source_2_solvable(std::list<RBVertex> &sources, const
       tmp = realize_species(source_extension, g).first;
     }
 
-    if (logging::enabled)
+    if (logging::enabled && tmp.size()!=0)
       std::cout << "[TODO] Return the 1-extension! " << std::endl;
 
     return tmp;
@@ -795,18 +785,9 @@ std::list<SignedCharacter> source_2_solvable(std::list<RBVertex> &sources, const
       tmp.splice(tmp.end(), realize_species(extension2, g).first);
     }
 
-    if (logging::enabled)
-      std::cout << "[LOGIC] given an s common to extension1 and extension2"
-                << " test-l-source on s AND s beeing non type1 " << std::endl;
 
     RBVertex common;
-    if (logging::enabled)
-      std::cout << "[TODO] Test-1 Procedure " << std::endl;
 
-    if (logging::enabled)
-      std::cout << "[TODO] Return the 2-extension! " << std::endl;
-
-    // if s is in s1_ext and s2_ext
     return tmp;
   }
 
@@ -815,125 +796,66 @@ std::list<SignedCharacter> source_2_solvable(std::list<RBVertex> &sources, const
 
 std::list<SignedCharacter> source_3_canonical(std::list<RBVertex> &sources, const RBGraph &g_skeleton)
 {
+  if (logging::enabled) std::cout<< "[TODO] implement source_3_canonical " << std::endl;
 }
 
 std::list<SignedCharacter> source_m_solvable(std::list<RBVertex> &sources, const RBGraph &g_skeleton)
 {
+  if (logging::enabled) std::cout<< "[TODO] implement source_m_solvable  " << std::endl;
 }
 
 std::list<SignedCharacter> ppr_general(RBGraph &g) /*, std::list<SignedCharacter> a) */
 {
-
   std::list<SignedCharacter> realized_chars = realize_red_univ_and_univ_chars(g).first;
   remove_duplicate_species(g);
-  std::list<SignedCharacter> tmp;
-  RBVertex tmp_vertex = nullptr;
-  if (logging::enabled)
-    std::cout << "[INFO] Entering ppr_general procedure." << std::endl;
-  bool pass = false;
+  std::list<SignedCharacter> result;  
+  
+  while (!is_empty(g)){
+    // result.clear();
+    RBGraph gm;
+    compute_gskeleton(g, gm);
+    std::list<RBVertex> sources_skeleton = get_sources(gm);
 
-  while (!is_empty(g))
-  {              // is_empty g is completed when all connected omponents are processed, hence we need only 1 run of the while?
-    tmp.clear(); // cleans the temporary list
-
-    if (logging::enabled)
-      std::cout << " [INFO] Graph is not empty! Running procedure recursively." << std::endl;
-
-    RBGraph g_skeleton;
-    compute_gskeleton(g, g_skeleton);
-    std::list<RBVertex> sources = get_sources(g_skeleton);
-
-    if (logging::enabled)
-      std::cout << "[TODO] Verificare con Mottadelli " << std::endl;
-    if (logging::enabled)
-      std::cout << " [INFO] Got " << sources.size() << " source(s)!" << std::endl;
-
-    if (is_mono_solvable(sources, g_skeleton))
-    {
-      if (logging::enabled)
-        std::cout << " [INFO] g-skeleton is 2-solvable (1 source)" << std::endl;
-      //tmp = source_2_solvable(g, );
-      //tmp = source_2_solvable(sources, g_skeleton);
-      tmp = source_2_solvable(sources, g_skeleton);
-      // tmp_vertex = source_1_solvable(sources, g_skeleton);
-    }
-
-    else if (is_2_solvable(sources, g_skeleton))
-    {
-      if (logging::enabled && is_2_solvable(sources, g_skeleton))
-        std::cout << "[PASSED] check 2 solvable passed " << std::endl;
-
-      if (logging::enabled)
-        std::cout << "[INFO] g-skeleton is 2-solvable (2-sources)" << std::endl;
-
-      tmp = source_2_solvable(sources, g_skeleton);
-      //
-    }
-    else if (is_3_canonical(sources, g_skeleton))
-    {
-      if (logging::enabled)
-        std::cout << "[INFO] g-skeleton is 3 canonical " << std::endl;
-      pass = true;
-
-      //
-    }
-
-    else if (is_degenerate(g_skeleton))
-    {
-      if (logging::enabled)
-        std::cout << "[INFO] Graph is degenerate! " << std::endl;
-      pass = true;
-    }
-    else
-    {
-      throw "Graph Cannot Be Reduced!";
-    }
-
-    if (!tmp.empty())
-    {
-      if (logging::enabled)
-        std::cout << "[INFO] Temp is not empty, realizing characters... " << std::endl;
-      // realize intero carattere o prima riga?
-      realized_chars.splice(realized_chars.end(), tmp);
-      realized_chars.splice(realized_chars.end(), realize(tmp, g).first);
-      remove_duplicate_species(g);
-
-      // iterates over connected components
-      RBGraphVector conn_comp = connected_components(g);
-      if (logging::enabled)
-        std::cout << "[INFO] Iterating over connected components" << std::endl;
-      auto cc = conn_comp.begin();
-      auto cc_end = conn_comp.end();
-      for (; cc != cc_end; ++cc)
-      { //itera sulle componenti connesse
-        RBGraph tmp_graph;
-        copy_graph(*cc->get(), tmp_graph);
-        tmp = ppr_general(*cc->get());
-        for (RBVertex v : tmp_graph.m_vertices)
-          remove_vertex(tmp_graph[v].name, g);
-        realized_chars.splice(realized_chars.end(), tmp);
-      }
-    }
-  }
-  /*  
-      if( tmp_vertex != nullptr) {
-        if (logging::enabled) std::cout<< "[INFO] TempVertex is not empty " << std::endl;
-        //prendo il primo carattere e lo realizzo (unico carattere, maybe tmp non e' una lista)
-        // realize_character(*tmp.begin(), g);
-        
-        realized_chars.splice(realized_chars.end(), tmp);
-        realized_chars.splice(realized_chars.end(), realize_character(*tmp.begin(), g).first);
-        remove_duplicate_species(g);
-
+    std::list<RBVertex> sources_graph = get_sources(g);
+  
+    
     
 
-    // iterates over connected components
-        RBGraphVector conn_comp = connected_components(g);
-        if (logging::enabled) std::cout<< "[INFO] Iterating over connected components" << std::endl;
-        auto cc = conn_comp.begin();
-        auto cc_end = conn_comp.end();
+    if (is_2_solvable(sources_skeleton, gm)) {
+      result = source_2_solvable(sources_graph, g);
+    }
+    else if (!is_2_solvable(sources_skeleton,gm)) {
+      // return result; // skip controls,
+    }
+    else {
+      throw std::runtime_error("[ERROR] In ppr_general: could not compute persistent philogeny");
+      if (logging::enabled) std::cout<< "[INFO] over-2-solvable " << std::endl;
+    }
+
+    if(!result.empty()){
+      // realize result in G
+      //update G and A
+      // A set of characters of r
+      // itera sulle componenti conmnesse
+
+      realized_chars.splice(realized_chars.end(), result);
+      std::pair<std::list<SignedCharacter>, bool> tmp = realize(result, g);
+
+      // if( tmp.second == false) {
+      //   if (logging::enabled) std::cout<< "[WARNING] could not realize " << std::endl;
+      // }
+      realized_chars.splice(realized_chars.end(), realize(tmp.first, g).first);
+      // realized_chars.splice(realized_chars.end(),tmp.first);
+      remove_duplicate_species(g);
+
+      if (!is_empty(g))
+      {
+        std::list<SignedCharacter> tmp;
+        RBGraphVector conn_compnts = connected_components(g);
+        auto cc = conn_compnts.begin();
+        auto cc_end = conn_compnts.end();
         for (; cc != cc_end; ++cc)
-        { //itera sulle componenti connesse
+        {
           RBGraph tmp_graph;
           copy_graph(*cc->get(), tmp_graph);
           tmp = ppr_general(*cc->get());
@@ -941,61 +863,16 @@ std::list<SignedCharacter> ppr_general(RBGraph &g) /*, std::list<SignedCharacter
             remove_vertex(tmp_graph[v].name, g);
           realized_chars.splice(realized_chars.end(), tmp);
         }
-
-*/
-
-  return realized_chars;
-}
-
-/*
-std::list<SignedCharacter> ppr_general(RBGraph &g, std::list<SignedCharacter> a) {
-  std::list<SignedCharacter> realized_chars = realize_red_univ_and_univ_chars(g).first; // A == realized chars, as in algorithm 2
-                                                                                          // A set of characters in r == realized_chars of g
-  remove_duplicate_species(g);
-  // r temporary std::list
-  std::list<SignedCharacter> tmp;
-  // sources
-  while (!is_empty(g))
-  {
-    // Computed G-Skeleton
-
-    RBGraph g_skeleton = compute_gskeleton(g);
-    // is_2_solvable( *get_sources(g_skeleton).begin(), g_skeleton);
-
-    source_2_solvable(g_skeleton);
-
-    
-    // if Gm is 2-solvable
-    // then r:= Source-2solvable(G,A)
-
-    if (true) //!r.empty()
-    {
-      // realize r==tmp in G
-      realized_chars.splice(realized_chars.end(), tmp);
-      realized_chars.splice(realized_chars.end(), realize_red_univ_and_univ_chars(g).first);
-      remove_duplicate_species(g);
-      // ? update A with r?
-      realized_chars = tmp;
-      // (update G, A)
-
-      // iterates over connected components
-      RBGraphVector conn_comp = connected_components(g);
-      auto cc = conn_comp.begin();
-      auto cc_end = conn_comp.end();
-      for (; cc != cc_end; ++cc)
-      { //itera sulle componenti connesse
-        RBGraph tmp_graph;
-        copy_graph(*cc->get(), tmp_graph);
-        tmp = ppr_general(*cc->get());
-        for (RBVertex v : tmp_graph.m_vertices)
-          remove_vertex(tmp_graph[v].name, g);
-        realized_chars.splice(realized_chars.end(), tmp);
       }
     }
-    // return realized_chars;
-    return tmp;
-  }
-  return tmp;
-}
+    else {
+      throw std::runtime_error("[ERROR] In ppr_general: could not compute persistent philogeny");
+    }
+  
+    // when to thrown? on the pseudocode, throw error when  
 
-**/
+  
+
+    return realized_chars;
+  }
+}

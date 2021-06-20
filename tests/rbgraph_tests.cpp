@@ -1457,40 +1457,58 @@ void test_closure() {
   std::cout << "test_closure: passed" << std::endl;
 }
 
+void test_lineTree_property() {
+  RBGraph g;
+  RBVertex s1, s2, c1, c2;
+  s1 = add_vertex("s1", Type::species, g);
+  s2 = add_vertex("s2", Type::species, g);
+  c1 = add_vertex("c1", Type::character, g);
+  c2 = add_vertex("c2", Type::character, g);
+  add_edge(c1, s1, Color::black, g);
+  add_edge(c1, s2, Color::black, g);
+  add_edge(c2, s2, Color::black, g);
+  
+  assert(is_linetree(g));
+  std::cout << "test_lineTree_property: passed" << std::endl;
+
+
+}
+
 int main(int argc, char *argv[]) {
-  test_simple_add_vertex();
-  test_get_vertex();
-  test_add_edge();
-  test_graph_size();
-  test_get_edge();
-  test_remove_edge();
-  test_remove_vertex();
-  test_remove_non_existent_vertex();
-  test_exists();
-  test_copy_graph();
-  test_read_graph();
-  test_has_red_sigmagraph();
-  test_get_neighbors();
-  test_map();
-  test_overlap();
-  test_active();
-  test_components();
-  test_connected();
-  test_includes();
-  test_maximal();
-  test_p_active();
-  test_pending_species();
-  test_realize();
-  test_realize_character();
-  test_singletons();
-  test_universal();
-  test_is_degenerate();
-  test_all_species_with_red_edges();
-  test_quasi_active();
-  test_remove_duplicate_species();
-  test_minimal_form_graph();
-  test_ppp_maximal_reducible_graphs();
-  test_get_matrix_representation();
-  test_01_property();
-  test_closure();
+  // test_simple_add_vertex();
+  // test_get_vertex();
+  // test_add_edge();
+  // test_graph_size();
+  // test_get_edge();
+  // test_remove_edge();
+  // test_remove_vertex();
+  // test_remove_non_existent_vertex();
+  // test_exists();
+  // test_copy_graph();
+  // test_read_graph();
+  // test_has_red_sigmagraph();
+  // test_get_neighbors();
+  // test_map();
+  // test_overlap();
+  // test_active();
+  // test_components();
+  // test_connected();
+  // test_includes();
+  // test_maximal();
+  // test_p_active();
+  // test_pending_species();
+  // test_realize();
+  // test_realize_character();
+  // test_singletons();
+  // test_universal();
+  // test_is_degenerate();
+  // test_all_species_with_red_edges();
+  // test_quasi_active();
+  // test_remove_duplicate_species();
+  // test_minimal_form_graph();
+  // test_ppp_maximal_reducible_graphs();
+  // test_get_matrix_representation();
+  // test_01_property();
+  // test_closure();
+  test_lineTree_property();
 }
