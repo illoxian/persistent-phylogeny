@@ -10,13 +10,15 @@
 
 class Edge {
 public:
-	int u, v;
-	Edge(int u = 0, int v = 0)
-			: u(u), v(v) {
-	}
-	int otherEnd(int a = 0) {
-		return (u == a) ? v : u;
-	}
+    int u, v;
+
+    Edge(int u = 0, int v = 0)
+            : u(u), v(v) {
+    }
+
+    int otherEnd(int a = 0) {
+        return (u == a) ? v : u;
+    }
 };
 
 #endif /* EDGE_H_ */

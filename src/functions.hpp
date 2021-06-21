@@ -22,8 +22,8 @@
   State is paired with a character in the struct SignedCharacter.
 */
 enum class State : bool {
-  lose,  ///< The paired character is lost
-  gain   ///< The paired character is gained
+    lose,  ///< The paired character is lost
+    gain   ///< The paired character is gained
 };
 
 /**
@@ -32,8 +32,8 @@ enum class State : bool {
   Each character c+ and c− is called a signed character.
 */
 struct SignedCharacter {
-  std::string character{};    ///< Character name
-  State state = State::gain;  ///< Character state
+    std::string character{};    ///< Character name
+    State state = State::gain;  ///< Character state
 };
 
 /**
@@ -44,10 +44,10 @@ struct SignedCharacter {
 
   @return Updated output stream
 */
-inline std::ostream& operator<<(std::ostream& os, const State s) {
-  const bool sign = (s == State::lose);
+inline std::ostream &operator<<(std::ostream &os, const State s) {
+    const bool sign = (s == State::lose);
 
-  return os << (sign ? "-" : "+");
+    return os << (sign ? "-" : "+");
 }
 
 
@@ -59,8 +59,8 @@ inline std::ostream& operator<<(std::ostream& os, const State s) {
 
   @return Updated output stream
 */
-inline std::ostream& operator<<(std::ostream& os, const SignedCharacter sc) {
-  return os << sc.character << sc.state;
+inline std::ostream &operator<<(std::ostream &os, const SignedCharacter sc) {
+    return os << sc.character << sc.state;
 }
 
 /**
@@ -71,8 +71,8 @@ inline std::ostream& operator<<(std::ostream& os, const SignedCharacter sc) {
 
   @return True if a is equal to b
 */
-inline bool operator==(const SignedCharacter& a, const SignedCharacter b) {
-  return (a.character == b.character && a.state == b.state);
+inline bool operator==(const SignedCharacter &a, const SignedCharacter b) {
+    return (a.character == b.character && a.state == b.state);
 }
 
 // ************************************************
@@ -104,7 +104,7 @@ inline bool operator==(const SignedCharacter& a, const SignedCharacter b) {
           If the realization was successful then the bool flag will be true.
           When the flag is false, the returned list is empty
 */
-std::pair<std::list<SignedCharacter>, bool> realize_character(const SignedCharacter& sc, RBGraph& g);
+std::pair<std::list<SignedCharacter>, bool> realize_character(const SignedCharacter &sc, RBGraph &g);
 
 
 /**
@@ -127,7 +127,7 @@ std::pair<std::list<SignedCharacter>, bool> realize_character(const SignedCharac
           When the flag is false, the returned list is empty
 */
 std::pair<std::list<SignedCharacter>, bool> realize_species(const RBVertex v,
-                                                    RBGraph& g);
+                                                            RBGraph &g);
 
 
 /**
@@ -145,9 +145,9 @@ std::pair<std::list<SignedCharacter>, bool> realize_species(const RBVertex v,
           When the flag is false, the returned list is empty
 */
 std::pair<std::list<SignedCharacter>, bool> realize(
-    const std::list<SignedCharacter>& lsc, RBGraph& g);
+        const std::list<SignedCharacter> &lsc, RBGraph &g);
 
-bool is_complete(std::list<SignedCharacter> sc, const RBGraph& gm);
+bool is_complete(std::list<SignedCharacter> sc, const RBGraph &gm);
 
 
 /**
@@ -156,7 +156,7 @@ bool is_complete(std::list<SignedCharacter> sc, const RBGraph& gm);
   @param[in] list_to_order  List of vertices
   @param[in] g              Red-black graph
 */
-void sort_by_degree(std::list<RBVertex>& list_to_sort, const RBGraph& g);
+void sort_by_degree(std::list<RBVertex> &list_to_sort, const RBGraph &g);
 
 
 /**
@@ -169,7 +169,7 @@ void sort_by_degree(std::list<RBVertex>& list_to_sort, const RBGraph& g);
 
   @return The list of minimal p-active species
 */
-std::list<RBVertex> get_all_minimal_p_active_species(const RBGraph& g, bool all=true);
+std::list<RBVertex> get_all_minimal_p_active_species(const RBGraph &g, bool all = true);
 
 
 /**
@@ -179,7 +179,7 @@ std::list<RBVertex> get_all_minimal_p_active_species(const RBGraph& g, bool all=
 
   @return The minimal p-active species
 */
-RBVertex get_minimal_p_active_species(const RBGraph& g);
+RBVertex get_minimal_p_active_species(const RBGraph &g);
 
 
 /**
@@ -192,7 +192,7 @@ RBVertex get_minimal_p_active_species(const RBGraph& g);
 
   @return Vertex
 */
-RBVertex get_quasi_active_species(const RBGraph& g);
+RBVertex get_quasi_active_species(const RBGraph &g);
 
 
 /**
@@ -203,7 +203,7 @@ RBVertex get_quasi_active_species(const RBGraph& g);
 
   @return List
 */
-std::list<SignedCharacter> ppp_maximal_reducible_graphs(RBGraph& g);
+std::list<SignedCharacter> ppp_maximal_reducible_graphs(RBGraph &g);
 
 
 /**
@@ -213,7 +213,7 @@ std::list<SignedCharacter> ppp_maximal_reducible_graphs(RBGraph& g);
 
   @return Realized characters (list of signed characters)
 */
-std::pair<std::list<SignedCharacter>, bool> realize_red_univ_and_univ_chars(RBGraph& g);
+std::pair<std::list<SignedCharacter>, bool> realize_red_univ_and_univ_chars(RBGraph &g);
 
 
 /**
@@ -225,7 +225,7 @@ std::pair<std::list<SignedCharacter>, bool> realize_red_univ_and_univ_chars(RBGr
 
   @return The extension of \e s.
 */
-RBVertex get_extension(const RBVertex& s, const RBGraph& gmax, const RBGraph& gmin);
+RBVertex get_extension(const RBVertex &s, const RBGraph &gmax, const RBGraph &gmin);
 
 
 /**
@@ -235,7 +235,7 @@ RBVertex get_extension(const RBVertex& s, const RBGraph& gmax, const RBGraph& gm
 
   @return The sources of \e gm.
 */
-std::list<RBVertex> get_sources(const RBGraph& gm);
+std::list<RBVertex> get_sources(const RBGraph &gm);
 
 
 /**
@@ -246,7 +246,7 @@ std::list<RBVertex> get_sources(const RBGraph& gm);
 
   @return bool
 */
-bool is_2_solvable(std::list<RBVertex>& sources, const RBGraph& gm);
+bool is_2_solvable(std::list<RBVertex> &sources, const RBGraph &gm);
 
 
 /**
@@ -257,9 +257,7 @@ bool is_2_solvable(std::list<RBVertex>& sources, const RBGraph& gm);
 
   @return List
 **/
-std::list<RBVertex> closure(const RBVertex& v, const RBGraph& g);
-
-
+std::list<RBVertex> closure(const RBVertex &v, const RBGraph &g);
 
 
 bool is_3_canonical(std::list<RBVertex> &sources, const RBGraph &gm);
@@ -271,7 +269,7 @@ void test_l_source(const RBVertex &s, const std::list<SignedCharacter> &interjec
 void compute_gskeleton(const RBGraph &g, RBGraph &g_skeleton);
 
 
-std::list<SignedCharacter> source_2_solvable(std::list<RBVertex>& sources, const RBGraph &g);
+std::list<SignedCharacter> source_2_solvable(std::list<RBVertex> &sources, const RBGraph &g);
 
 std::list<SignedCharacter> source_3_canonical(std::list<RBVertex> &sources, const RBGraph &g_skeleton);
 

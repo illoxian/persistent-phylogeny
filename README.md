@@ -22,6 +22,7 @@ Debian example:
 ```
 # apt install libboost-all-dev
 ```
+
 Fedora:
 
 #### From source
@@ -35,16 +36,21 @@ Download Boost.
 
 > N.B. Skip this step if you already built Boost on your system
 
-This implementation uses `Boost.ProgramOptions` to parse command line arguments and options, which means it needs separately-compiled library binaries to work.
+This implementation uses `Boost.ProgramOptions` to parse command line arguments and options, which means it needs
+separately-compiled library binaries to work.
 
-- Unix: follow the steps at [boost.org](http://www.boost.org/doc/libs/1_65_1/more/getting_started/unix-variants.html#prepare-to-use-a-boost-library-binary)
-- Windows: follow the steps at [boost.org](http://www.boost.org/doc/libs/1_65_1/more/getting_started/windows.html#prepare-to-use-a-boost-library-binary)
+- Unix: follow the steps
+  at [boost.org](http://www.boost.org/doc/libs/1_65_1/more/getting_started/unix-variants.html#prepare-to-use-a-boost-library-binary)
+- Windows: follow the steps
+  at [boost.org](http://www.boost.org/doc/libs/1_65_1/more/getting_started/windows.html#prepare-to-use-a-boost-library-binary)
 
 > NB. Skip this step if you already updated your platform's environment variable
 
-Moreover, on Unix systems, you may need to prepare plaform-specific settings (since `Boost.ProgramOptions` is a shared library).
+Moreover, on Unix systems, you may need to prepare plaform-specific settings (since `Boost.ProgramOptions` is a shared
+library).
 
-- Follow the steps at [boost.org](http://www.boost.org/doc/libs/1_65_1/more/getting_started/unix-variants.html#test-your-program)
+- Follow the steps
+  at [boost.org](http://www.boost.org/doc/libs/1_65_1/more/getting_started/unix-variants.html#test-your-program)
 
 ### Clone the repository
 
@@ -119,8 +125,8 @@ $ ./bin/ppp -m -v file1
 
 ## Input file structure
 
-The first line must contain the size of the matrix and the list of characters to be set as active. 
-Empty lines (after the first) are ignored.  
+The first line must contain the size of the matrix and the list of characters to be set as active. Empty lines (after
+the first) are ignored.  
 Subsequent lines represent the matrix itself.
 
 ```

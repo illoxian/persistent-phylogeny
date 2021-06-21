@@ -21,10 +21,10 @@
   Red-black graph traits
 */
 typedef boost::adjacency_list_traits<boost::listS,       // OutEdgeList
-                                     boost::listS,       // VertexList
-                                     boost::undirectedS  // Directed
-                                     >
-    RBTraits;
+        boost::listS,       // VertexList
+        boost::undirectedS  // Directed
+>
+        RBTraits;
 
 
 /**
@@ -42,8 +42,8 @@ typedef std::map<std::string, RBTraits::vertex_descriptor> RBVertexNameMap;
   Color is used to label edges in a red-black graph.
 */
 enum class Color : bool {
-  black,  ///< The character incident on the labeled edge is inactive
-  red     ///< The character incident on the labeled edge is active
+    black,  ///< The character incident on the labeled edge is inactive
+    red     ///< The character incident on the labeled edge is active
 };
 
 
@@ -53,8 +53,8 @@ enum class Color : bool {
   Type is used to label vertices in a red-black graph.
 */
 enum class Type : bool {
-  species,   ///< The labeled vertex is a species
-  character  ///< The labeled vertex is a character
+    species,   ///< The labeled vertex is a species
+    character  ///< The labeled vertex is a character
 };
 
 //=============================================================================
@@ -68,7 +68,7 @@ enum class Type : bool {
   inactive), or it is incident only on red edges (in this case c is active).
 */
 struct RBEdgeProperties {
-  Color color{};  ///< Edge color (Red or Black)
+    Color color{};  ///< Edge color (Red or Black)
 };
 
 
@@ -79,8 +79,8 @@ struct RBEdgeProperties {
   bipartite graph whose vertex set is S ∪ C.
 */
 struct RBVertexProperties {
-  std::string name{};  ///< Vertex name
-  Type type{};         ///< Vertex type (Character or Species)
+    std::string name{};  ///< Vertex name
+    Type type{};         ///< Vertex type (Character or Species)
 };
 
 
@@ -88,11 +88,11 @@ struct RBVertexProperties {
   @brief Struct used to represent the properties of a red-black graph
 */
 struct RBGraphProperties {
-  size_t num_species{};     ///< Number of species in the graph
-  size_t num_characters{};  ///< Number of characters in the graph
+    size_t num_species{};     ///< Number of species in the graph
+    size_t num_characters{};  ///< Number of characters in the graph
 
-  RBVertexNameMap vertex_map{};  ///< Map for vertex names and vertices in the
-                                 ///< graph
+    RBVertexNameMap vertex_map{};  ///< Map for vertex names and vertices in the
+    ///< graph
 };
 
 //=============================================================================
@@ -104,13 +104,13 @@ struct RBGraphProperties {
   Red-black graph
 */
 typedef boost::adjacency_list<boost::listS,        // OutEdgeList
-                              boost::listS,        // VertexList
-                              boost::undirectedS,  // Directed
-                              RBVertexProperties,  // VertexProperties
-                              RBEdgeProperties,    // EdgeProperties
-                              RBGraphProperties    // GraphProperties
-                              >
-    RBGraph;
+        boost::listS,        // VertexList
+        boost::undirectedS,  // Directed
+        RBVertexProperties,  // VertexProperties
+        RBEdgeProperties,    // EdgeProperties
+        RBGraphProperties    // GraphProperties
+>
+        RBGraph;
 
 // Descriptors
 
@@ -191,17 +191,17 @@ typedef std::vector<std::unique_ptr<RBGraph>> RBGraphVector;
   @brief Functor used in remove_vertex_if.
 */
 struct if_singleton {
-  /**
-    @brief Overloading of operator() for if_singleton .
+    /**
+      @brief Overloading of operator() for if_singleton .
 
-    @param[in] v Vertex
-    @param[in] g Red-black graph
+      @param[in] v Vertex
+      @param[in] g Red-black graph
 
-    @return True if \e v is a singleton in \e g
-  */
-  inline bool operator()(const RBVertex& v, const RBGraph& g) const {
-    return (out_degree(v, g) == 0);
-  }
+      @return True if \e v is a singleton in \e g
+    */
+    inline bool operator()(const RBVertex &v, const RBGraph &g) const {
+        return (out_degree(v, g) == 0);
+    }
 };
 
 
@@ -209,29 +209,29 @@ struct if_singleton {
   @brief Functor used in remove_vertex_if .
 */
 struct if_not_maximal {
-  /**
-    @brief Functor constructor
+    /**
+      @brief Functor constructor
 
-    @param[in] cm Maximal characters
-  */
-  if_not_maximal(const std::list<RBVertex>& cm) : m_cm{&cm} {};
+      @param[in] cm Maximal characters
+    */
+    if_not_maximal(const std::list<RBVertex> &cm) : m_cm{&cm} {};
 
-  /**
-    @brief Overloading of operator() for if_not_maximal .
+    /**
+      @brief Overloading of operator() for if_not_maximal .
 
-    @param[in] v Vertex
-    @param[in] g Red-black graph
+      @param[in] v Vertex
+      @param[in] g Red-black graph
 
-    @return True if \e v is not maximal character of \e g
-  */
-  inline bool operator()(const RBVertex v, const RBGraph& g) const {
-    if (m_cm == nullptr) return false;
+      @return True if \e v is not maximal character of \e g
+    */
+    inline bool operator()(const RBVertex v, const RBGraph &g) const {
+        if (m_cm == nullptr) return false;
 
-    return (std::find(m_cm->cbegin(), m_cm->cend(), v) == m_cm->cend());
-  }
+        return (std::find(m_cm->cbegin(), m_cm->cend(), v) == m_cm->cend());
+    }
 
- private:
-  const std::list<RBVertex>* const m_cm{};
+private:
+    const std::list<RBVertex> *const m_cm{};
 };
 
 
@@ -244,7 +244,7 @@ struct if_not_maximal {
 
   @param[in] g Red-black graph
 */
-void clear(RBGraph& g);
+void clear(RBGraph &g);
 
 
 /**
@@ -255,7 +255,7 @@ void clear(RBGraph& g);
   @param[in,out] g Red-black graph
 
 */
-void remove_edge(const RBVertex& s, const RBVertex& t, RBGraph& g);
+void remove_edge(const RBVertex &s, const RBVertex &t, RBGraph &g);
 
 
 /**
@@ -266,7 +266,7 @@ void remove_edge(const RBVertex& s, const RBVertex& t, RBGraph& g);
   @param[in,out] g Red-black graph
 
 */
-void remove_edge(const std::string& s, const std::string& t, RBGraph& g);
+void remove_edge(const std::string &s, const std::string &t, RBGraph &g);
 
 
 /**
@@ -277,8 +277,8 @@ void remove_edge(const std::string& s, const std::string& t, RBGraph& g);
 
   @return true if the edge has been removed, false if the edge did not exist
 */
-inline void remove_edge(const RBEdge& e, RBGraph& g) {
-  remove_edge(e.m_source, e.m_target, g);
+inline void remove_edge(const RBEdge &e, RBGraph &g) {
+    remove_edge(e.m_source, e.m_target, g);
 }
 
 
@@ -288,7 +288,7 @@ inline void remove_edge(const RBEdge& e, RBGraph& g) {
   @param[in]     v Vertex
   @param[in,out] g Red-black graph
 */
-void remove_vertex(const RBVertex& v, RBGraph& g);
+void remove_vertex(const RBVertex &v, RBGraph &g);
 
 
 /**
@@ -297,7 +297,7 @@ void remove_vertex(const RBVertex& v, RBGraph& g);
   @param[in]     name Vertex name
   @param[in,out] g    Red-black graph
 */
-void remove_vertex(const std::string& name, RBGraph& g);
+void remove_vertex(const std::string &name, RBGraph &g);
 
 
 /**
@@ -309,7 +309,7 @@ void remove_vertex(const std::string& name, RBGraph& g);
 
   @return Vertex descriptor for the new vertex
 */
-RBVertex add_vertex(const std::string& name, const Type type, RBGraph& g);
+RBVertex add_vertex(const std::string &name, const Type type, RBGraph &g);
 
 
 /**
@@ -320,8 +320,8 @@ RBVertex add_vertex(const std::string& name, const Type type, RBGraph& g);
 
   @return Vertex descriptor for the new species
 */
-inline RBVertex add_species(const std::string& name, RBGraph& g) {
-  return add_vertex(name, Type::species, g);
+inline RBVertex add_species(const std::string &name, RBGraph &g) {
+    return add_vertex(name, Type::species, g);
 }
 
 
@@ -333,8 +333,8 @@ inline RBVertex add_species(const std::string& name, RBGraph& g) {
 
   @return Vertex descriptor for the new character
 */
-inline RBVertex add_character(const std::string& name, RBGraph& g) {
-  return add_vertex(name, Type::character, g);
+inline RBVertex add_character(const std::string &name, RBGraph &g) {
+    return add_vertex(name, Type::character, g);
 }
 
 
@@ -353,8 +353,8 @@ inline RBVertex add_character(const std::string& name, RBGraph& g) {
 
   @return Edge descriptor for the new edge.
 */
-std::pair<RBEdge, bool> add_edge(const RBVertex& u, const RBVertex& v,
-                                 const Color color, RBGraph& g);
+std::pair<RBEdge, bool> add_edge(const RBVertex &u, const RBVertex &v,
+                                 const Color color, RBGraph &g);
 
 
 /**
@@ -372,7 +372,7 @@ std::pair<RBEdge, bool> add_edge(const RBVertex& u, const RBVertex& v,
 
   @return Edge descriptor for the new edge.
 */
-std::pair<RBEdge, bool> add_edge(const std::string& source, const std::string& target, Color color, RBGraph& g);
+std::pair<RBEdge, bool> add_edge(const std::string &source, const std::string &target, Color color, RBGraph &g);
 
 
 /**
@@ -389,9 +389,9 @@ std::pair<RBEdge, bool> add_edge(const std::string& source, const std::string& t
 
   @return Edge descriptor for the new edge.
 */
-inline std::pair<RBEdge, bool> add_edge(const RBVertex& u, const RBVertex& v,
-                                        RBGraph& g) {
-  return add_edge(u, v, Color::black, g);
+inline std::pair<RBEdge, bool> add_edge(const RBVertex &u, const RBVertex &v,
+                                        RBGraph &g) {
+    return add_edge(u, v, Color::black, g);
 }
 
 
@@ -406,8 +406,8 @@ inline std::pair<RBEdge, bool> add_edge(const RBVertex& u, const RBVertex& v,
 
   @return Reference to the number of species in \e g
 */
-inline size_t& num_species(RBGraph& g) {
-  return g[boost::graph_bundle].num_species;
+inline size_t &num_species(RBGraph &g) {
+    return g[boost::graph_bundle].num_species;
 }
 
 
@@ -418,8 +418,8 @@ inline size_t& num_species(RBGraph& g) {
 
   @return Constant number of species in \e g
 */
-inline const size_t& num_species(const RBGraph& g) {
-  return g[boost::graph_bundle].num_species;
+inline const size_t &num_species(const RBGraph &g) {
+    return g[boost::graph_bundle].num_species;
 }
 
 
@@ -430,8 +430,8 @@ inline const size_t& num_species(const RBGraph& g) {
 
   @return Reference to the number of characters in \e g
 */
-inline size_t& num_characters(RBGraph& g) {
-  return g[boost::graph_bundle].num_characters;
+inline size_t &num_characters(RBGraph &g) {
+    return g[boost::graph_bundle].num_characters;
 }
 
 
@@ -442,8 +442,8 @@ inline size_t& num_characters(RBGraph& g) {
 
   @return Constant number of characters in \e g
 */
-inline const size_t num_characters(const RBGraph& g) {
-  return g[boost::graph_bundle].num_characters;
+inline const size_t num_characters(const RBGraph &g) {
+    return g[boost::graph_bundle].num_characters;
 }
 
 
@@ -455,8 +455,8 @@ inline const size_t num_characters(const RBGraph& g) {
 
   @return Reference to the map in \e g
 */
-inline RBVertexNameMap& vertex_map(RBGraph& g) {
-  return g[boost::graph_bundle].vertex_map;
+inline RBVertexNameMap &vertex_map(RBGraph &g) {
+    return g[boost::graph_bundle].vertex_map;
 }
 
 
@@ -467,8 +467,8 @@ inline RBVertexNameMap& vertex_map(RBGraph& g) {
 
   @return Constant reference to the map in \e g
 */
-inline const RBVertexNameMap& vertex_map(const RBGraph& g) {
-  return g[boost::graph_bundle].vertex_map;
+inline const RBVertexNameMap &vertex_map(const RBGraph &g) {
+    return g[boost::graph_bundle].vertex_map;
 }
 
 
@@ -479,13 +479,13 @@ inline const RBVertexNameMap& vertex_map(const RBGraph& g) {
   @param[in]     predicate Predicate
   @param[in,out] g         Red-black graph
 */
-template <typename Predicate>
-void remove_vertex_if(const RBVertex& v, Predicate predicate, RBGraph& g) {
-  if (predicate(v, g)) {
-    // vertex satisfies the predicate
-    clear_vertex(v, g);
-    remove_vertex(v, g);
-  }
+template<typename Predicate>
+void remove_vertex_if(const RBVertex &v, Predicate predicate, RBGraph &g) {
+    if (predicate(v, g)) {
+        // vertex satisfies the predicate
+        clear_vertex(v, g);
+        remove_vertex(v, g);
+    }
 }
 
 
@@ -509,7 +509,7 @@ RBEdge get_edge(const RBVertex &source, const RBVertex &target, const RBGraph &g
 
   @return Costant reference to the vertex
 */
-const RBVertex& get_vertex(const std::string& name, const RBGraph& g);
+const RBVertex &get_vertex(const std::string &name, const RBGraph &g);
 
 
 /**
@@ -567,7 +567,7 @@ bool exists(const std::string &name, const RBGraph &g);
 
   @return bool
 */
-inline bool is_empty(const RBGraph& g) { return (num_vertices(g) == 0); }
+inline bool is_empty(const RBGraph &g) { return (num_vertices(g) == 0); }
 
 
 /**
@@ -575,7 +575,7 @@ inline bool is_empty(const RBGraph& g) { return (num_vertices(g) == 0); }
 
   @param[in] g Red-black graph
 */
-void build_vertex_map(RBGraph& g);
+void build_vertex_map(RBGraph &g);
 
 
 /**
@@ -585,7 +585,7 @@ void build_vertex_map(RBGraph& g);
 
   @param[in,out] g Red-black graph
 */
-void remove_singletons(RBGraph& g);
+void remove_singletons(RBGraph &g);
 
 
 /**
@@ -596,8 +596,8 @@ void remove_singletons(RBGraph& g);
 
   @return bool
 */
-inline bool is_species(const RBVertex& v, const RBGraph& g) {
-  return (g[v].type == Type::species);
+inline bool is_species(const RBVertex &v, const RBGraph &g) {
+    return (g[v].type == Type::species);
 }
 
 
@@ -609,8 +609,8 @@ inline bool is_species(const RBVertex& v, const RBGraph& g) {
 
   @return bool
 */
-inline bool is_character(const RBVertex& v, const RBGraph& g) {
-  return (g[v].type == Type::character);
+inline bool is_character(const RBVertex &v, const RBGraph &g) {
+    return (g[v].type == Type::character);
 }
 
 
@@ -622,8 +622,8 @@ inline bool is_character(const RBVertex& v, const RBGraph& g) {
 
   @return bool
 */
-inline bool is_black(const RBEdge& e, const RBGraph& g) {
-  return (g[e].color == Color::black);
+inline bool is_black(const RBEdge &e, const RBGraph &g) {
+    return (g[e].color == Color::black);
 }
 
 
@@ -635,8 +635,8 @@ inline bool is_black(const RBEdge& e, const RBGraph& g) {
 
   @return bool
 */
-inline bool is_red(const RBEdge& e, const RBGraph& g) {
-  return (g[e].color == Color::red);
+inline bool is_red(const RBEdge &e, const RBGraph &g) {
+    return (g[e].color == Color::red);
 }
 
 
@@ -646,7 +646,7 @@ inline bool is_red(const RBEdge& e, const RBGraph& g) {
   @param[in]     g      Red-black graph
   @param[in,out] g_copy Red-black graph
 */
-void copy_graph(const RBGraph& g, RBGraph& g_copy);
+void copy_graph(const RBGraph &g, RBGraph &g_copy);
 
 
 /**
@@ -656,7 +656,7 @@ void copy_graph(const RBGraph& g, RBGraph& g_copy);
   @param[in,out] g_copy Red-black graph
   @param[in,out] v_map  Vertex map, mapping vertices from g to g_copy
 */
-void copy_graph(const RBGraph& g, RBGraph& g_copy, RBVertexMap& v_map);
+void copy_graph(const RBGraph &g, RBGraph &g_copy, RBVertexMap &v_map);
 
 
 /**
@@ -667,7 +667,7 @@ void copy_graph(const RBGraph& g, RBGraph& g_copy, RBVertexMap& v_map);
 
   @return Reference to the updated output stream
 */
-std::ostream& operator<<(std::ostream& os, const RBGraph& g);
+std::ostream &operator<<(std::ostream &os, const RBGraph &g);
 
 
 /**
@@ -676,7 +676,7 @@ std::ostream& operator<<(std::ostream& os, const RBGraph& g);
   @param[in] g  Red-black graph
   @param[in] m  Bool matrix containing the result
 */
-void get_matrix_representation(const RBGraph& g, bool **m, size_t rows, size_t cols) ;
+void get_matrix_representation(const RBGraph &g, bool **m, size_t rows, size_t cols);
 
 
 // File I/O
@@ -687,7 +687,7 @@ void get_matrix_representation(const RBGraph& g, bool **m, size_t rows, size_t c
   @param[in]  filename Filename
   @param[out] g        Red-black graph
 */
-void read_graph(const std::string& filename, RBGraph& g);
+void read_graph(const std::string &filename, RBGraph &g);
 
 
 //=============================================================================
@@ -705,7 +705,7 @@ void read_graph(const std::string& filename, RBGraph& g);
 
   @return bool
 */
-bool is_active(const RBVertex& v, const RBGraph& g);
+bool is_active(const RBVertex &v, const RBGraph &g);
 
 
 /**
@@ -718,9 +718,9 @@ bool is_active(const RBVertex& v, const RBGraph& g);
 
   @return bool
 */
-inline bool is_inactive(const RBVertex& v, const RBGraph& g) {
-  if (logging::enabled) std::cout<< "[TODO] is_inactive not needed, use !is_active instead " << std::endl;
-  return !is_active(v, g);
+inline bool is_inactive(const RBVertex &v, const RBGraph &g) {
+    if (logging::enabled) std::cout << "[TODO] is_inactive not needed, use !is_active instead " << std::endl;
+    return !is_active(v, g);
 }
 
 
@@ -734,7 +734,7 @@ inline bool is_inactive(const RBVertex& v, const RBGraph& g) {
 
   @return bool
 */
-bool is_pending_species(const RBVertex& s, const RBGraph& g);
+bool is_pending_species(const RBVertex &s, const RBGraph &g);
 
 
 /**
@@ -744,7 +744,7 @@ bool is_pending_species(const RBVertex& s, const RBGraph& g);
 
   @param[in] g Red-black graph
 */
-void remove_duplicate_species(RBGraph& g);
+void remove_duplicate_species(RBGraph &g);
 
 
 /**
@@ -754,7 +754,7 @@ void remove_duplicate_species(RBGraph& g);
 
   @return bool
 */
-bool all_species_with_red_edges(const RBGraph& g);
+bool all_species_with_red_edges(const RBGraph &g);
 
 
 /**
@@ -766,7 +766,7 @@ bool all_species_with_red_edges(const RBGraph& g);
 
   @return List
 */
-std::list<RBVertex> get_pending_species(const RBGraph& g);
+std::list<RBVertex> get_pending_species(const RBGraph &g);
 
 
 /**
@@ -779,7 +779,7 @@ std::list<RBVertex> get_pending_species(const RBGraph& g);
 
   @return bool
 */
-bool is_red_universal(const RBVertex& v, const RBGraph& g);
+bool is_red_universal(const RBVertex &v, const RBGraph &g);
 
 
 /**
@@ -792,7 +792,7 @@ bool is_red_universal(const RBVertex& v, const RBGraph& g);
 
   @return bool
 */
-bool is_universal(const RBVertex v, const RBGraph& g);
+bool is_universal(const RBVertex v, const RBGraph &g);
 
 
 /**
@@ -805,7 +805,7 @@ bool is_universal(const RBVertex v, const RBGraph& g);
 
   @return Componentt vector of unique pointers to each subgraph
 */
-RBGraphVector connected_components(const RBGraph& g);
+RBGraphVector connected_components(const RBGraph &g);
 
 
 /**
@@ -820,7 +820,7 @@ RBGraphVector connected_components(const RBGraph& g);
 
   @return Component vector of unique pointers to each subgraph
 */
-RBGraphVector connected_components(const RBGraph& g, const RBVertexIMap& c_map,
+RBGraphVector connected_components(const RBGraph &g, const RBVertexIMap &c_map,
                                    const size_t c_count);
 
 
@@ -835,7 +835,7 @@ RBGraphVector connected_components(const RBGraph& g, const RBVertexIMap& c_map,
 
   @return  List
 */
-std::list<RBVertex> get_neighbors(const RBVertex& v, const RBGraph& g);
+std::list<RBVertex> get_neighbors(const RBVertex &v, const RBGraph &g);
 
 
 /**
@@ -845,7 +845,7 @@ std::list<RBVertex> get_neighbors(const RBVertex& v, const RBGraph& g);
 
   @return  Map
 */
-std::map<RBVertex, std::list<RBVertex>> get_adj_map(const RBGraph& g);
+std::map<RBVertex, std::list<RBVertex>> get_adj_map(const RBGraph &g);
 
 
 /**
@@ -856,7 +856,7 @@ std::map<RBVertex, std::list<RBVertex>> get_adj_map(const RBGraph& g);
 
   @return  List
 */
-std::list<RBVertex> get_adj_vertices(const RBVertex& v, const RBGraph& g);
+std::list<RBVertex> get_adj_vertices(const RBVertex &v, const RBGraph &g);
 
 
 /**
@@ -866,8 +866,8 @@ std::list<RBVertex> get_adj_vertices(const RBVertex& v, const RBGraph& g);
   @param[in] g Red-black graph
 
   @return Set of active characters
-**/  
-std::list<RBVertex> get_adj_active_characters(const RBVertex& s, const RBGraph& g);
+**/
+std::list<RBVertex> get_adj_active_characters(const RBVertex &s, const RBGraph &g);
 
 
 /**
@@ -877,8 +877,8 @@ std::list<RBVertex> get_adj_active_characters(const RBVertex& s, const RBGraph& 
   @param[in] g Red-black graph
 
   @return Set of inactive characters
-**/  
-std::list<RBVertex> get_adj_inactive_characters(const RBVertex& s, const RBGraph& g);
+**/
+std::list<RBVertex> get_adj_inactive_characters(const RBVertex &s, const RBGraph &g);
 
 
 /**
@@ -889,8 +889,8 @@ std::list<RBVertex> get_adj_inactive_characters(const RBVertex& s, const RBGraph
 
   @return bool
 */
-inline bool contains(const std::list<RBVertex>& v_list, const RBVertex& v) {
-  return std::find(v_list.begin(), v_list.end(), v) != v_list.end();
+inline bool contains(const std::list<RBVertex> &v_list, const RBVertex &v) {
+    return std::find(v_list.begin(), v_list.end(), v) != v_list.end();
 }
 
 
@@ -903,7 +903,7 @@ inline bool contains(const std::list<RBVertex>& v_list, const RBVertex& v) {
 
   @return bool
 */
-bool includes_species(const RBVertex& s1, const RBVertex& s2, const RBGraph& g);
+bool includes_species(const RBVertex &s1, const RBVertex &s2, const RBGraph &g);
 
 
 /**
@@ -915,7 +915,7 @@ bool includes_species(const RBVertex& s1, const RBVertex& s2, const RBGraph& g);
 
   @return bool
 */
-bool includes_characters(const RBVertex& c1, const RBVertex& c2, const RBGraph& g);
+bool includes_characters(const RBVertex &c1, const RBVertex &c2, const RBGraph &g);
 
 
 /**
@@ -927,7 +927,7 @@ bool includes_characters(const RBVertex& c1, const RBVertex& c2, const RBGraph& 
 
   @return bool
 */
-bool overlaps_species(const RBVertex& s1, const RBVertex& s2, const RBGraph& g);
+bool overlaps_species(const RBVertex &s1, const RBVertex &s2, const RBGraph &g);
 
 
 /**
@@ -939,7 +939,7 @@ bool overlaps_species(const RBVertex& s1, const RBVertex& s2, const RBGraph& g);
 
   @return bool
 */
-bool overlaps_character(const RBVertex& c1, const RBVertex& c2, const RBGraph& g);
+bool overlaps_character(const RBVertex &c1, const RBVertex &c2, const RBGraph &g);
 
 
 /**
@@ -949,7 +949,7 @@ bool overlaps_character(const RBVertex& c1, const RBVertex& c2, const RBGraph& g
 
   @return List
 */
-std::list<RBVertex> get_inactive_chars(const RBGraph& g);
+std::list<RBVertex> get_inactive_chars(const RBGraph &g);
 
 
 /**
@@ -964,7 +964,7 @@ std::list<RBVertex> get_inactive_chars(const RBGraph& g);
 
   @return List
 */
-const std::list<RBVertex> maximal_characters(const RBGraph& g);
+const std::list<RBVertex> maximal_characters(const RBGraph &g);
 
 
 /**
@@ -981,7 +981,7 @@ const std::list<RBVertex> maximal_characters(const RBGraph& g);
 
   @return Maximal reducible graph
 */
-void maximal_reducible_graph(const RBGraph& g, RBGraph& gm, const bool active = false);
+void maximal_reducible_graph(const RBGraph &g, RBGraph &gm, const bool active = false);
 
 
 /**
@@ -994,7 +994,7 @@ void maximal_reducible_graph(const RBGraph& g, RBGraph& gm, const bool active = 
 
   @return bool
 */
-bool has_red_sigmagraph(const RBGraph& g);
+bool has_red_sigmagraph(const RBGraph &g);
 
 
 /**
@@ -1008,7 +1008,7 @@ bool has_red_sigmagraph(const RBGraph& g);
 
   @return bool
 */
-bool has_red_sigmapath(const RBVertex c0, const RBVertex c1, const RBGraph& g);
+bool has_red_sigmapath(const RBVertex c0, const RBVertex c1, const RBGraph &g);
 
 
 /**
@@ -1020,7 +1020,7 @@ bool has_red_sigmapath(const RBVertex c0, const RBVertex c1, const RBGraph& g);
   @param[in] v Vertex
   @param[in] g Red-black graph
 */
-void change_char_type(const RBVertex& v, RBGraph& g);
+void change_char_type(const RBVertex &v, RBGraph &g);
 
 
 /**
@@ -1030,8 +1030,8 @@ void change_char_type(const RBVertex& v, RBGraph& g);
   @param[in] g Red-black graph
 
   @return List
-**/  
-std::list<RBVertex> get_comp_vertex(const RBVertex& v, const RBGraph& g);
+**/
+std::list<RBVertex> get_comp_vertex(const RBVertex &v, const RBGraph &g);
 
 
 /**
@@ -1041,7 +1041,7 @@ std::list<RBVertex> get_comp_vertex(const RBVertex& v, const RBGraph& g);
  
   @return List
 **/
-std::list<RBVertex> get_active_chars(const RBGraph& g);
+std::list<RBVertex> get_active_chars(const RBGraph &g);
 
 
 /**
@@ -1051,7 +1051,7 @@ std::list<RBVertex> get_active_chars(const RBGraph& g);
  
   @return List
 **/
-std::list<RBVertex> get_active_species(const RBGraph& g);
+std::list<RBVertex> get_active_species(const RBGraph &g);
 
 
 /**
@@ -1062,7 +1062,7 @@ std::list<RBVertex> get_active_species(const RBGraph& g);
 
   @return List
 **/
-std::list<RBVertex> get_comp_active_characters(const RBVertex s, const RBGraph& g);
+std::list<RBVertex> get_comp_active_characters(const RBVertex s, const RBGraph &g);
 
 
 /**
@@ -1075,7 +1075,7 @@ std::list<RBVertex> get_comp_active_characters(const RBVertex s, const RBGraph& 
 
   @return bool
 **/
-bool is_degenerate(const RBGraph& g);
+bool is_degenerate(const RBGraph &g);
 
 
 /**
@@ -1086,7 +1086,7 @@ bool is_degenerate(const RBGraph& g);
 
   @return void
 **/
-void minimal_form_graph(const RBGraph& g, RBGraph& gmf);
+void minimal_form_graph(const RBGraph &g, RBGraph &gmf);
 
 
 /**
@@ -1096,9 +1096,9 @@ void minimal_form_graph(const RBGraph& g, RBGraph& gmf);
 
   @return bool
 **/
-bool has_consecutive_ones_property(RBGraph& g);
+bool has_consecutive_ones_property(RBGraph &g);
 
 
-bool is_linetree(RBGraph& g);
+bool is_linetree(RBGraph &g);
 
 #endif  // RBGRAPH_HPP

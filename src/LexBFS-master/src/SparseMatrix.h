@@ -15,25 +15,32 @@
 #include <cstdio>
 #include <vector>
 #include <list>
+
 using namespace std;
 
 class SparseMatrix {
 private:
-	vector <Clique> sparseCliques;
-	unsigned int numofCliques;
-	unsigned int numofVertices;
+    vector<Clique> sparseCliques;
+    unsigned int numofCliques;
+    unsigned int numofVertices;
 
-	void appendIdentityMatrix();
-	void rollbackOriginalMatrix();	//must be called after appendIdentityMatrix()
-	bool isLabelGreaterThan(vector<int> label1, vector<int> label2);
-	bool doesClassContainClique(vector<Clique*> cliqueClass, int cliqueID);
+    void appendIdentityMatrix();
+
+    void rollbackOriginalMatrix();    //must be called after appendIdentityMatrix()
+    bool isLabelGreaterThan(vector<int> label1, vector<int> label2);
+
+    bool doesClassContainClique(vector<Clique *> cliqueClass, int cliqueID);
+
 public:
-	SparseMatrix(vector <Clique> cliques);
-	SparseMatrix(bool* binaryMatrix, int rows, int cols);
-	virtual ~SparseMatrix();
-	
-	void printMatrix();
-	bool hasConsecutiveOnesProperty();
+    SparseMatrix(vector<Clique> cliques);
+
+    SparseMatrix(bool *binaryMatrix, int rows, int cols);
+
+    virtual ~SparseMatrix();
+
+    void printMatrix();
+
+    bool hasConsecutiveOnesProperty();
 };
 
 #endif /* SPARSEMATRIX_H_ */
