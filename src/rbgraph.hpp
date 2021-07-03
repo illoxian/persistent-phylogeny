@@ -719,7 +719,6 @@ bool is_active(const RBVertex &v, const RBGraph &g);
   @return bool
 */
 inline bool is_inactive(const RBVertex &v, const RBGraph &g) {
-    if (logging::enabled) std::cout << "[TODO] is_inactive not needed, use !is_active instead " << std::endl;
     return !is_active(v, g);
 }
 
@@ -968,6 +967,15 @@ const std::list<RBVertex> maximal_characters(const RBGraph &g);
 
 
 /**
+ * @brief Build the g-skelton \e gm of \e g
+ *
+ * @param g
+ * @param gm
+ */
+void g_skeleton(const RBGraph &g, RBGraph &gm);
+
+
+/**
   @brief Build the maximal reducible red-black graph of \e g .
 
   Let GRB be a red-black graph and CM the set of maximal characters of GRB.
@@ -1099,6 +1107,14 @@ void minimal_form_graph(const RBGraph &g, RBGraph &gmf);
 bool has_consecutive_ones_property(RBGraph &g);
 
 
-bool is_linetree(RBGraph &g);
+
+/**
+ * @brief Build the subgraph of \e g induced by the given \e char_set .
+ *
+ * @param g
+ * @param subg
+ * @param char_set
+ */
+void subgraph(const RBGraph &g, RBGraph &subg, const std::list<RBVertex> &char_set);
 
 #endif  // RBGRAPH_HPP

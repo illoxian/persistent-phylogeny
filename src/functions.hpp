@@ -249,6 +249,11 @@ std::list<RBVertex> get_sources(const RBGraph &gm);
 bool is_2_solvable(std::list<RBVertex> &sources, const RBGraph &gm);
 
 
+bool is_3_canonical(std::list<RBVertex> &sources, const RBGraph &gm);
+
+
+bool is_m_solvable(std::list<RBVertex> &sources, const RBGraph &gm);
+
 /**
   @brief It returns the closure CL of \e v. In particular, a ∈ CL(v) if and only if a is minimal in G and moreover it is included in all maximal characters of \e v.
 
@@ -259,22 +264,28 @@ bool is_2_solvable(std::list<RBVertex> &sources, const RBGraph &gm);
 **/
 std::list<RBVertex> closure(const RBVertex &v, const RBGraph &g);
 
+// new
 
-bool is_3_canonical(std::list<RBVertex> &sources, const RBGraph &gm);
+bool type_one(const RBGraph &g, const RBVertex &main_source,
+              const RBVertex &other_source,
+              const std::list<RBVertex> &closure,
+              const std::list<RBVertex> &interjection);
 
-bool is_m_solvable(std::list<RBVertex> &sources, const RBGraph &gm);
+bool is_linetree(const RBGraph &g);
 
-void test_l_source(const RBVertex &s, const std::list<SignedCharacter> &interjection, const RBGraph &g_skeleton);
+bool test_l_source(const RBVertex &s1, const RBVertex &s2,
+                   const RBGraph &g_skeleton, const RBGraph &g);
 
-void compute_gskeleton(const RBGraph &g, RBGraph &g_skeleton);
-
-
-std::list<SignedCharacter> source_2_solvable(std::list<RBVertex> &sources, const RBGraph &g);
+RBVertex source_2_solvable( const std::list<RBVertex> &sources,
+                            const RBGraph &g_skeleton,
+                            const RBGraph &g_min, const RBGraph &g);
 
 std::list<SignedCharacter> source_3_canonical(std::list<RBVertex> &sources, const RBGraph &g_skeleton);
 
 std::list<SignedCharacter> source_m_solvable(std::list<RBVertex> &sources, const RBGraph &g_skeleton);
 
 std::list<SignedCharacter> ppr_general(RBGraph &g);
+
+bool containsV2(const std::list<RBVertex> &list, const RBVertex &p, const  RBGraph &g );
 
 #endif 

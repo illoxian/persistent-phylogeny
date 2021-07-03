@@ -1014,6 +1014,46 @@ const std::list<RBVertex> maximal_characters(const RBGraph &g) {
     return cm;
 }
 
+void g_skeleton(const RBGraph &g, RBGraph &gm) {
+    gm.clear();
+    // g_skeleton is coposed by Maximal Inactive Chars && Active Chars
+    const auto cm = maximal_characters(g);
+    const auto ca = get_active_chars(g);
+
+    //inactive max chars
+    for (RBVertex v : cm) {
+        if (is_character(v,g) && is_inactive(v,g)) {
+            add_character(g[v].name, gm);
+
+            RBOutEdgeIter e, e_end;
+            std::tie(e, e_end) = out_edges(v, g);
+            for (; e != e_end; ++e) {
+                if (!exists(g[e->m_target].name, gm))
+                    add_species(g[e->m_target].name, gm);
+                add_edge(g[v].name, g[e->m_target].name, Color::black, gm);
+            }
+        }
+    }
+
+
+    //active max chars
+    for (RBVertex v : ca) {
+        if (is_character(v, g) && is_active(v, g)) {
+            add_character(g[v].name, gm);
+
+            RBOutEdgeIter e, e_end;
+            std::tie(e, e_end) = out_edges(v, g);
+            for (; e != e_end; ++e) {
+                if (!exists(g[e->m_target].name, gm))
+                    add_species(g[e->m_target].name, gm);
+                add_edge(g[v].name, g[e->m_target].name, Color::black, gm);
+            }
+        }
+    }
+    remove_singletons(gm);
+
+
+}
 
 void maximal_reducible_graph(const RBGraph &g, RBGraph &gm, const bool active) {
     // compute the maximal characters of gm
@@ -1265,7 +1305,7 @@ void minimal_form_graph(const RBGraph &g, RBGraph &gmf) {
     std::list<RBVertex> cmax = maximal_characters(g);
 
     // get the minimal characters as follow:
-    // cmin = vertices(g) - cmax - species(g)
+    // cmin = char_vertex(g) - cmax(g) - species_vertex(g)
     std::list<RBVertex> cmin(g.m_vertices.begin(), g.m_vertices.end());
     RBVertexIter b = cmin.begin(), e = cmin.end(), next;
     for (next = b; b != e; b = next) {
@@ -1325,11 +1365,12 @@ void minimal_form_graph(const RBGraph &g, RBGraph &gmf) {
     }
 }
 
-
-bool is_linetree(RBGraph &g) {
-    bool check = true;
-    if (false) // exist a branch in the graph
-        check = false;
-
-    return true;
+bool containsV2(const std::list<RBVertex> &list, const RBVertex &p, const  RBGraph &g ){
+    for (auto v : list) {
+        if (g[v].name == g[p].name)
+            return true;
+    }
+    return false;
 }
+
+

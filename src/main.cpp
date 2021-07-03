@@ -108,7 +108,7 @@ int main(int argc, const char *argv[]) {
 
         count_file++;
 
-        std::cout << "[INFO] Processing  \"" << file << "\"..." << std::endl;
+        std::cout << "[FILE] [INFO] Processing  \"" << file << "\"..." << std::endl;
 
         if (logging::enabled) {
             // verbosity enabled
@@ -133,15 +133,20 @@ int main(int argc, const char *argv[]) {
 
             try {
                 realized_characters = ppr_general(g);
-                successfully_reduced = true;
+                if (!realized_characters.empty()) {
+                    successfully_reduced = true;
+                }
+                else {
+                    successfully_reduced = false;
+                }
             } catch (...) {
                 successfully_reduced = false;
             }
 
             if (!successfully_reduced) {
-                std::cout << "[RES] [WARNING] The graph can not be reduced!" << std::endl;
+                std::cout << "[RES-G] [WARNING] The graph can not be reduced!" << std::endl;
             } else {
-                std::cout << "[RES] [OK] The graph" << file
+                std::cout << "[RES-G] [OK] The graph" << file
                           << " has been successfully reduced! The realized characters are: ";
                 std::cout << "<";
                 for (SignedCharacter sc : realized_characters)
@@ -189,6 +194,5 @@ int main(int argc, const char *argv[]) {
         }
     }
     std::cout << "[INFO] Finished processing the input files. Terminated successfully." << std::endl;
-
     return 0;
 }
